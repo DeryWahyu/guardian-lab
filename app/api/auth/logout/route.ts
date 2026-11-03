@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
+import { rejectCrossOrigin } from "@/lib/auth/access";
 import { destroySession, SESSION_COOKIE_NAME } from "@/lib/auth/session";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    await destroySession();
+    const originError = rejectCrossOrigin(request);
+    if (originError) return originError;
+    await destroySession(request);
 
     const response = NextResponse.json({
       success: true,

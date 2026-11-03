@@ -1,3 +1,6 @@
+import { buildShareCard } from "@/lib/share-card/content";
+import { investigationSchema } from "@/lib/validations/investigation";
+import { apkUpload } from "../helpers/investigation-fixtures";
 /**
  * Tier 1: Feature Coverage (Happy Path for Features 1 to 28 in PROJECT.md)
  * E2E tests validating that every feature in the Guardian Lab Feature Inventory
@@ -13,7 +16,6 @@ import {
   PUBLIC_ROUTES,
   ROUTES,
 } from "../../lib/routes";
-import { INDONESIAN_APK_MALWARE_FIXTURES } from "./fixtures/malware-samples";
 import { CLEAN_URL_FIXTURES, INDONESIAN_PHISHING_FIXTURES } from "./fixtures/phishing-urls";
 import { QR_CODE_FIXTURES } from "./fixtures/qr-codes";
 import { ACADEMY_QUIZ_FIXTURES, BADGE_FIXTURES } from "./fixtures/quiz-fixtures";
@@ -29,12 +31,8 @@ import {
   QuizQuestionSchema,
   referenceCalculateEntropy,
   referenceCalculateRank,
-  referenceDefangUrl,
   referenceLevenshteinDistance,
   referenceScrubPii,
-  SandboxSessionStartSchema,
-  SandboxSessionStopSchema,
-  ThreatAnalysisResultSchema,
   UserSessionSchema,
 } from "./helpers/test-harness";
 
@@ -104,7 +102,7 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
   describe("F2: Database Seed Data Integrity", () => {
     it("provides admin user fixture with elevated role and credentials", () => {
       expect(ADMIN_USER_FIXTURE.role).toBe("ADMIN");
-      expect(ADMIN_USER_FIXTURE.email).toBe("admin@gmail.com");
+      expect(ADMIN_USER_FIXTURE.email).toBe("admin@guardianlab.test");
       expect(ADMIN_USER_FIXTURE.exp).toBeGreaterThanOrEqual(1000);
     });
 
@@ -301,38 +299,28 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
   // Feature 10: AI URL Threat Detection
   // --------------------------------------------------------------------------
   describe("F10: AI URL Threat Detection (/api/analyze-url)", () => {
-    it("detects Indonesian typosquatting phishing link and scores risk accurately", async () => {
-      const target = INDONESIAN_PHISHING_FIXTURES[0].url;
-      const res = await executeRoute<Record<string, unknown>>("/api/analyze-url", "POST", {
-        url: target,
+    it("stores suspicious URLs without inventing a model verdict", async () => {
+      const res = await executeRoute("/api/analyze-url", "POST", {
+        url: INDONESIAN_PHISHING_FIXTURES[0].url,
       });
-
-      expect(res.status).toBe(200);
-      const parsed = ThreatAnalysisResultSchema.safeParse(res.body);
-      expect(parsed.success).toBe(true);
-
-      if (parsed.success) {
-        expect(parsed.data.riskLevel).toBe("PHISHING");
-        expect(parsed.data.riskScore).toBeGreaterThanOrEqual(80);
-        expect(parsed.data.defangedTarget).toContain("[.]top");
-        expect(parsed.data.technicalEvidence.entropy).toBeGreaterThan(0);
-      }
+      expect(res.status).toBe(201);
+      const record = investigationSchema.parse(res.body);
+      expect(record.status).toBe("UNAVAILABLE");
+      expect(record.riskScore).toBeNull();
+      expect(record.riskLevel).toBeNull();
+      expect(record.defangedTarget).toContain("[.]top");
+      expect(record.technicalEvidence).toEqual({});
     });
 
-    it("verifies safe corporate banking URL receives safe risk assessment", async () => {
-      const target = CLEAN_URL_FIXTURES[0].url;
-      const res = await executeRoute<Record<string, unknown>>("/api/analyze-url", "POST", {
-        url: target,
+    it("does not classify an official-looking URL as safe without analysis", async () => {
+      const res = await executeRoute("/api/analyze-url", "POST", {
+        url: CLEAN_URL_FIXTURES[0].url,
       });
-
-      expect(res.status).toBe(200);
-      const parsed = ThreatAnalysisResultSchema.safeParse(res.body);
-      expect(parsed.success).toBe(true);
-
-      if (parsed.success) {
-        expect(parsed.data.riskLevel).toBe("SAFE");
-        expect(parsed.data.riskScore).toBeLessThanOrEqual(25);
-      }
+      expect(res.status).toBe(201);
+      const record = investigationSchema.parse(res.body);
+      expect(record.status).toBe("UNAVAILABLE");
+      expect(record.riskLevel).toBeNull();
+      expect(record.riskScore).toBeNull();
     });
 
     it("computes Shannon entropy and Levenshtein typosquat distance accurately", () => {
@@ -354,12 +342,12 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
         "/api/analyze-qr",
         "POST",
         {
-          imageBase64: sample.simulatedBase64Image,
+          imageBase64: sample.imageBase64,
           mimeType: sample.mimeType,
         },
       );
 
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(201);
       expect(res.body.is_url).toBe(true);
       expect(res.body.extracted_text).toContain("https://");
     });
@@ -369,22 +357,13 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
   // Feature 12: Dual-Mode Results UI
   // --------------------------------------------------------------------------
   describe("F12: Dual-Mode Presentation (Human View vs Geek View)", () => {
-    it("ensures response contains both human summary and deep technical telemetry", async () => {
-      const res = await executeRoute<Record<string, unknown>>("/api/analyze-url", "POST", {
-        url: "https://klikbca-verifikasi.xyz",
-      });
-      const parsed = ThreatAnalysisResultSchema.safeParse(res.body);
-      expect(parsed.success).toBe(true);
-
-      if (parsed.success) {
-        // Human Mode: approachable summary and deception tricks
-        expect(parsed.data.humanFriendlySummary.length).toBeGreaterThan(10);
-        expect(parsed.data.deceptionTricks.length).toBeGreaterThan(0);
-
-        // Geek View: entropy, raw technical indicators
-        expect(parsed.data.technicalEvidence.entropy).toBeDefined();
-        expect(parsed.data.emergencyActionPlan.ifNotClicked).toBeDefined();
-      }
+    it("provides honest status and input metadata for both presentation modes", async () => {
+      const res = await executeRoute("/api/analyze-url", "POST", { url: "https://example.test" });
+      const record = investigationSchema.parse(res.body);
+      expect(record.errorMessage).toContain("Model analisis belum tersedia");
+      expect(record.inputMetadata).toEqual({ submittedAs: "url" });
+      expect(record.summary).toBeNull();
+      expect(record.deceptionTricks).toEqual([]);
     });
   });
 
@@ -392,120 +371,46 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
   // Feature 13: Forensic Record Auto-Logger
   // --------------------------------------------------------------------------
   describe("F13: Forensic Record Auto-Logger", () => {
-    it("generates persistent record id and stores target, risk, and category", async () => {
-      const res = await executeRoute<Record<string, unknown>>("/api/analyze-url", "POST", {
-        url: "https://dana-kaget-saldo-gratis.xyz",
+    it("returns an ID that reads back from the database with the same status", async () => {
+      const res = await executeRoute("/api/analyze-url", "POST", {
+        url: "https://example.test/record",
       });
-      const parsed = ThreatAnalysisResultSchema.safeParse(res.body);
-      expect(parsed.success).toBe(true);
-      if (parsed.success) {
-        expect(parsed.data.id).toBeDefined();
-        expect(parsed.data.type).toBe("URL");
-      }
+      const record = investigationSchema.parse(res.body);
+      const stored = await prisma.forensicRecord.findUniqueOrThrow({ where: { id: record.id } });
+      expect(stored.target).toBe(record.target);
+      expect(stored.status).toBe(record.status);
+      expect(stored.userId).toBe(STANDARD_USER_FIXTURE.id);
+      expect(stored.riskScore).toBeNull();
     });
   });
 
   // --------------------------------------------------------------------------
   // Feature 14: Web Sandbox Viewport
   // --------------------------------------------------------------------------
-  describe("F14: Web Sandbox Viewport Streaming (/sandbox/web)", () => {
-    it("starts isolated browser session with valid stream URL", async () => {
-      const res = await executeRoute<Record<string, unknown>>(
-        "/api/sandbox/session/start",
-        "POST",
-        {
-          type: "web",
-          target: "https://klikbca-verifikasi.xyz",
-        },
-      );
-
-      expect(res.status).toBe(200);
-      const parsed = SandboxSessionStartSchema.safeParse(res.body);
-      expect(parsed.success).toBe(true);
-      if (parsed.success) {
-        expect(parsed.data.viewport).toBe("desktop");
-        expect(parsed.data.streamUrl).toContain("http");
-      }
+  describe("Sandbox availability and public target validation", () => {
+    it("does not create an active session when the runtime is offline", async () => {
+      const before = await prisma.sandboxSession.count();
+      const res = await executeRoute("/api/sandbox/session/start", "POST", {
+        type: "web",
+        target: "https://example.com/",
+      });
+      expect(res.status).toBe(503);
+      expect(await prisma.sandboxSession.count()).toBe(before);
     });
-
-    it("supports switching to mobile viewport mode", async () => {
-      const res = await executeRoute<Record<string, unknown>>(
-        "/api/sandbox/session/start",
-        "POST",
-        {
-          type: "android",
-          target: "https://mobile-phish.xyz",
-        },
-      );
-      const parsed = SandboxSessionStartSchema.safeParse(res.body);
-      expect(parsed.success).toBe(true);
-      if (parsed.success) {
-        expect(parsed.data.viewport).toBe("mobile");
-      }
+    it("rejects local network targets before contacting a provider", async () => {
+      const res = await executeRoute("/api/sandbox/session/start", "POST", {
+        type: "web",
+        target: "http://127.0.0.1/",
+      });
+      expect(res.status).toBe(400);
     });
-  });
-
-  // --------------------------------------------------------------------------
-  // Feature 15: Sandbox 180s Auto-Destroy
-  // --------------------------------------------------------------------------
-  describe("F15: Sandbox 180s Auto-Destroy Mandate", () => {
-    it("enforces session expiry exactly 180 seconds into the future", async () => {
-      const before = Date.now();
-      const res = await executeRoute<{ expiresAt: number; sessionId: string }>(
-        "/api/sandbox/session/start",
-        "POST",
-        { type: "web", target: "https://phish.xyz" },
-      );
-
-      expect(res.status).toBe(200);
-      const durationMs = res.body.expiresAt - before;
-      expect(durationMs).toBeGreaterThanOrEqual(179 * 1000);
-      expect(durationMs).toBeLessThanOrEqual(181 * 1000);
-
-      // Stop session
-      const stopRes = await executeRoute<Record<string, unknown>>(
-        "/api/sandbox/session/stop",
-        "POST",
-        { sessionId: res.body.sessionId },
-      );
-      expect(stopRes.status).toBe(200);
-      const stopParsed = SandboxSessionStopSchema.safeParse(stopRes.body);
-      expect(stopParsed.success).toBe(true);
-    });
-  });
-
-  // --------------------------------------------------------------------------
-  // Feature 16: Sandbox Inotify Interceptor
-  // --------------------------------------------------------------------------
-  describe("F16: Sandbox Inotify Interceptor for APK Downloads", () => {
-    it("detects APK file download in sandbox and triggers quarantine modal payload", () => {
-      const downloadedFileName = "Surat_Undangan_Nikah.apk";
-      const isInotifyApkTrigger = (file: string) => file.toLowerCase().endsWith(".apk");
-
-      expect(isInotifyApkTrigger(downloadedFileName)).toBe(true);
-      expect(isInotifyApkTrigger("image.png")).toBe(false);
-
-      const quarantineEvent = {
-        action: "QUARANTINE_ALERT",
-        fileName: downloadedFileName,
-        suggestedNextAction: "/api/analyze-apk",
-      };
-      expect(quarantineEvent.suggestedNextAction).toBe("/api/analyze-apk");
-    });
-  });
-
-  // --------------------------------------------------------------------------
-  // Feature 17: Sandbox Docker Fallback
-  // --------------------------------------------------------------------------
-  describe("F17: Sandbox Docker Fallback Simulator", () => {
-    it("returns isFallback: true when Docker daemon is simulated or offline", async () => {
-      const res = await executeRoute<{ isFallback: boolean }>(
-        "/api/sandbox/session/start",
-        "POST",
-        { type: "web", target: "https://test.xyz" },
-      );
-      expect(res.status).toBe(200);
-      expect(res.body.isFallback).toBe(true);
+    it("requires a target and a supported sandbox type", async () => {
+      expect(
+        (await executeRoute("/api/sandbox/session/start", "POST", { type: "web" })).status,
+      ).toBe(400);
+      expect(
+        (await executeRoute("/api/sandbox/session/start", "POST", { type: "unknown" })).status,
+      ).toBe(400);
     });
   });
 
@@ -513,26 +418,15 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
   // Feature 18: APK Static X-Ray Engine
   // --------------------------------------------------------------------------
   describe("F18: APK Static X-Ray Engine (/api/analyze-apk)", () => {
-    it("detects dangerous SMS permissions and Telegram C2 bot tokens in malicious APK", async () => {
-      const sample = INDONESIAN_APK_MALWARE_FIXTURES[0];
-      const res = await executeRoute<Record<string, unknown>>("/api/analyze-apk", "POST", {
-        fileName: sample.fileName,
-        fileSizeBytes: 2048576,
-      });
-
-      expect(res.status).toBe(200);
-      const parsed = ThreatAnalysisResultSchema.safeParse(res.body);
-      expect(parsed.success).toBe(true);
-
-      if (parsed.success) {
-        expect(parsed.data.riskLevel).toBe("CRITICAL");
-        expect(parsed.data.riskScore).toBeGreaterThanOrEqual(90);
-        expect(parsed.data.type).toBe("APK");
-        expect(parsed.data.technicalEvidence.permissions).toContain(
-          "android.permission.RECEIVE_SMS",
-        );
-        expect(parsed.data.technicalEvidence.botTokens?.length).toBeGreaterThan(0);
-      }
+    it("stores APK fingerprint without fabricating permissions or C2 endpoints", async () => {
+      const res = await executeRoute("/api/analyze-apk", "POST", apkUpload("sample.apk"));
+      expect(res.status).toBe(201);
+      const record = investigationSchema.parse(res.body);
+      expect(record.type).toBe("APK");
+      expect(record.status).toBe("UNAVAILABLE");
+      expect(record.inputMetadata.sha256).toMatch(/^[a-f0-9]{64}$/);
+      expect(record.technicalEvidence).toEqual({});
+      expect(record.riskScore).toBeNull();
     });
   });
 
@@ -540,14 +434,10 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
   // Feature 19: Interactive Android Emulator
   // --------------------------------------------------------------------------
   describe("F19: Interactive Android Emulator (/sandbox/android)", () => {
-    it("initiates android emulation session with mobile stream", async () => {
-      const res = await executeRoute<{ viewport: string; streamUrl: string }>(
-        "/api/sandbox/session/start",
-        "POST",
-        { type: "android" },
-      );
-      expect(res.status).toBe(200);
-      expect(res.body.viewport).toBe("mobile");
+    it("reports unavailable without inventing an emulator stream", async () => {
+      const res = await executeRoute("/api/sandbox/session/start", "POST", { type: "android" });
+      expect(res.status).toBe(503);
+      expect(res.body).not.toHaveProperty("streamUrl");
     });
   });
 
@@ -555,25 +445,13 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
   // Feature 20: Guardian Share Card Generator
   // --------------------------------------------------------------------------
   describe("F20: Guardian Share Card Generator (/act)", () => {
-    it("formats defanged URL and 3 warning points for exportable card", () => {
-      const target = "https://klikbca-verifikasi-otp.top/login.php";
-      const defanged = referenceDefangUrl(target);
-      expect(defanged).toBe("hxxps://klikbca-verifikasi-otp[.]top/login[.]php");
-      expect(defanged).not.toContain("https://");
-
-      const shareCardData = {
-        title: "AWAS MODUS PENIPUAN SIBER!",
-        defangedUrl: defanged,
-        threatBullets: [
-          "Situs palsu meniru tampilan m-banking Bank BCA",
-          "Mencuri nomor kartu ATM, PIN, dan kode OTP SMS",
-          "Jangan pernah mengisi data pribadi pada link ini",
-        ],
-        watermark: "Guardian Lab Verified Defense - MIT-Week 2026",
-      };
-
-      expect(shareCardData.threatBullets.length).toBe(3);
-      expect(shareCardData.defangedUrl).toContain("[.]top");
+    it("does not turn a model-unavailable API record into a warning card", async () => {
+      const response = await executeRoute(ROUTES.api.analyzeUrl, "POST", {
+        url: "https://share-fixture.test/",
+      });
+      const record = investigationSchema.parse(response.body);
+      expect(record.status).toBe("UNAVAILABLE");
+      expect(buildShareCard(record)).toBeNull();
     });
   });
 
@@ -684,25 +562,13 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
   // --------------------------------------------------------------------------
   // Feature 26: Community Replay Intake
   // --------------------------------------------------------------------------
-  describe("F26: Community Replay Intake (PII-Sanitized)", () => {
-    it("submits threat case with status PENDING_REVIEW and scrubbed PII", () => {
-      const rawEvidence = "Korban 081234567890 menerima link http://klikbca-palsu.xyz";
-      const scrubbed = referenceScrubPii(rawEvidence);
-      const submission = {
-        id: "rep_sub_101",
-        userId: "usr_user_002",
-        title: "Penipuan Undangan WhatsApp APK",
-        scamType: "APK Trojan",
-        status: "PENDING_REVIEW" as const,
-        sanitizedEvidence: scrubbed.sanitizedText,
-        defangedTarget: referenceDefangUrl("http://klikbca-palsu.xyz"),
-        submittedAt: Date.now(),
-      };
-
-      const parsed = CommunityReplaySchema.safeParse(submission);
-      expect(parsed.success).toBe(true);
-      expect(submission.sanitizedEvidence).not.toContain("081234567890");
-      expect(submission.status).toBe("PENDING_REVIEW");
+  describe("F26: Community Replay Intake (stored source required)", () => {
+    it("rejects free-text evidence without a source and explicit consent", async () => {
+      const response = await executeRoute(ROUTES.api.communitySubmit, "POST", {
+        title: "Unlinked evidence",
+        scamType: "URL",
+      });
+      expect(response.status).toBe(400);
     });
   });
 
@@ -710,30 +576,27 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
   // Feature 27: Admin Community Moderation
   // --------------------------------------------------------------------------
   describe("F27: Admin Community Moderation (/admin/community-reviews)", () => {
-    it("moderates pending submission to APPROVED or REJECTED", () => {
-      let status: "PENDING_REVIEW" | "APPROVED" | "REJECTED" = "PENDING_REVIEW";
-      const approve = () => {
-        status = "APPROVED";
-      };
-      approve();
-      expect(status as string).toBe("APPROVED");
+    it("requires an administrator for moderation", async () => {
+      const response = await executeRoute(ROUTES.api.adminCommunityReviews, "GET");
+      expect(response.status).toBe(403);
       expect(ADMIN_ROUTES.communityReviews).toBe("/admin/community-reviews");
     });
   });
 
   // --------------------------------------------------------------------------
-  // Feature 28: Interactive Community Replay
+  // Feature 28: Published Community Case
   // --------------------------------------------------------------------------
-  describe("F28: Interactive Community Replay (/community/[replayId])", () => {
-    it("provides playable replay route and awards bonus EXP upon completion", () => {
-      const replayId = "rep_case_441";
-      const route = PROTECTED_ROUTES.communityReplay(replayId);
-      expect(route).toBe(`/community/${replayId}`);
-
-      const userExp = 200;
-      const bonusCommunityExp = 75;
-      const newTotal = userExp + bonusCommunityExp;
-      expect(newTotal).toBe(275);
+  describe("F28: Community case reading (/community/[replayId])", () => {
+    it("returns a paginated approved-case list without sample EXP", async () => {
+      const response = await executeRoute<{ items: unknown[]; pagination: { total: number } }>(
+        ROUTES.api.communityReplays,
+        "GET",
+      );
+      expect(response.status).toBe(200);
+      expect(
+        response.body.items.every((item) => CommunityReplaySchema.safeParse(item).success),
+      ).toBe(true);
+      expect(response.body.pagination.total).toBeGreaterThanOrEqual(0);
     });
   });
 });

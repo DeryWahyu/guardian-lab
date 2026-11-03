@@ -8,6 +8,12 @@
 
 ## 1. Spesifikasi Kontrak JSON DeepSeek API
 
+Kontrak riwayat terbaru menggunakan envelope `records`, `pagination`, dan `summary`, dengan filter tanggal serta halaman. Hasil landing dibaca ulang melalui ID tersimpan. Lihat [results-and-history.md](./results-and-history.md) untuk respons aktif, akses, dan penanganan kegagalan.
+
+Validasi dan normalisasi input aktif, unggahan multipart, batas stream, serta kode error dijelaskan di [input-flow.md](./input-flow.md). URL hasil QR melewati jalur yang sama dengan URL langsung; keduanya tetap mempertahankan jenis input asli.
+
+> Status implementasi saat ini: endpoint investigasi belum memanggil model/DeepSeek karena pelatihan model masih berlangsung. Kontrak aktif aplikasi, respons `201` berupa rekaman investigasi, status `UNAVAILABLE`, dan nilai risiko `null` dijelaskan di [investigations.md](./investigations.md). Skema DeepSeek di bawah merupakan acuan integrasi berikutnya, bukan respons aktif endpoint.
+
 > [!IMPORTANT]
 > **Aturan Redundansi & Fleksibilitas Prompt:**
 >
@@ -84,6 +90,8 @@ Sebelum data teks hasil ekstraksi dikirimkan ke DeepSeek API, backend wajib mele
 ---
 
 ## 3. Ringkasan Endpoint API Fullstack Next.js (Route Handlers)
+
+Seluruh endpoint analisis dan sandbox di bawah memerlukan sesi database yang valid untuk USER atau ADMIN. Permintaan tamu ditolak dengan HTTP 401 sebelum analisis atau pembuatan sesi sandbox. Kontrak autentikasi dan kepemilikan data dijelaskan di [authentication.md](./authentication.md).
 
 Seluruh endpoint di bawah ini diimplementasikan sebagai Next.js App Router Route Handlers di dalam direktori `app/api/` dan konstanta jalurnya dipusatkan di `lib/routes.ts`:
 

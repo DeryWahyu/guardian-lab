@@ -1,78 +1,103 @@
-/**
- * Route Handler: POST /api/analyze-qr
- * QR Code Image Decoder Helper Endpoint
- */
-
+import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { decodeQrImage } from "@/lib/analysis/qr";
+import { authorizeRequest } from "@/lib/auth/access";
+import { receiveUrlInvestigation } from "@/lib/investigations/receive-url";
+import { InputError, readInput } from "@/lib/investigations/request-input";
+import { receiveFailedInvestigation } from "@/lib/investigations/service";
+import {
+  MAX_QR_BYTES,
+  qrFileSchema,
+  qrSubmissionSchema,
+  scanUrlSchema,
+} from "@/lib/validations/analysis-input";
 
 export async function POST(request: Request) {
+  const auth = await authorizeRequest(request);
+  if (auth.error) return auth.error;
   try {
-    const contentType = request.headers.get("content-type") || "";
-
-    let imageBuffer: Buffer | null = null;
-    let base64Hint: string | undefined;
-
-    if (contentType.includes("application/json")) {
-      let body: { imageBase64?: unknown; mimeType?: unknown };
-      try {
-        body = await request.json();
-      } catch {
-        return NextResponse.json({ error: "QR image payload is required" }, { status: 400 });
-      }
-
-      if (
-        !body?.imageBase64 ||
-        typeof body.imageBase64 !== "string" ||
-        body.imageBase64.trim() === ""
-      ) {
-        return NextResponse.json({ error: "QR image payload is required" }, { status: 400 });
-      }
-
-      if (body.mimeType && body.mimeType === "application/x-msdownload") {
-        return NextResponse.json({ error: "Unsupported image MIME type" }, { status: 415 });
-      }
-
-      base64Hint = body.imageBase64.replace(/^data:image\/[a-z]+;base64,/, "");
-      try {
-        imageBuffer = Buffer.from(base64Hint, "base64");
-      } catch {
-        return NextResponse.json({ error: "Invalid base64 payload" }, { status: 400 });
-      }
-    } else if (contentType.includes("multipart/form-data")) {
-      const formData = await request.formData();
-      const file = (formData.get("file") || formData.get("image")) as File | null;
-      if (!file) {
-        return NextResponse.json({ error: "QR image payload is required" }, { status: 400 });
-      }
-      const arrayBuffer = await file.arrayBuffer();
-      imageBuffer = Buffer.from(arrayBuffer);
+    let buffer: Buffer;
+    if (
+      request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() ===
+      "multipart/form-data"
+    ) {
+      const form = await readInput(request, MAX_QR_BYTES + 64 * 1024, "form");
+      const files = [...form.getAll("file"), ...form.getAll("image")];
+      if (files.length !== 1 || !(files[0] instanceof File))
+        throw new InputError("Pilih satu gambar QR untuk setiap pemeriksaan.");
+      const file = files[0];
+      const parsed = qrFileSchema.safeParse({ name: file.name, size: file.size, type: file.type });
+      if (!parsed.success)
+        throw new InputError(parsed.error.issues[0]?.message ?? "Gambar tidak valid.");
+      buffer = Buffer.from(await file.arrayBuffer());
     } else {
-      return NextResponse.json({ error: "Unsupported Content-Type header" }, { status: 400 });
-    }
-
-    if (!imageBuffer || imageBuffer.length === 0) {
-      return NextResponse.json({ error: "QR image payload is required" }, { status: 400 });
-    }
-
-    const decodeResult = await decodeQrImage(imageBuffer, base64Hint);
-
-    if (!decodeResult.success) {
-      return NextResponse.json(
-        { error: decodeResult.error || "No QR code detected in image" },
-        { status: 422 },
+      const parsed = qrSubmissionSchema.safeParse(
+        await readInput(request, 7 * 1024 * 1024 + 64 * 1024, "json"),
+      );
+      if (!parsed.success) throw new InputError("Payload gambar QR tidak valid.");
+      buffer = Buffer.from(
+        parsed.data.imageBase64.replace(/^data:image\/[a-z]+;base64,/, ""),
+        "base64",
       );
     }
-
+    if (!buffer.length || buffer.length > MAX_QR_BYTES)
+      throw new InputError("Gambar tidak boleh kosong dan maksimal 5 MB.");
+    const decoded = await decodeQrImage(buffer);
+    const inputMetadata = {
+      sha256: createHash("sha256").update(buffer).digest("hex"),
+      fileSizeBytes: buffer.length,
+      decoder: "jsqr",
+      binaryStored: false,
+    };
+    const url = decoded.success ? scanUrlSchema.safeParse(decoded.extracted_text) : null;
+    if (!decoded.success || !url?.success) {
+      const error = !decoded.success
+        ? decoded.error
+        : !decoded.is_url
+          ? "Isi QR bukan URL HTTP atau HTTPS. Pilih QR yang berisi tautan."
+          : url && !url.success
+            ? (url.error.issues[0]?.message ?? "Tautan pada QR tidak valid.")
+            : "Tautan pada QR tidak valid.";
+      const code = !decoded.success
+        ? decoded.errorCode
+        : !decoded.is_url
+          ? "QR_NOT_URL"
+          : "QR_INVALID_URL";
+      const record = await receiveFailedInvestigation(
+        { userId: auth.user.id, target: "Gambar QR", type: "QR", inputMetadata },
+        code,
+        error,
+      );
+      return NextResponse.json(
+        { ...record, error, is_url: false },
+        { status: 422, headers: { "Cache-Control": "private, no-store" } },
+      );
+    }
+    const record = await receiveUrlInvestigation({
+      userId: auth.user.id,
+      url: url.data,
+      type: "QR",
+      inputMetadata: {
+        ...inputMetadata,
+        isUrl: true,
+        imageFormat: decoded.imageFormat ?? "",
+        width: decoded.width,
+        height: decoded.height,
+      },
+    });
+    return NextResponse.json(
+      { ...record, extracted_text: record.target, is_url: true },
+      { status: 201, headers: { "Cache-Control": "private, no-store" } },
+    );
+  } catch (error) {
     return NextResponse.json(
       {
-        extracted_text: decodeResult.extracted_text,
-        is_url: decodeResult.is_url,
+        error:
+          error instanceof InputError
+            ? error.message
+            : "Investigasi QR gagal disimpan. Silakan coba kembali.",
       },
-      { status: 200 },
+      { status: error instanceof InputError ? error.status : 500 },
     );
-  } catch (err) {
-    console.error("[AnalyzeQrAPI] Unexpected error:", err);
-    return NextResponse.json({ error: "Failed to decode QR code image" }, { status: 500 });
   }
 }

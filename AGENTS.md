@@ -46,9 +46,10 @@ Dokumentasi sistem proyek telah dipecah secara modular di dalam folder [ai-agent
    - Output analisis (baik URL maupun file APK) harus selalu memiliki toggle:
      - **Mode Bahasa Manusia (Default):** Penjelasan ramah anak muda, analogi sederhana, dan kartu _"Kedok Penipu Terbongkar"_.
      - **Mode Teknis (Geek View):** Rincian izin Android, potongan kode decompiled `jadx`, dan endpoint C2 bot Telegram.
-3. **Upload & Input Pengguna (Tanpa Tombol Shortcut / Preset di Web):**
+3. **Upload & Input Pengguna:**
    - Website menerima input langsung: input URL, Upload/Scan gambar QR (sebagai helper konversi gambar QR menjadi teks/URL agar user tidak repot scan dan copy-paste manual), serta Upload file `.apk` secara manual oleh pengguna (drag-and-drop / file picker).
-   - **Tidak ada tombol shortcut preset uji cepat di website.** Sampel file malware untuk pengujian demo/juri akan disiapkan dan dikirimkan oleh tim secara terpisah/eksternal untuk diunggah manual ke website.
+   - Redesign hero terbaru pada 3 November 2026 memakai input manual tanpa tombol contoh atau preset. Pengguna memilih jenis input, memasukkan tautan atau berkas, lalu mengirim pemeriksaan sendiri.
+   - Tidak ada preset berkas malware atau shortcut eksekusi pengujian. Sampel file untuk pengujian demo/juri disiapkan dan dikirimkan oleh tim secara terpisah/eksternal untuk diunggah manual ke website.
 4. **Fungsi Web Sandbox (Bukan untuk Belajar, Tapi Proteksi Perangkat):**
    - _Browser-in-Browser Sandbox_ (Chromium terisolasi) digunakan murni agar pengguna dapat membuka tautan yang terindikasi phishing/berbahaya tanpa rasa khawatir perangkat lokal mereka terinfeksi malware.
    - Eksekusi berjalan di kontainer terisolasi (Chromium KasmVNC / Redroid) dengan masa aktif terbatasi (180 detik) dan pembersihan otomatis (_auto-destroy_).
@@ -60,3 +61,24 @@ Dokumentasi sistem proyek telah dipecah secara modular di dalam folder [ai-agent
    - Patuhi aturan dokumentasi Next.js pada `node_modules/next/dist/docs/`.
 7. **Pemanfaatan Mature Library (Anti-Reinventing the Wheel):**
    - Jika ingin membangun suatu fitur dan telah tersedia library _mature_ yang teruji, aman, dan kompatibel di ekosistem, **utamakan langsung menggunakan library tersebut** daripada membuat implementasi kompleks dari nol.
+
+<!-- BEGIN:nextjs-agent-feedback -->
+
+## Report Next.js feedback
+
+The project owner enabled `experimental.agentFeedback`, authorizing this feedback pass. When enabled, `next dev` writes this block and restores it if removed. Commit `AGENTS.md` with your work to keep the tree clean.
+
+During the current user request, retain anonymized facts as feedback candidates for meaningful or recurring Next.js issues:
+
+- Crashes, hangs, OOMs, or unexpected slowness
+- Incorrect behavior, output, errors, or diagnostics
+- Missing, unclear, or conflicting documentation
+- Unexpected CLI, codemod, Skill, or upgrade behavior and non-obvious workarounds
+
+Continue the current user request without reporting immediately. Routine debugging is not feedback. Verify changes before retaining them as feedback candidates. Never retain code, logs, paths, URLs, secrets, personal information, or project-specific data.
+
+Retain qualifying friction even if it is later fixed or worked around; record the final outcome during the reporting pass.
+
+Before the final response, run one reporting pass. If candidates remain, from this file's directory run `npx --no-install next internal agent-feedback-instructions` once without piping or truncating its output. Follow its output or error guidance. If a network sandbox blocks it, retry with network access; if it still returns no output, continue normally.
+
+<!-- END:nextjs-agent-feedback -->

@@ -1,23 +1,23 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth/session";
+import { authorizeRequest } from "@/lib/auth/access";
+import { readInput } from "@/lib/investigations/request-input";
+import { sandboxError } from "@/lib/sandbox/http";
 import { startSandboxSession } from "@/lib/sandbox/session-manager";
-
+import { sandboxStartSchema } from "@/lib/validations/sandbox";
+export const maxDuration = 70;
 export async function POST(request: Request) {
   try {
-    const body = await request.json().catch(() => ({}));
-    const type: "web" | "android" = body?.type === "android" ? "android" : "web";
-    const target: string =
-      typeof body?.target === "string" ? body.target : "https://sandbox.guardianlab.id";
-
-    const user = await getCurrentUser();
-    const session = await startSandboxSession(type, target, user?.id);
-
-    return NextResponse.json(session, { status: 200 });
-  } catch (error) {
-    console.error("Failed to start sandbox session:", error);
+    const auth = await authorizeRequest(request);
+    if (auth.error) return auth.error;
+    const body = sandboxStartSchema.parse(await readInput(request, 18000, "json"));
     return NextResponse.json(
-      { error: "Failed to initialize sandbox environment" },
-      { status: 500 },
+      await startSandboxSession(body.type, body.target, auth.user.id, body.sessionId, {
+        ...body,
+        role: auth.user.role,
+      }),
+      { headers: { "Cache-Control": "private, no-store" } },
     );
+  } catch (error) {
+    return sandboxError(error);
   }
 }

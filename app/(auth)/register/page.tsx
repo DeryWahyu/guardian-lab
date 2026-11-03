@@ -1,4 +1,7 @@
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { getPostLoginRedirect } from "@/lib/auth/redirect";
+import { getCurrentUser } from "@/lib/auth/session";
 import { AuthCardSkeleton } from "../_components/auth-card-skeleton";
 import { RegisterForm } from "./_components/register-form";
 
@@ -11,7 +14,13 @@ export const metadata = {
 export default function RegisterPage() {
   return (
     <Suspense fallback={<AuthCardSkeleton title="Menyiapkan Pendaftaran..." />}>
-      <RegisterForm />
+      <RegisterContent />
     </Suspense>
   );
+}
+
+async function RegisterContent() {
+  const user = await getCurrentUser();
+  if (user) redirect(getPostLoginRedirect(user.role));
+  return <RegisterForm />;
 }

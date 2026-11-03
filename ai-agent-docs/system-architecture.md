@@ -6,6 +6,8 @@
 
 ---
 
+> Status implementasi tahap 8: sandbox web memakai container nyata melalui broker terpisah, tanpa socket Docker pada aplikasi Next. Unduhan APK dikarantina di server dan dapat dibedah statis manual; transfer ke perangkat lokal dan clipboard diblokir. Android dinamis, mode viewport ponsel, thumbnail sesi, serta model AI pada diagram konsep di bawah belum aktif. Diagram tersebut merupakan rancangan target, bukan klaim semua layanan sudah tersedia. Kontrak implementasi dan batas runtime: [sandbox-and-academy.md](./sandbox-and-academy.md).
+
 ## 1. Alur Pengguna End-to-End (Zero-Loophole User Journey)
 
 Alur sistem dirancang berkesinambungan dari deteksi ringan hingga isolasi penuh tanpa celah logika maupun risiko infeksi pada perangkat pengguna:

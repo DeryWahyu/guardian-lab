@@ -472,7 +472,7 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
   // ==========================================================================
   // 5. Auth Logic: Daily Login Streak Progression & Maintenance
   // ==========================================================================
-  describe("5. Auth Logic: Daily Login Streak Progression & Maintenance", () => {
+  describe("5. Auth Logic: Login preserves the learning streak", () => {
     it("maintains streak count when user logs in multiple times on the same day (diffDays = 0)", async () => {
       const email = makeTestEmail("streak_0");
       const password = "Password123";
@@ -484,6 +484,7 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
           email,
           passwordHash,
           streakDays: 7,
+          lastLearningAt: new Date(),
           lastActiveAt: new Date(Date.now() - 3600000), // 1 hour ago (same day)
         },
       });
@@ -503,15 +504,13 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
       await prisma.user.delete({ where: { id: user.id } });
     });
 
-    it("increments streak count (+1) on consecutive day login (diffDays = 1)", async () => {
+    it("preserves yesterday's learning streak without incrementing it on login", async () => {
       const email = makeTestEmail("streak_1");
       const password = "Password123";
       const passwordHash = await hashPassword(password);
 
       // Yesterday in UTC
-      const yesterday = new Date();
-      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-      yesterday.setUTCHours(10, 0, 0, 0);
+      const yesterday = new Date(Date.now() - 86_400_000);
 
       const user = await prisma.user.create({
         data: {
@@ -519,6 +518,7 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
           email,
           passwordHash,
           streakDays: 4,
+          lastLearningAt: yesterday,
           lastActiveAt: yesterday,
         },
       });
@@ -532,13 +532,14 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
       const data = await res.json();
 
       expect(res.status).toBe(200);
-      expect(data.streakDays).toBe(5); // 4 + 1 = 5
+      expect(data.streakDays).toBe(4);
+      expect((await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).streakDays).toBe(4);
 
       await prisma.session.deleteMany({ where: { userId: user.id } });
       await prisma.user.delete({ where: { id: user.id } });
     });
 
-    it("resets streak count to 1 when inactivity interval exceeds 1 day (diffDays > 1)", async () => {
+    it("shows zero after a missed learning day without recording a new learning event", async () => {
       const email = makeTestEmail("streak_reset");
       const password = "Password123";
       const passwordHash = await hashPassword(password);
@@ -553,6 +554,7 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
           email,
           passwordHash,
           streakDays: 25,
+          lastLearningAt: threeDaysAgo,
           lastActiveAt: threeDaysAgo,
         },
       });
@@ -566,7 +568,8 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
       const data = await res.json();
 
       expect(res.status).toBe(200);
-      expect(data.streakDays).toBe(1); // Reset to 1
+      expect(data.streakDays).toBe(0);
+      expect((await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).streakDays).toBe(25);
 
       await prisma.session.deleteMany({ where: { userId: user.id } });
       await prisma.user.delete({ where: { id: user.id } });

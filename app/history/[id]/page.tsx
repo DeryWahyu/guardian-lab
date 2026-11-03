@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { HistoryDetailView } from "@/components/history/history-detail-view";
 import { Footer } from "@/components/shared/footer";
 import { Header } from "@/components/shared/header";
+import { requirePageUser } from "@/lib/auth/page-access";
 
 export const instant = false;
+export const metadata: Metadata = {
+  title: "Detail Investigasi | Guardian Lab",
+  description: "Lihat rekaman, status proses, dan bukti pemeriksaan investigasi.",
+};
 
 interface HistoryDetailPageProps {
   params: Promise<{ id: string }>;
@@ -11,12 +17,13 @@ interface HistoryDetailPageProps {
 
 async function HistoryDetailContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <HistoryDetailView recordId={id} />;
+  const user = await requirePageUser();
+  return <HistoryDetailView recordId={id} accessScope={`${user.id}:${user.role}`} />;
 }
 
 export default function HistoryDetailPage({ params }: HistoryDetailPageProps) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#FAF9F6] text-slate-800">
+    <div className="bg-background flex min-h-screen flex-col text-slate-800">
       <Header />
 
       <main className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8 sm:px-6">

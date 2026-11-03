@@ -55,11 +55,3 @@ export interface ThreatAnalysisResult {
   emergencyActionPlan: EmergencyActionPlan;
   defangedTarget: string;
 }
-
-export interface ResultPresenterProps {
-  result: ThreatAnalysisResult | null;
-  isLoading?: boolean;
-  error?: string | null;
-  onRetry?: () => void;
-  className?: string;
-}

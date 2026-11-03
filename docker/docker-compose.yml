@@ -10,5 +10,11 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - SANDBOX_BROKER_URL=http://guardian_sandbox_broker:4011
     env_file:
       - ../.env
+    networks: [default, sandbox-control]
+networks:
+  sandbox-control:
+    external: true
+    name: guardian-sandbox-control

@@ -1,4 +1,7 @@
+import type { Prisma } from "@prisma/client";
 import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
+import { learningStreak } from "@/lib/academy/streak";
 import { prisma } from "@/lib/prisma";
 import { signSessionToken, verifySessionToken } from "./jwt";
 
@@ -24,12 +27,15 @@ export function getSessionCookieOptions() {
   };
 }
 
-export async function createSession(user: {
-  id: string;
-  email: string;
-  name: string;
-  role: "ADMIN" | "USER";
-}): Promise<string> {
+export async function createSessionToken(
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: "ADMIN" | "USER";
+  },
+  database: Pick<Prisma.TransactionClient, "session"> = prisma,
+): Promise<string> {
   const token = await signSessionToken({
     userId: user.id,
     email: user.email,
@@ -39,7 +45,7 @@ export async function createSession(user: {
 
   const expiresAt = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);
 
-  await prisma.session.create({
+  await database.session.create({
     data: {
       userId: user.id,
       token,
@@ -47,16 +53,19 @@ export async function createSession(user: {
     },
   });
 
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE_NAME, token, getSessionCookieOptions());
-
   return token;
 }
 
-export async function getCurrentUser(): Promise<UserSession | null> {
+export function readSessionToken(request: Request): string | undefined {
+  return new NextRequest(request.url, { headers: request.headers }).cookies.get(SESSION_COOKIE_NAME)
+    ?.value;
+}
+
+export async function getCurrentUser(request?: Request): Promise<UserSession | null> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const token = request
+      ? readSessionToken(request)
+      : (await cookies()).get(SESSION_COOKIE_NAME)?.value;
 
     if (!token) {
       return null;
@@ -80,6 +89,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
             role: true,
             exp: true,
             streakDays: true,
+            lastLearningAt: true,
           },
         },
       },
@@ -103,9 +113,10 @@ export async function getCurrentUser(): Promise<UserSession | null> {
       name: user.name,
       role: user.role,
       exp: user.exp,
-      streakDays: user.streakDays,
+      streakDays: learningStreak(user.streakDays, user.lastLearningAt),
     };
-  } catch {
+  } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) throw error;
     return null;
   }
 }
@@ -128,24 +139,7 @@ export async function requireAdmin(): Promise<UserSession> {
   return requireAuth("ADMIN");
 }
 
-export async function destroySession(): Promise<void> {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-
-    if (token) {
-      await prisma.session.deleteMany({
-        where: { token },
-      });
-    }
-
-    cookieStore.delete(SESSION_COOKIE_NAME);
-  } catch {
-    try {
-      const cookieStore = await cookies();
-      cookieStore.delete(SESSION_COOKIE_NAME);
-    } catch {
-      // In case cookie store is not available
-    }
-  }
+export async function destroySession(request: Request): Promise<void> {
+  const token = readSessionToken(request);
+  if (token) await prisma.session.deleteMany({ where: { token } });
 }

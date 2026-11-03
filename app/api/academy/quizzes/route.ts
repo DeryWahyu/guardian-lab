@@ -1,26 +1,17 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { academyError } from "@/lib/academy/http";
+import { quizList } from "@/lib/academy/quiz";
+import { authorizeRequest } from "@/lib/auth/access";
 import { safeConnection } from "@/lib/security/connection";
-
-export async function GET() {
+export async function GET(request: Request) {
   await safeConnection();
   try {
-    const quizzes = await prisma.quiz.findMany({
-      where: { published: true },
-      include: {
-        _count: {
-          select: { questions: true },
-        },
-      },
-      orderBy: { createdAt: "asc" },
+    const auth = await authorizeRequest(request);
+    if (auth.error) return auth.error;
+    return NextResponse.json(await quizList(auth.user.id), {
+      headers: { "Cache-Control": "private, no-store" },
     });
-
-    return NextResponse.json(quizzes, { status: 200 });
   } catch (error) {
-    if ((error as { digest?: string })?.digest?.startsWith("NEXT_")) {
-      throw error;
-    }
-    console.error("Failed to fetch quizzes:", error);
-    return NextResponse.json({ error: "Failed to fetch quizzes" }, { status: 500 });
+    return academyError(error);
   }
 }

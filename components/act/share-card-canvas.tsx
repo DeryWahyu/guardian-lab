@@ -1,87 +1,73 @@
-import { AlertTriangle, ShieldAlert, ShieldCheck } from "lucide-react";
-import type React from "react";
-import { Mascot } from "@/components/shared/mascot";
-
-interface ShareCardCanvasProps {
-  cardRef: React.RefObject<HTMLDivElement | null>;
-  target: string;
-  defangedUrl: string;
-  threatBullets: string[];
-  riskLevel: string;
-  scamCategory: string;
-}
+import { TriangleAlert } from "lucide-react";
+import type { RefObject } from "react";
+import { BrandIdentity } from "@/components/shared/brand-identity";
+import type { ShareCardData } from "@/lib/share-card/content";
+import { cn } from "@/lib/utils";
 
 export function ShareCardCanvas({
+  card,
   cardRef,
-  target,
-  defangedUrl,
-  threatBullets,
-  riskLevel,
-  scamCategory,
-}: ShareCardCanvasProps) {
+}: {
+  card: ShareCardData;
+  cardRef?: RefObject<HTMLDivElement | null>;
+}) {
   return (
     <div
       ref={cardRef}
-      className="relative w-full max-w-lg space-y-6 overflow-hidden rounded-3xl border-2 border-rose-200/90 bg-gradient-to-br from-white via-rose-50/30 to-amber-50/20 p-6 text-slate-800 shadow-xl sm:p-8"
+      data-share-card
+      className="w-full space-y-5 overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 [font-family:Arial,sans-serif] text-[14px] leading-relaxed text-slate-800"
     >
-      {/* Background Watermark Pattern */}
-      <div className="pointer-events-none absolute -right-8 -bottom-8 opacity-10 select-none">
-        <Mascot size={220} showPills={false} />
-      </div>
-
-      {/* Top Banner Alert */}
-      <div className="flex items-center justify-between rounded-2xl bg-rose-600 px-4 py-2 text-white shadow-md shadow-rose-600/20">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 animate-pulse" />
-          <span className="text-xs font-extrabold tracking-wider uppercase sm:text-sm">
-            AWAS MODUS PENIPUAN SIBER!
-          </span>
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+        <BrandIdentity
+          subtitle={null}
+          markClassName="size-7"
+          wordmarkClassName="text-sm font-bold tracking-normal"
+        />
+        <span className="text-[12px] text-slate-500">Pemeriksaan {card.type}</span>
+      </header>
+      <div className={cn("space-y-2 rounded-xl p-4", card.risk.background)}>
+        <div className={cn("flex items-start gap-2 font-semibold", card.risk.color)}>
+          {!card.risk.low && (
+            <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          )}
+          <span>{card.risk.label}</span>
         </div>
-        <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold">
-          {riskLevel}
-        </span>
+        <h2 className="text-[26px] leading-tight font-bold text-slate-900">{card.title}</h2>
+        <p className="text-[13px]">
+          Skor risiko tersimpan: <strong>{card.riskScore}/100</strong>
+        </p>
       </div>
-
-      {/* Target & Category */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-xs font-bold tracking-wider text-rose-600 uppercase">
-          <ShieldAlert className="h-4 w-4 shrink-0" />
-          <span>{scamCategory || "Deteksi Ancaman Digital"}</span>
-        </div>
-        <div className="rounded-2xl bg-slate-900 p-4 text-white shadow-inner">
-          <div className="text-[10px] font-medium text-slate-400">Tautan Berbahaya (Defanged):</div>
-          <div className="mt-0.5 font-mono text-xs font-bold break-all text-rose-400 select-all sm:text-sm">
-            {defangedUrl || target}
-          </div>
-        </div>
+      <div>
+        <p className="text-[12px] font-semibold text-slate-500">
+          {card.type === "APK" ? "Nama berkas APK" : "Target dinonaktifkan (defanged)"}
+        </p>
+        <p className="mt-1 rounded-lg bg-slate-100 p-3 [font-family:monospace] text-[13px] [overflow-wrap:anywhere]">
+          {card.target}
+        </p>
       </div>
-
-      {/* 3 Threat Bullets */}
-      <div className="space-y-2.5 rounded-2xl border border-rose-100 bg-white/90 p-4 shadow-xs">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-          <ShieldAlert className="h-4 w-4 text-rose-500" />
-          <span>Fakta & Bahaya yang Terdeteksi:</span>
-        </div>
-        <ul className="space-y-2 text-xs text-slate-700 sm:text-sm">
-          {threatBullets.slice(0, 3).map((bullet, idx) => (
-            <li key={bullet} className="flex items-start gap-2">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-100 text-[11px] font-bold text-rose-700">
-                {idx + 1}
-              </span>
-              <span className="leading-snug">{bullet}</span>
-            </li>
-          ))}
-        </ul>
+      <div className="space-y-2 [overflow-wrap:anywhere]">
+        <p className="font-bold">{card.category}</p>
+        <p>{card.summary}</p>
+        {card.findings.length > 0 && (
+          <ul className="list-disc space-y-1 pl-5">
+            {card.findings.map((finding, i) => (
+              <li key={`${i}-${finding}`}>{finding}</li>
+            ))}
+          </ul>
+        )}
       </div>
-
-      {/* Footer Security Seal */}
-      <div className="flex items-center justify-between border-t border-slate-200/80 pt-2 text-[11px] text-slate-500">
-        <div className="flex items-center gap-1.5 font-semibold text-slate-700">
-          <ShieldCheck className="h-4 w-4 text-emerald-600" />
-          <span>Guardian Lab Verified Defense</span>
-        </div>
-        <span className="font-mono text-slate-400">MIT-Week 2026</span>
-      </div>
+      <footer className="space-y-2 border-t border-slate-200 pt-4 text-[11px] leading-relaxed [overflow-wrap:anywhere] text-slate-500">
+        {card.truncated && <p>Ringkasan dipersingkat dari hasil tersimpan.</p>}
+        <p>Hasil pemeriksaan menggambarkan saat analisis, bukan jaminan keamanan.</p>
+        <p>
+          Sumber: {card.source} · Model: {card.version}
+        </p>
+        <p>
+          {card.date}
+          <br />
+          ID: {card.id}
+        </p>
+      </footer>
     </div>
   );
 }

@@ -1,44 +1,28 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth/session";
+import { authorizeRequest } from "@/lib/auth/access";
+import { serializeInvestigation } from "@/lib/investigations/serialize";
 import { prisma } from "@/lib/prisma";
-import { safeConnection } from "@/lib/security/connection";
+import { investigationIdSchema } from "@/lib/validations/investigation";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  await safeConnection();
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await authorizeRequest(request);
+  if (auth.error) return auth.error;
+  const parsed = investigationIdSchema.safeParse((await params).id);
+  if (!parsed.success)
+    return NextResponse.json({ error: "ID investigasi tidak valid." }, { status: 400 });
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized: Active session required" }, { status: 401 });
-    }
-
-    const { id } = await params;
-    const record = await prisma.forensicRecord.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: { name: true, email: true },
-        },
-      },
-    });
-
-    if (!record) {
-      return NextResponse.json({ error: "Forensic record not found" }, { status: 404 });
-    }
-
-    // Ownership or admin check
-    if (user.role !== "ADMIN" && record.userId !== user.id) {
+    const record = await prisma.forensicRecord.findUnique({ where: { id: parsed.data } });
+    if (!record)
+      return NextResponse.json({ error: "Rekaman investigasi tidak ditemukan." }, { status: 404 });
+    if (auth.user.role !== "ADMIN" && record.userId !== auth.user.id)
       return NextResponse.json(
-        { error: "Forbidden: Access denied to this forensic record" },
+        { error: "Anda tidak memiliki akses ke investigasi ini." },
         { status: 403 },
       );
-    }
-
-    return NextResponse.json(record, { status: 200 });
-  } catch (error) {
-    if ((error as { digest?: string })?.digest?.startsWith("NEXT_")) {
-      throw error;
-    }
-    console.error("Forensic record detail query error:", error);
-    return NextResponse.json({ error: "Failed to fetch forensic record detail" }, { status: 500 });
+    return NextResponse.json(serializeInvestigation(record), {
+      headers: { "Cache-Control": "private, no-store" },
+    });
+  } catch {
+    return NextResponse.json({ error: "Detail investigasi gagal dimuat." }, { status: 500 });
   }
 }

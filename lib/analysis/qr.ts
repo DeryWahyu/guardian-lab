@@ -1,107 +1,72 @@
-/**
- * Guardian Lab — QR Code Decoder Helper
- * Uses jsqr and sharp to rasterize and decode QR image files (PNG, JPG, WebP),
- * with built-in resilience for simulated test fixtures.
- */
-
 import jsQR from "jsqr";
 import sharp from "sharp";
 
-export interface QrDecodeResult {
-  success: boolean;
-  extracted_text: string;
-  is_url: boolean;
-  error?: string;
-}
-
-// Known simulated test fixture payloads for robust test execution
-const KNOWN_SIMULATED_FIXTURES: Record<string, { payload: string; isUrl: boolean }> = {
-  // 1x1 mock PNG
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAA=": {
-    payload: "https://qris-dana-kaget-pemberdayaan.xyz/bayar?merchant=MASJID_AL_IKHLAS",
-    isUrl: true,
-  },
-  // 1x1 mock JPEG
-  "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=":
-    {
-      payload: "https://dishub-parkir-denda-online.buzz/checkout?plat=B1234XYZ",
-      isUrl: true,
-    },
-};
-
 export function checkIsUrl(input: string): boolean {
-  if (!input || typeof input !== "string") return false;
   try {
-    const parsed = new URL(input.trim());
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
+    return ["http:", "https:"].includes(new URL(input.trim()).protocol);
   } catch {
     return false;
   }
 }
 
-export async function decodeQrImage(
-  buffer: Buffer,
-  rawBase64Hint?: string,
-): Promise<QrDecodeResult> {
-  if (!buffer || buffer.length === 0) {
-    return {
-      success: false,
-      extracted_text: "",
-      is_url: false,
-      error: "QR image buffer is empty",
-    };
-  }
-
-  // 1. Check known test fixture signatures
-  if (rawBase64Hint && KNOWN_SIMULATED_FIXTURES[rawBase64Hint]) {
-    const fixture = KNOWN_SIMULATED_FIXTURES[rawBase64Hint];
-    return {
-      success: true,
-      extracted_text: fixture.payload,
-      is_url: fixture.isUrl,
-    };
-  }
-
-  // 2. Decode using sharp rasterizer + jsQR
+/** Read actual pixels in RGB, respecting orientation and transparency. */
+export async function decodeQrImage(buffer: Buffer) {
   try {
-    const { data, info } = await sharp(buffer)
+    const image = sharp(buffer, { limitInputPixels: 16_000_000 });
+    const metadata = await image.metadata();
+    if (!["png", "jpeg", "webp"].includes(metadata.format ?? "") || (metadata.pages ?? 1) > 1) {
+      return {
+        success: false as const,
+        errorCode: "QR_UNSUPPORTED_IMAGE",
+        error: "Gunakan gambar PNG, JPG, atau WebP yang tidak bergerak.",
+      };
+    }
+    if ((metadata.width ?? 0) * (metadata.height ?? 0) > 16_000_000) {
+      return {
+        success: false as const,
+        errorCode: "QR_IMAGE_TOO_LARGE",
+        error: "Resolusi gambar maksimal 16 juta piksel. Perkecil gambar lalu unggah kembali.",
+      };
+    }
+    const { data, info } = await image
+      .rotate()
+      .toColourspace("srgb")
+      .flatten({ background: "#ffffff" })
       .ensureAlpha()
       .raw()
       .toBuffer({ resolveWithObject: true });
-
-    // In test environment, if image is 1x1 or 2x2 (mock fixture) and not matched by exact string:
-    if (info.width <= 2 && info.height <= 2) {
+    const qr = jsQR(
+      new Uint8ClampedArray(data.buffer, data.byteOffset, data.length),
+      info.width,
+      info.height,
+    );
+    if (!qr?.data)
       return {
-        success: true,
-        extracted_text: "https://qris-dana-kaget-pemberdayaan.xyz/bayar?merchant=MASJID_AL_IKHLAS",
-        is_url: true,
+        success: false as const,
+        errorCode: "QR_DECODE_FAILED",
+        error: "Kode QR tidak ditemukan. Gunakan gambar yang jelas dan utuh.",
       };
-    }
-
-    const clampedArray = new Uint8ClampedArray(data.buffer, data.byteOffset, data.length);
-    const qrResult = jsQR(clampedArray, info.width, info.height);
-
-    if (!qrResult || !qrResult.data) {
-      return {
-        success: false,
-        extracted_text: "",
-        is_url: false,
-        error: "No QR code detected in image",
-      };
-    }
-
-    const text = qrResult.data.trim();
+    const text = qr.data.trim();
     return {
-      success: true,
+      success: true as const,
       extracted_text: text,
       is_url: checkIsUrl(text),
+      imageFormat: metadata.format,
+      width: info.width,
+      height: info.height,
     };
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("pixel limit")) {
+      return {
+        success: false as const,
+        errorCode: "QR_IMAGE_TOO_LARGE",
+        error: "Resolusi gambar maksimal 16 juta piksel. Perkecil gambar lalu unggah kembali.",
+      };
+    }
     return {
-      success: false,
-      extracted_text: "",
-      is_url: false,
-      error: "Failed to parse image file",
+      success: false as const,
+      errorCode: "QR_DECODE_FAILED",
+      error: "Gambar tidak dapat dibaca. Pilih ulang gambar PNG, JPG, atau WebP.",
     };
   }
 }

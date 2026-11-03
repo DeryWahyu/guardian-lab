@@ -42,7 +42,7 @@ describe("Tier 2: Boundary & Corner Cases", () => {
         url: BOUNDARY_URL_FIXTURES.oversizedUrl,
       });
       // System should either process or reject safely (status 200 or 400/413)
-      expect([200, 400, 413]).toContain(res.status);
+      expect([201, 400, 413]).toContain(res.status);
     });
 
     it("defangs URLs containing special characters and control parameters safely", () => {

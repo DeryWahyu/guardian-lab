@@ -29,6 +29,7 @@ export const PUBLIC_ROUTES = {
   // Parameter Builders
   homeWithTab: (tab: "url" | "qr" | "apk") => `/?tab=${tab}`,
   sandboxWebWithTarget: (target: string) => `/sandbox/web?target=${encodeURIComponent(target)}`,
+  actWithInvestigation: (id: string) => `/act?id=${encodeURIComponent(id)}`,
 } as const;
 
 export const AUTH_ROUTES = {

@@ -7,11 +7,13 @@ export interface SessionPayload {
   role: "USER" | "ADMIN";
 }
 
-const DEFAULT_SECRET = "guardian-lab-default-session-secret-key-32-bytes";
 const SESSION_EXPIRATION = "7d";
 
 function getEncodedSecret(): Uint8Array {
-  const secret = process.env.SESSION_SECRET || process.env.AUTH_SECRET || DEFAULT_SECRET;
+  const secret = process.env.SESSION_SECRET || process.env.AUTH_SECRET;
+  if (!secret || secret.length < 32 || secret.startsWith("your_session_secret")) {
+    throw new Error("SESSION_SECRET harus dikonfigurasi dengan secret acak minimal 32 karakter.");
+  }
   return new TextEncoder().encode(secret);
 }
 

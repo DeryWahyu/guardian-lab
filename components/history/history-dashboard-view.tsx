@@ -1,128 +1,147 @@
 "use client";
-
-import { History, ShieldAlert, Sparkles } from "lucide-react";
+import { FileSearch, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Mascot } from "@/components/shared/mascot";
-import { PUBLIC_ROUTES } from "@/lib/routes";
-import { HistoryCard, type HistoryRecordItem } from "./history-card";
+import { InvestigationProblem } from "@/components/shared/investigation-problem";
+import { PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { HistoryCard } from "./history-card";
 import { HistoryFilters } from "./history-filters";
+import { useHistory } from "./use-history";
 
-export function HistoryDashboardView() {
-  const [records, setRecords] = useState<HistoryRecordItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [type, setType] = useState("ALL");
-  const [risk, setRisk] = useState("ALL");
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    let mounted = true;
-    async function fetchHistory() {
-      setLoading(true);
-      try {
-        const queryParams = new URLSearchParams();
-        if (type !== "ALL") queryParams.set("type", type);
-        if (risk !== "ALL") queryParams.set("risk", risk);
-        if (search) queryParams.set("search", search);
-
-        const res = await fetch(`/api/history?${queryParams.toString()}`);
-        if (res.ok && mounted) {
-          const data = await res.json();
-          setRecords(data);
-        }
-      } catch (err) {
-        console.error("Error loading history:", err);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-    fetchHistory();
-    return () => {
-      mounted = false;
-    };
-  }, [type, risk, search]);
-
-  const totalScans = records.length;
-  const criticalThreats = records.filter((r) =>
-    ["CRITICAL", "HIGH", "DANGEROUS", "PHISHING", "MALWARE"].includes(r.riskLevel),
-  ).length;
-
+export function HistoryDashboardView({ accessScope }: { accessScope?: string }) {
+  const history = useHistory(accessScope);
+  const { data, loading, refreshing, problem } = history;
+  const statistics = [
+    ["Investigasi sesuai filter", data?.summary.total],
+    ["Hasil berisiko tinggi", data?.summary.highRisk],
+    ["Model belum tersedia", data?.summary.unavailable],
+  ] as const;
+  const outsidePage = data && data.pagination.page > data.pagination.totalPages;
   return (
-    <div className="space-y-6">
-      {/* Top Stats Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="flex items-center gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 font-bold text-rose-600">
-            <History className="h-6 w-6" />
+    <div className="space-y-5">
+      <div className="grid gap-4 sm:grid-cols-3">
+        {statistics.map(([label, value]) => (
+          <div key={label} className="rounded-3xl border border-slate-200 bg-white p-5">
+            <p className="text-2xl font-bold text-slate-900">{value ?? "—"}</p>
+            <p className="mt-1 text-xs text-slate-500">{label}</p>
           </div>
-          <div>
-            <div className="text-2xl font-black text-slate-900">{totalScans}</div>
-            <div className="text-xs font-medium text-slate-500">Total Pemindaian Forensik</div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 font-bold text-amber-600">
-            <ShieldAlert className="h-6 w-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-slate-900">{criticalThreats}</div>
-            <div className="text-xs font-medium text-slate-500">Ancaman Kritis Dicegah</div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-xs">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 font-bold text-emerald-600">
-            <Sparkles className="h-6 w-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-black text-slate-900">100%</div>
-            <div className="text-xs font-medium text-slate-500">Tersanitasi Zero PII</div>
-          </div>
+        ))}
+      </div>
+      <HistoryFilters values={history.values} onChange={history.setFilter} />
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+        <p>
+          {data
+            ? `${data.pagination.total} investigasi ditemukan`
+            : loading
+              ? "Memuat riwayat…"
+              : "Riwayat belum dapat ditampilkan."}
+        </p>
+        <div className="flex gap-3">
+          <Link
+            href={PROTECTED_ROUTES.history}
+            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-slate-700"
+          >
+            Hapus filter
+          </Link>
+          <button
+            type="button"
+            disabled={refreshing || !history.filters}
+            onClick={history.retry}
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-slate-700 disabled:opacity-50"
+          >
+            <RefreshCw className="size-3.5" aria-hidden="true" />
+            Perbarui riwayat
+          </button>
         </div>
       </div>
-
-      {/* Filter Bar */}
-      <HistoryFilters
-        type={type}
-        onTypeChange={setType}
-        risk={risk}
-        onRiskChange={setRisk}
-        search={search}
-        onSearchChange={setSearch}
-      />
-
-      {/* Content Grid / Loading / Empty */}
       {loading ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
+        <section aria-label="Memuat riwayat" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((key) => (
             <div
-              key={`skel-${i}`}
-              className="h-48 animate-pulse rounded-3xl border border-slate-200 bg-white"
+              key={key}
+              className="h-48 animate-pulse rounded-3xl bg-slate-100 motion-reduce:animate-none"
             />
           ))}
-        </div>
-      ) : records.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {records.map((record) => (
-            <HistoryCard key={record.id} record={record} />
-          ))}
-        </div>
+        </section>
+      ) : !data && problem ? (
+        <InvestigationProblem problem={problem} onRetry={history.retry} />
       ) : (
-        <div className="mx-auto max-w-md space-y-4 rounded-3xl border border-slate-200/80 bg-white p-12 text-center shadow-xs">
-          <Mascot size={120} showPills={false} className="mx-auto" />
-          <h3 className="text-lg font-bold text-slate-900">Belum Ada Riwayat Pemindaian</h3>
-          <p className="text-xs leading-relaxed text-slate-500">
-            Mulai periksa tautan mencurigakan, gambar QR, atau unggah file APK di halaman utama
-            untuk melihat rekam jejak forensikmu di sini.
-          </p>
-          <Link
-            href={PUBLIC_ROUTES.home}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-rose-600 px-6 py-2.5 text-xs font-semibold text-white shadow-md shadow-rose-600/20 transition-all hover:bg-rose-700"
-          >
-            Mulai Pemindaian Pertama &rarr;
-          </Link>
-        </div>
+        data && (
+          <div className="space-y-5">
+            {problem && (
+              <p
+                role="alert"
+                className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+              >
+                {problem.message} Daftar berikut menggunakan data terakhir yang berhasil dimuat.
+              </p>
+            )}
+            {data.records.length ? (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {data.records.map((record) => (
+                  <HistoryCard key={record.id} record={record} />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4 rounded-3xl border border-slate-200 bg-white p-8 text-center">
+                <FileSearch className="mx-auto size-8 text-slate-400" aria-hidden="true" />
+                <h2 className="text-lg font-bold text-slate-900">
+                  {outsidePage
+                    ? "Halaman tidak tersedia"
+                    : history.hasFilters
+                      ? "Tidak ada investigasi yang cocok"
+                      : "Belum ada investigasi"}
+                </h2>
+                <p className="text-sm text-slate-500">
+                  {outsidePage
+                    ? "Buka halaman pertama untuk melihat rekaman yang tersedia."
+                    : history.hasFilters
+                      ? "Ubah atau hapus filter untuk melihat rekaman lain."
+                      : "Mulai dengan memasukkan URL, gambar QR, atau berkas APK."}
+                </p>
+                <Link
+                  className="bg-brand-600 inline-flex rounded-full px-5 py-2 text-sm font-semibold text-white"
+                  href={
+                    outsidePage || history.hasFilters
+                      ? PROTECTED_ROUTES.history
+                      : PUBLIC_ROUTES.home
+                  }
+                >
+                  {outsidePage || history.hasFilters
+                    ? "Lihat semua investigasi"
+                    : "Mulai investigasi"}
+                </Link>
+              </div>
+            )}
+            {data.pagination.total > 0 && (
+              <nav
+                aria-label="Pagination riwayat"
+                className="flex flex-wrap items-center justify-between gap-3 text-sm"
+              >
+                <p className="text-slate-500">
+                  Halaman {data.pagination.page} dari {data.pagination.totalPages}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={data.pagination.page <= 1}
+                    onClick={() => history.setFilter("page", String(data.pagination.page - 1))}
+                    className="rounded-full border border-slate-300 bg-white px-4 py-2 disabled:opacity-40"
+                  >
+                    Sebelumnya
+                  </button>
+                  <button
+                    type="button"
+                    disabled={data.pagination.page >= data.pagination.totalPages}
+                    onClick={() => history.setFilter("page", String(data.pagination.page + 1))}
+                    className="rounded-full border border-slate-300 bg-white px-4 py-2 disabled:opacity-40"
+                  >
+                    Berikutnya
+                  </button>
+                </div>
+              </nav>
+            )}
+          </div>
+        )
       )}
     </div>
   );

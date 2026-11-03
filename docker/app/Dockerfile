@@ -15,7 +15,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN bun run build
+RUN bun run apk:setup && bunx prisma generate && bun run build
 
 # Stage 3: Runner
 FROM oven/bun:1-alpine AS runner
