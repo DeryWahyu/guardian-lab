@@ -1,235 +1,168 @@
 "use client";
-
-import { Download, Globe, Lock, Monitor, RefreshCw, Shield, Smartphone } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { PUBLIC_ROUTES } from "@/lib/routes";
-import { InotifyQuarantineModal } from "./inotify-quarantine-modal";
-import { SandboxTimerBar } from "./sandbox-timer-bar";
-
-export function WebSandboxView() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialTarget =
-    searchParams.get("target") || "https://klikbca-verifikasi-otp.top/login.php";
-
-  const [currentUrl, setCurrentUrl] = useState(initialTarget);
-  const [viewport, setViewport] = useState<"desktop" | "mobile">("desktop");
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [isDestroyed, setIsDestroyed] = useState(false);
-  const [isDestroying, setIsDestroying] = useState(false);
-  const [quarantineApk, setQuarantineApk] = useState<string | null>(null);
-
-  // Initialize sandbox session
-  useEffect(() => {
-    let mounted = true;
-    async function initSession() {
-      try {
-        const res = await fetch("/api/sandbox/session/start", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "web", target: initialTarget }),
-        });
-        if (res.ok && mounted) {
-          const data = await res.json();
-          setSessionId(data.sessionId);
-        }
-      } catch (err) {
-        console.error("Failed to start session:", err);
-      }
-    }
-    initSession();
-    return () => {
-      mounted = false;
-    };
-  }, [initialTarget]);
-
-  const handleDestroy = async () => {
-    setIsDestroying(true);
-    if (sessionId) {
-      try {
-        await fetch("/api/sandbox/session/stop", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId }),
-        });
-      } catch (err) {
-        console.error("Error stopping session:", err);
-      }
-    }
-    setIsDestroying(false);
-    setIsDestroyed(true);
-  };
-
-  const triggerMockInotifyDownload = () => {
-    setQuarantineApk("Surat_Undangan_Nikah_Digital.apk");
-  };
-
-  if (isDestroyed) {
-    return (
-      <div className="mx-auto max-w-3xl space-y-4 px-4 py-16 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100 text-slate-500">
-          <Shield className="h-8 w-8" />
-        </div>
-        <h2 className="text-2xl font-bold text-slate-900">Sesi Sandbox Telah Dihancurkan</h2>
-        <p className="mx-auto max-w-md text-sm text-slate-600">
-          Lingkungan browser cloud terisolasi telah dimatikan dan seluruh cache/file sementara telah
-          dibersihkan demi keamananmu.
-        </p>
-        <button
-          type="button"
-          onClick={() => router.push(PUBLIC_ROUTES.home)}
-          className="mt-4 cursor-pointer rounded-full bg-rose-600 px-6 py-2.5 text-xs font-semibold text-white shadow-md shadow-rose-600/20 transition-colors hover:bg-rose-700"
-        >
-          Kembali ke Beranda
-        </button>
-      </div>
-    );
-  }
-
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import {
+  LearningProblem,
+  LearningSkeleton,
+  learningControl,
+} from "@/components/academy/learning-ui";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { sandboxTargetPlan } from "@/lib/sandbox/target-plan";
+import { QuarantinedDownloads } from "./quarantined-downloads";
+import { SandboxSessionPanel } from "./sandbox-session-panel";
+import { useSandboxSession } from "./use-sandbox-session";
+export function WebSandboxView({ scope }: { scope: string }) {
+  const params = useSearchParams();
+  const target = params.get("target") ?? "";
+  const source = params.get("investigation") ?? undefined;
   return (
-    <div className="space-y-4">
-      {/* Timer Bar */}
-      <SandboxTimerBar
-        initialSeconds={180}
-        onExpire={handleDestroy}
-        onDestroy={handleDestroy}
-        isDestroying={isDestroying}
-      />
-
-      {/* Browser Chrome Container */}
-      <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-md transition-all">
-        {/* Browser Top Navigation Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 bg-slate-50 p-3">
-          <div className="flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-rose-400" />
-            <span className="h-3 w-3 rounded-full bg-amber-400" />
-            <span className="h-3 w-3 rounded-full bg-emerald-400" />
-            <span className="ml-2 text-xs font-semibold text-slate-500">
-              Cloud Chromium Isolation (KasmVNC Sandbox)
-            </span>
-          </div>
-
-          {/* Viewport Toggles & Inotify Simulation Trigger */}
-          <div className="flex items-center gap-2">
+    <WebSandboxForm
+      key={JSON.stringify([scope, target, source])}
+      scope={scope}
+      initialTarget={target}
+      initialSource={source}
+    />
+  );
+}
+function WebSandboxForm({
+  scope,
+  initialTarget,
+  initialSource,
+}: {
+  scope: string;
+  initialTarget: string;
+  initialSource?: string;
+}) {
+  const [target, setTarget] = useState(initialTarget);
+  const [source, setSource] = useState(initialSource);
+  const [consent, setConsent] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+  const state = useSandboxSession(scope);
+  const data = state.resource.data;
+  const session = data?.session;
+  const live = Boolean(session && ["STARTING", "ACTIVE", "UNKNOWN"].includes(session.status));
+  const plan = sandboxTargetPlan(target);
+  const different = Boolean(live && session && target && plan?.cleanUrl !== session.targetUrl);
+  if (state.resource.loading) return <LearningSkeleton />;
+  if (!data || state.resource.problem) return <LearningProblem retry={state.resource.retry} />;
+  return (
+    <div className="space-y-5">
+      <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+        <p aria-live="polite" className="text-sm">
+          {data.message}
+        </p>
+        {different && (
+          <output className="block rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
+            Sesi sebelumnya masih berjalan. Tautan baru belum dibuka:{" "}
+            <span className="font-medium break-all">{plan?.cleanUrl}</span>. Hentikan sesi aktif
+            terlebih dahulu.
+          </output>
+        )}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void state.mutate({ target, stripParameters: consent, sourceInvestigationId: source });
+          }}
+          className="space-y-4"
+        >
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="w-full min-w-0 space-y-1 text-sm sm:w-auto sm:flex-1">
+              {live ? "Tautan awal sesi aktif" : "Tautan publik"}{" "}
+              <span className="text-rose-600">*</span>
+              <input
+                required
+                type="text"
+                maxLength={16384}
+                disabled={live || Boolean(state.pending)}
+                value={live && session ? session.targetUrl : target}
+                placeholder="https://example.com/halaman"
+                onChange={(e) => {
+                  state.resetRequest();
+                  setTarget(e.target.value);
+                  setSource(undefined);
+                  setConsent(false);
+                }}
+                className={`${learningControl} block w-full`}
+              />
+            </label>
+            <button
+              disabled={
+                !data.available ||
+                live ||
+                Boolean(state.pending) ||
+                Boolean(plan?.requiresRemoval && !consent)
+              }
+              type="submit"
+              className="bg-brand-600 min-h-11 rounded-xl px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {state.pending === "start" ? "Menyiapkan browser..." : "Mulai sesi 180 detik"}
+            </button>
             <button
               type="button"
-              onClick={triggerMockInotifyDownload}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100"
-              title="Simulasikan trigger inotify download watcher saat malware mencoba mengunduh APK"
+              className={learningControl}
+              disabled={Boolean(state.pending)}
+              onClick={state.resource.retry}
             >
-              <Download className="h-3.5 w-3.5 text-amber-600" />
-              Simulasi Unduh APK
-            </button>
-
-            <div className="inline-flex rounded-xl bg-slate-200/70 p-1 text-slate-600">
-              <button
-                type="button"
-                onClick={() => setViewport("desktop")}
-                className={`flex cursor-pointer items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
-                  viewport === "desktop"
-                    ? "bg-white text-slate-900 shadow-xs"
-                    : "hover:text-slate-900"
-                }`}
-              >
-                <Monitor className="h-3.5 w-3.5" /> Desktop
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewport("mobile")}
-                className={`flex cursor-pointer items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
-                  viewport === "mobile"
-                    ? "bg-white text-slate-900 shadow-xs"
-                    : "hover:text-slate-900"
-                }`}
-              >
-                <Smartphone className="h-3.5 w-3.5" /> Mobile
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Browser Address Bar */}
-        <div className="flex items-center gap-3 border-b border-slate-200/80 bg-slate-100/70 px-4 py-2.5">
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <button
-              type="button"
-              onClick={() => {}}
-              className="cursor-pointer rounded p-1 hover:bg-slate-200"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
+              Periksa status
             </button>
           </div>
-
-          <div className="flex flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 shadow-2xs">
-            <Lock className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
-            <input
-              type="text"
-              value={currentUrl}
-              onChange={(e) => setCurrentUrl(e.target.value)}
-              className="w-full bg-transparent font-mono text-xs text-slate-800 outline-none"
-              placeholder="https://..."
-            />
-          </div>
-
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-600">
-            <Shield className="h-3 w-3" /> Sandboxed Environment
-          </span>
-        </div>
-
-        {/* Viewport Render Area */}
-        <div className="flex min-h-[520px] justify-center bg-slate-900/5 p-4">
-          <div
-            className={`flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 ${
-              viewport === "mobile" ? "h-[640px] w-[390px]" : "h-[520px] w-full"
-            }`}
-          >
-            {/* Sandboxed Simulation Screen */}
-            <div className="flex flex-1 flex-col items-center justify-center space-y-4 bg-slate-50 p-8 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-3xl border border-rose-200 bg-rose-50 text-rose-600">
-                <Globe className="h-7 w-7" />
-              </div>
-
-              <div>
-                <span className="text-xs font-bold tracking-widest text-rose-600 uppercase">
-                  Isolated Cloud Browser Stream
+          {!live && plan?.requiresRemoval && (
+            <div className="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
+              <p>
+                Parameter dan fragmen URL dihapus untuk menjaga privasi. Tautan yang bergantung pada
+                parameter bisa membuka halaman berbeda.
+              </p>
+              <p className="break-all">
+                Versi yang akan dibuka: <strong>{plan.cleanUrl}</strong>
+              </p>
+              <label className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                  className="accent-brand-600 mt-1"
+                />
+                <span>
+                  Saya setuju membuka versi tanpa parameter dan memahami halaman dapat berbeda.
                 </span>
-                <h4 className="mt-1 text-base font-bold text-slate-900">
-                  Membuka Tautan Phishing Secara Aman
-                </h4>
-                <p className="mt-1.5 max-w-sm font-mono text-xs leading-relaxed text-slate-500">
-                  {currentUrl}
-                </p>
-              </div>
-
-              <div className="max-w-md space-y-2 rounded-2xl border border-slate-200 bg-white p-4 text-left text-xs text-slate-600">
-                <div className="flex items-center gap-1.5 font-semibold text-slate-900">
-                  <Shield className="h-4 w-4 text-emerald-600" /> Status Perlindungan:
-                </div>
-                <ul className="list-inside list-disc space-y-1 text-slate-500">
-                  <li>Zero Local Infection: Eksekusi script berjalan di kontainer terisolasi</li>
-                  <li>Inotify Watcher aktif memantau unduhan APK</li>
-                  <li>Sesi otomatis dihancurkan saat waktu habis</li>
-                </ul>
-              </div>
-
-              <button
-                type="button"
-                onClick={triggerMockInotifyDownload}
-                className="cursor-pointer text-xs font-medium text-rose-600 underline hover:text-rose-700"
-              >
-                Uji Coba Deteksi Unduhan APK Otomatis &rarr;
-              </button>
+              </label>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Inotify Quarantine Modal */}
-      <InotifyQuarantineModal
-        isOpen={quarantineApk !== null}
-        fileName={quarantineApk || ""}
-        onDismiss={() => setQuarantineApk(null)}
+          )}
+        </form>
+        <p className="max-w-2xl text-xs leading-relaxed text-slate-500">
+          Tautan dibuka di browser server. Jangan masukkan akun atau data pribadi. Clipboard dan
+          pemindahan unduhan langsung ke perangkat lokal dinonaktifkan.
+        </p>
+        {state.error && (
+          <p role="alert" className="text-sm text-rose-700">
+            {state.error}
+          </p>
+        )}
+      </section>
+      {session && (
+        <>
+          <SandboxSessionPanel
+            session={session}
+            remaining={state.remaining}
+            pending={Boolean(state.pending)}
+            onStop={() => setConfirm(true)}
+          />
+          <QuarantinedDownloads key={session.sessionId} session={session} />
+        </>
+      )}
+      <ConfirmDialog
+        open={confirm}
+        onOpenChange={setConfirm}
+        title="Hentikan sesi sandbox?"
+        description="Browser dan data sementara pada container sesi ini akan dihapus."
+        pending={state.pending === "stop"}
+        error={state.error}
+        confirmLabel="Hentikan dan hapus"
+        onConfirm={() => {
+          void state.mutate().then((success) => {
+            if (success) setConfirm(false);
+          });
+        }}
       />
     </div>
   );

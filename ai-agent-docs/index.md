@@ -12,11 +12,33 @@ Dokumentasi ini dirancang khusus secara modular sebagai _Master Context & System
 
 ---
 
+Status terbaru: [Penyelesaian audit alur lokal](./flow-consistency.md), termasuk akun demo, statistik nyata, peringkat akun anonim, latihan komunitas, dan karantina APK. Peringkat landing sementara memakai [data contoh berlabel](./community.md#latihan-dan-peringkat) atas permintaan pengguna. Panduan runtime: [Sandbox Web dan Guardian Academy](./sandbox-and-academy.md).
+
+Audit keseluruhan sistem dan perbaikan bug 3 November 2026: [system-flow-audit.md](./system-flow-audit.md). Integrasi model AI tetap ditunda selama pelatihan oleh tim.
+
 ## 🧭 Peta Navigasi Dokumentasi
+
+Identitas visual dan aset logo resmi: [branding.md](./branding.md).
+
+Hero mengikuti gambar referensi pengguna, kontrol Tempel, dan contoh URL fiktif: [hero-reference.md](./hero-reference.md).
 
 Dokumentasi dikelompokkan ke dalam tiga kategori utama:
 
 ### 1. Standar Rekayasa & Alur Kerja AI (Engineering & Workflows)
+
+Untuk alur login USER ke landing, ADMIN ke dashboard, proteksi sesi, dan setup test MySQL terisolasi, rujuk [authentication.md](./authentication.md).
+
+Untuk pusat data investigasi URL/QR/APK, lifecycle status, riwayat, dan alur selama model masih dilatih, rujuk [investigations.md](./investigations.md).
+
+Untuk validasi dan normalisasi URL, unggahan QR/APK, drag-and-drop, serta pemulihan input yang gagal, rujuk [input-flow.md](./input-flow.md).
+
+Untuk hasil yang dapat dibuka ulang berdasarkan ID, mode tampilan, pembaruan status, serta pagination/filter riwayat, rujuk [results-and-history.md](./results-and-history.md).
+
+Untuk Guardian Share Card dari investigasi tersimpan, privasi isi kartu, ekspor PNG, dan fallback berbagi/clipboard, rujuk [share-card.md](./share-card.md).
+
+Untuk kontribusi investigasi, snapshot anonim, persetujuan pengguna, moderasi admin, dan daftar kasus disetujui, rujuk [community.md](./community.md).
+
+Untuk ekstraksi manifest biner, permissions, indikator dan potongan hasil JADX, batas sumber daya, serta setup Java/alat, rujuk [apk-static.md](./apk-static.md).
 
 | Dokumen                                                    | Topik & Cakupan Utama                                                                                        | Kapan Harus Dirujuk?                                                                     |
 | :--------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------- |
@@ -53,7 +75,7 @@ Dokumentasi dikelompokkan ke dalam tiga kategori utama:
    - Berfungsi murni agar pengguna dapat membuka tautan yang terindikasi phishing/berbahaya secara langsung tanpa rasa khawatir perangkat lokal mereka terinfeksi malware.
    - _Interactive Android Emulator_ (`Redroid`) untuk menguji aplikasi `.apk` secara visual di lingkungan aman.
 3. **Act (Bertindak):**
-   - _Guardian Share Card_: Generator infografis 1-klik berisi tangkapan layar ber-watermark aman dan rangkuman 3 poin bahaya utama untuk disebarkan sebagai peringatan dini ke grup WhatsApp keluarga atau komunitas.
+   - _Guardian Share Card_: Generator gambar dan pesan dari hasil investigasi tersimpan, dengan target dinonaktifkan, ringkasan, dan maksimal tiga temuan nyata. Mendukung unduh PNG serta berbagi file sesuai kemampuan browser; rujuk [share-card.md](./share-card.md).
 
 ---
 

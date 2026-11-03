@@ -6,6 +6,8 @@
 
 ---
 
+Fondasi rekaman investigasi, persistensi ID/pemilik/status, riwayat, dan perilaku saat model belum tersedia telah diimplementasikan. Rujuk [investigations.md](./investigations.md) untuk alur aktif. Deteksi model dan ekstraksi statis APK masih merupakan pekerjaan lanjutan.
+
 > [!IMPORTANT]
 > **Aturan Redundansi & Siklus Hidup Dokumen Spesifikasi:**
 > Begitu suatu fitur atau sub-modul di bawah ini telah selesai diimplementasikan ke dalam kode (lengkap dengan UI, logika, skema Zod, dan pengujian `bun test`-nya), **HAPUS entri fitur tersebut dari dokumen ini**.
@@ -13,22 +15,7 @@
 
 ---
 
-## 1. Modul 1: Landing Dashboard & Public Gateway (`/`)
-
-- **Tujuan:** Gerbang utama interaksi pengguna, pengenalan platform, dan edukasi publik sebelum masuk ke area investigasi aman.
-- **Akses Pengguna:** **Publik (Tamu)** dapat melihat overview, leaderboard publik, dan contoh edukasi. Namun saat pengguna menekan tombol analisis atau mengirimkan input, sistem mewajibkan login/register agar seluruh riwayat analisis tersimpan secara detail ke akun pengguna.
-- **Fitur Utama:**
-  1. **3 Tab Input Analisis (Auth-Gated):**
-     - **Cek URL / Domain Mencurigakan:** Input teks langsung untuk tautan phishing.
-     - **Scan / Upload Gambar QR Code:** Helper utilitas yang mengekstrak teks/URL dari gambar kode QR secara otomatis (`jsqr` / `@zxing/library`).
-     - **Bongkar File `.apk` (Manual Upload):** Area drag-and-drop / file picker untuk mengunggah file installer Android yang mencurigakan.
-  2. **Intersepsi Autentikasi Pengguna:**
-     - Jika pengguna belum login, aksi klik "Mulai Analisis" memunculkan dialog/redirect ke halaman Login dengan parameter `?redirect=/` sehingga setelah login pengguna langsung melanjutkan analisis.
-  3. **Privacy & Security Control:**
-     - Toggle **Client-Side PII Masking** aktif secara default.
-     - Badge transparansi: _"Powered by Custom AI + DeepSeek API (Data Anonim)"_.
-
----
+Input gateway URL/QR/APK, autentikasi input, validasi, drag-and-drop, serta kontrol privasi telah tersedia. Kontrak aktif dan batas implementasi dirujuk di [input-flow.md](./input-flow.md).
 
 ## 2. Modul 2: Deteksi AI URL & QR Decoder Helper (`/api/analyze-url` & `/api/analyze-qr`)
 
@@ -38,27 +25,19 @@
   1. **Model AI Deteksi Phishing URL:**
      - Ekstraksi fitur leksikal: panjang URL, rasio karakter khusus, Shannon entropy, TLD berisiko tinggi (`.xyz`, `.top`, `.click`, `.buzz`), dan kemiripan nama bank/brand Indonesia (_typosquatting_ seperti `bca-klik[.]xyz`).
      - Output skor risiko (0–100) dan _Explainable Red Flags_.
-  2. **QR Image Decoder Helper:**
-     - Menggunakan modul decoder kode QR berbasis library JavaScript/TypeScript mature (`jsqr` / `@zxing/library`) untuk mendeteksi dan membaca _payload_ gambar QR secara instan.
-  3. **Penyimpanan Otomatis ke Riwayat:**
-     - Hasil analisis URL/QR otomatis disimpan ke modul **Riwayat Detail Forensik** pengguna.
+
+Decoder QR, provenance input, dan penyimpanan investigasi telah tersedia; lihat [investigations.md](./investigations.md). Bagian yang masih menunggu adalah integrasi model untuk menghasilkan penilaian risiko.
 
 ---
 
-## 3. Modul 3: Browser-in-Browser Sandbox (`/sandbox/web`)
+## 3. Modul 3: Sandbox Web Nyata (/sandbox/web)
 
-- **Tujuan:** **Proteksi Perangkat Pengguna.** Menyediakan lingkungan browser cloud terisolasi agar pengguna dapat membuka situs phishing tanpa khawatir perangkat lokal terinfeksi malware.
-- **Akses Pengguna:** **Khusus User Terautentikasi (`USER` & `ADMIN`)**.
-- **Fitur Utama:**
-  1. **Isolated Streaming Session:**
-     - Menampilkan stream Chromium Kiosk terisolasi via WebRTC / KasmVNC di dalam iframe.
-     - Sesi dibatasi waktu (_session timeout_ 180 detik) dan otomatis dihancurkan (_auto-destroy_).
-  2. **Kontrol Tampilan Mobile:**
-     - Switch Desktop / Mobile Viewport (_Mobile User-Agent Spoofing_) untuk membuka trik phishing mobile.
-  3. **Inotify Download Watcher (Auto-Intercept APK):**
-     - Memonitor direktori `/downloads` kontainer browser sandbox. Jika mendeteksi unduhan file `.apk`, modal interaktif karantina otomatis muncul dengan tautan ke Modul 4.
-  4. **Perekaman Sesi Investigasi:**
-     - URL target, tangkapan layar thumbnail, dan status sesi dicatat ke riwayat pengguna.
+- USER/ADMIN memasukkan URL publik atau melanjutkan tautan dari hasil/riwayat, lalu menekan tombol mulai.
+- Chromium/KasmVNC, proxy egress, dan jaringan sesi dialokasikan melalui broker terpisah. Next tidak memegang socket Docker.
+- Stream HTTP/WebSocket hanya terbuka dengan tiket sesi. Maksimal 180 detik, satu sesi per akun, dan tiga sesi global.
+- Runtime offline menghasilkan status tidak tersedia tanpa sesi aktif palsu. Penghentian/pembersihan harus dikonfirmasi provider.
+- Unduhan hanya di server: APK dikarantina dan dapat dikirim manual ke bedah statis/riwayat. Clipboard, perangkat, dan transfer lokal diblokir. Viewport mobile dan thumbnail sesi belum tersedia.
+- Kontrak, keamanan jaringan, batas runtime, dan verifikasi: [sandbox-and-academy.md](./sandbox-and-academy.md).
 
 ---
 
@@ -68,11 +47,11 @@
 - **Akses Pengguna:** **Khusus User Terautentikasi (`USER` & `ADMIN`)**.
 - **Fitur Utama:**
   1. **Jalur Cepat (Static X-Ray via DeepSeek LLM):**
-     - Server Handler Next.js mengekstrak `AndroidManifest.xml` dan strings via CLI `jadx` / `apktool`.
-     - Regex Scanner mencari hardcoded Telegram Bot Token (`api.telegram.org/bot...`), chat ID, URL C2, dan nomor WhatsApp pelaku.
-     - DeepSeek API menyajikan hasil dalam **Mode Bahasa Manusia** (analogi sederhana) dan **Mode Teknis (Geek View)**.
+     - Tahap 7 memakai JADX terverifikasi untuk manifest biner/resource, permissions, dan dekompilasi DEX dalam proses berbatas sumber daya.
+     - Scanner menyimpan origin alamat nonaktif, jumlah/fingerprint indikator bot, serta potongan Java tersanitasi. Token/kontak/konstanta sensitif dan path/query rahasia tidak disimpan.
+     - Fakta statis ditampilkan dalam mode manusia/teknis. Model/DeepSeek belum dipanggil, skor risiko tetap kosong. Kontrak aktif dan setup: [apk-static.md](./apk-static.md).
   2. **Jalur Interaktif (Android Emulator Sandbox):**
-     - Menjalankan kontainer `Redroid` via noVNC / WebSocket untuk pengujian interaktif yang aman.
+     - Belum aktif: runtime lokal tidak menyediakan binder untuk Redroid. Halaman menampilkan batas ini dan tautan ke bedah APK statis; tidak membuat sesi atau emulator simulasi.
   3. **Penyimpanan Riwayat Dekompilasi Lengkap:**
      - Metadata manifest, daftar izin Android berbahaya, temuan bot Telegram, dan respon AI tersimpan di riwayat pengguna.
 
@@ -84,72 +63,44 @@
 - **Akses Pengguna:** **Khusus User Terautentikasi (`USER` & `ADMIN`)**.
 - **Fitur Utama:**
   1. **Guardian Share Card Generator:**
-     - Menggabungkan tangkapan layar ber-watermark aman (_"AWAS MODUS PENIPUAN"_).
-     - URL target otomatis di-_defang_ (misal: `dana-kaget[.]xyz`).
-     - Memuat 3 poin ringkasan bahaya utama hasil analisis AI.
-     - 1-klik unduh gambar format PNG via `html-to-image`.
-  2. **Tombol Sumbang ke Komunitas:**
-     - Opsi langsung menyumbangkan kartu analisis ini ke **Community Forensic Replay**.
+     - Membaca hasil lengkap tersimpan berdasarkan ID, dengan akses pemilik/admin.
+     - Target dan indikator di dalam ringkasan dinonaktifkan; PII dan kredensial disamarkan.
+     - Memuat ringkasan serta maksimal tiga temuan nyata, skor/verdict, sumber model, waktu hasil, dan ID.
+     - SAFE/LOW menggunakan kartu netral. Hasil belum tersedia/gagal/legacy tidak dapat diekspor.
+     - Unduh PNG via `html-to-image`, salin pesan dengan fallback manual, serta berbagi file bila browser mendukung.
+     - Kontrak dan batas implementasi: [share-card.md](./share-card.md).
+  2. **Kontribusi ke Komunitas (Tahap 6):**
+     - Pengajuan dari ID investigasi lengkap tersedia melalui preview dan persetujuan pengguna; rujuk [community.md](./community.md).
 
 ---
 
-## 6. Modul 6: Autentikasi Pengguna & Role-Based Access Control / RBAC (`/login`, `/register`)
+## 6. Modul 6: Backlog Administrasi Lanjutan
 
-- **Tujuan:** Mengelola identitas pengguna, sesi login aman, dan pembagian hak akses bertingkat.
-- **Peran Pengguna (Roles):**
-  1. **`ADMIN`:**
-     - Mengatur dan mengelola seluruh konfigurasi website.
-     - Mengelola CMS Kuis Interaktif (tambah, edit, hapus soal, tentukan kunci jawaban & bobot EXP).
-     - Mengelola antrean moderasi temuan pengguna sebelum diterbitkan ke _Community Forensic Replay_.
-     - Mengelola daftar pengguna dan audit log aktivitas sistem.
-  2. **`USER`:**
-     - Mengakses modul analisis (URL, QR, APK, Web Sandbox, Emulator, Share Card).
-     - Menyimpan dan membuka kembali riwayat investigasi detail.
-     - Mengikuti kuis interaktif gamifikasi (_Guardian Academy_) untuk mengumpulkan EXP, menaikkan level, menjaga streak harian, dan meraih lencana.
-     - Mengakses dan memainkan studi kasus interaktif di _Community Forensic Replay_.
-- **Fitur Utama:**
-  1. Form Registrasi & Login dengan validasi Zod ketat.
-  2. Session management aman berbasis cookie HTTP-Only.
-  3. Next.js Middleware untuk proteksi rute (`/admin/*` hanya untuk role `ADMIN`, rute analisis & dashboard hanya untuk `USER` dan `ADMIN`).
+Autentikasi, sesi, pembatasan peran, landing USER, dan dashboard ADMIN telah diimplementasikan. Kontrak yang berlaku dan lokasi kode tersedia di [authentication.md](./authentication.md).
+
+- UI manajemen daftar pengguna dan pemberian peran melalui proses admin yang terkontrol.
+- Audit log aktivitas administrasi dan pengaturan website lanjutan.
 
 ---
 
-## 7. Modul 7: Riwayat Detail Forensik Pengguna (`/history` & `/history/[id]`)
+## 7. Tindak Lanjut dari Riwayat
 
-- **Tujuan:** Menyimpan seluruh rekam jejak investigasi pengguna secara detail sehingga dapat dibuka kembali kapan saja tanpa pemindaian ulang.
-- **Akses Pengguna:** **Khusus User Terautentikasi (`USER` & `ADMIN`)**.
-- **Fitur Utama:**
-  1. **Daftar Riwayat Interaktif:**
-     - Tabel/kartu riwayat dengan filter berdasarkan tipe (`URL`, `QR`, `APK`), tingkat risiko (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`), dan rentang tanggal.
-     - Pencarian cepat berdasarkan nama domain atau nama file APK.
-  2. **Halaman Detail Riwayat (`/history/[id]`):**
-     - Memuat snapshot hasil analisis lengkap: tanggal pemindaian, skor risiko, daftar Red Flags, ringkasan DeepSeek (Mode Manusia vs Geek View), dan daftar izin APK.
-     - Tombol ekspor ulang _Guardian Share Card_ dari riwayat lama.
-  3. **Opsi "Kontribusikan ke Komunitas":**
-     - Tombol 1-klik untuk mendaftarkan investigasi ini ke antrean moderasi _Community Forensic Replay_.
+Daftar/detail, metadata hasil, mode manusia/teknis, filter tanggal, dan pagination telah diimplementasikan; rujuk [results-and-history.md](./results-and-history.md).
+
+- Ekspor Guardian Share Card dari hasil tersimpan tersedia; rujuk [share-card.md](./share-card.md).
+- Kontribusi investigasi dan moderasi admin sudah terhubung ke snapshot hasil tersimpan; rujuk [community.md](./community.md).
 
 ---
 
-## 8. Modul 8: Guardian Academy — Kuis Edukasi Gamifikasi Interaktif (`/academy` & `/admin/quizzes`)
+## 8. Modul 8: Guardian Academy (/academy dan /admin/quizzes)
 
-- **Tujuan:** Melatih kepekaan dan insting deteksi ancaman siber pengguna melalui format gamifikasi interaktif ala "Duolingo".
-- **Akses Pengguna:** `USER` (Pemain/Pelajar), `ADMIN` (Pengelola CMS Soal).
-- **Fitur Pengalaman Pengguna (Gamifikasi Siswa / User):**
-  1. **Sistem EXP & Leveling:**
-     - Poin EXP diperoleh setiap kali berhasil menyelesaikan modul latihan atau kuis.
-     - Jenjang Pangkat Guardian: _Recruit_ $\rightarrow$ _Junior Analyst_ $\rightarrow$ _Cyber Sentinel_ $\rightarrow$ _Forensic Master_.
-  2. **Streak Harian (Daily Cyber Streak):**
-     - Menghitung keaktifan pengguna menyelesaikan minimal 1 simulasi per hari dengan animasi api streak menyala.
-  3. **Lencana Pencapaian (Badges & Achievements):**
-     - Lencana khusus: _"Anti-Quishing Master"_ (selesaikan 5 simulasi QR), _"APK Dissector"_ (bedah izin malware), _"Phishing Hunter"_.
-  4. **Tipe Soal Interaktif:**
-     - **Tipe A (Spot the Phish):** Membandingkan dua tampilan URL/website dan memilih mana yang palsu.
-     - **Tipe B (Social Engineering Breakdown):** Menganalisis tangkapan layar pesan WhatsApp/SMS dan menandai kata-kata manipulasi psikologis.
-     - **Tipe C (Dangerous Permission Detective):** Menganalisis izin Android dan menebak tujuan jahat pembuat aplikasi.
-  5. **Learning Path / Skill Tree:** Peta navigasi level materi yang terbuka secara bertahap saat level sebelumnya tuntas.
-- **Fitur Manajemen Admin (`/admin/quizzes`):**
-  1. **CMS Bank Soal:** Tambah, edit, arsip, dan hapus soal kuis.
-  2. **Pengaturan Parameter:** Menentukan kategori ancaman, tingkat kesulitan, teks soal, opsi jawaban bergambar/teks, kunci jawaban, penjelasan edukasi mendalam, dan bobot perolehan EXP.
+- Daftar kuis, EXP, peringkat, streak WIB, lencana, dan 10 latihan terakhir berasal dari akun aktif di MySQL.
+- Soal tunggal, jamak, dan benar/salah dinilai server. Kunci/pembahasan tidak disertakan pada API publik sebelum pengiriman jawaban.
+- Lulus minimal 70%. EXP hanya diberikan pada kelulusan pertama per kuis; gagal/ulang mendapat nol EXP. Transaksi dan UUID pengiriman mencegah hadiah ganda.
+- CMS menyediakan editor materi dan soal lengkap, draf/terbit, revisi untuk konflik edit, pagination 10 kuis, dan pengarsipan yang mempertahankan progres pengguna.
+- Lencana Langkah Pertama diberikan setelah satu kelulusan; tidak ada lencana contoh yang dibuka otomatis. Skill tree terkunci bertahap dan soal gambar belum tersedia.
+- Tiga materi awal ditambahkan secara idempoten dengan bun run academy:seed, tanpa akun demo atau penimpaan konten admin.
+- Kontrak, migrasi, dan verifikasi: [sandbox-and-academy.md](./sandbox-and-academy.md).
 
 ---
 
@@ -159,11 +110,12 @@
 - **Akses Pengguna:** `USER` (Pemain Investigasi Komunitas), `ADMIN` (Moderator Validasi).
 - **Fitur Utama:**
   1. **Alur Pengajuan Kasus Komunitas:**
-     - Pengguna yang menemukan link phishing atau APK berbahaya baru dapat menekan tombol _"Bagikan ke Komunitas"_.
-     - **Sanitasi PII Otomatis:** Sistem membersihkan seluruh data pribadi korban menggunakan regex PII Scrubber sebelum masuk antrean.
+     - Pengguna memilih **Ajukan ke komunitas** dari hasil lengkap/Share Card, meninjau snapshot, dan memberikan persetujuan.
+     - API hanya menerima ID investigasi milik pengguna dan consent; snapshot disanitasi serta duplikasi dicegah dengan relasi unik.
   2. **Panel Moderasi Admin (`/admin/community-reviews`):**
-     - Admin memeriksa keaslian bukti, memastikan data pribadi tersanitasi 100%, dan menyetujui (_Approve_) atau menolak (_Reject_) studi kasus.
-  3. **Interactive Forensic Replay Mode (`/community/[replayId]`):**
-     - Pengguna lain membuka studi kasus nyata yang dibagikan.
-     - Pengguna bertindak sebagai "Penyidik Siber": meneliti bukti yang ditemukan, menjawab teka-teki forensik dari skenario tersebut langkah demi langkah, dan melihat bagaimana modus penipuan tersebut bekerja.
-     - Menyelesaikan _Forensic Replay_ memberikan **Bonus EXP Tinggi** dan menaikkan peringkat di Leaderboard Komunitas.
+     - Admin memeriksa snapshot, mengonfirmasi privasi untuk publikasi atau menuliskan alasan penolakan. Satu keputusan akhir dicatat dengan reviewer/waktu; pengajuan sendiri memerlukan admin lain.
+  3. **Detail Kasus (`/community/[replayId]`):**
+     - Anggota membaca snapshot kasus yang disetujui dalam mode manusia/teknis, tanpa identitas pengaju atau bukti mentah sensitif.
+     - Pending/ditolak hanya tersedia bagi pemilik/admin. Filter dan pagination tersedia pada daftar komunitas/antrean.
+     - Latihan tiga soal dari snapshot memberi 30 EXP hanya pada kelulusan pertama; pembacaan kasus tidak memberi EXP. Leaderboard memakai EXP aktual dan alias anonim.
+     - Kontrak API, migrasi, dan batas implementasi: [community.md](./community.md).

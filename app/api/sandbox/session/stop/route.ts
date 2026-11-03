@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
+import { authorizeRequest } from "@/lib/auth/access";
+import { readInput } from "@/lib/investigations/request-input";
+import { sandboxError } from "@/lib/sandbox/http";
 import { stopSandboxSession } from "@/lib/sandbox/session-manager";
-
+import { sandboxStopSchema } from "@/lib/validations/sandbox";
 export async function POST(request: Request) {
   try {
-    const body = await request.json().catch(() => ({}));
-    const sessionId = typeof body?.sessionId === "string" ? body.sessionId.trim() : "";
-
-    if (!sessionId) {
-      return NextResponse.json({ error: "sessionId is required" }, { status: 400 });
-    }
-
-    const result = await stopSandboxSession(sessionId);
-    return NextResponse.json(result, { status: 200 });
+    const auth = await authorizeRequest(request);
+    if (auth.error) return auth.error;
+    const body = sandboxStopSchema.parse(await readInput(request, 1000, "json"));
+    const result = await stopSandboxSession(body.sessionId, auth.user);
+    return result
+      ? NextResponse.json(result)
+      : NextResponse.json({ error: "Sesi tidak ditemukan." }, { status: 404 });
   } catch (error) {
-    console.error("Failed to stop sandbox session:", error);
-    return NextResponse.json({ error: "Failed to terminate sandbox session" }, { status: 500 });
+    return sandboxError(error);
   }
 }

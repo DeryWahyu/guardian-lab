@@ -1,6 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/auth/jwt";
-import { AUTH_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import {
+  ADMIN_ROUTES,
+  API_ROUTES,
+  AUTH_ROUTES,
+  PROTECTED_ROUTES,
+  PUBLIC_ROUTES,
+} from "@/lib/routes";
 
 const SESSION_COOKIE_NAME = "guardian_session";
 
@@ -13,7 +19,8 @@ export async function proxy(request: NextRequest) {
   const isAdmin = session?.role === "ADMIN";
 
   // 1. Protect Admin API routes: /api/admin/*
-  if (pathname.startsWith("/api/admin")) {
+  const adminApiPrefix = API_ROUTES.adminQuizzes.slice(0, API_ROUTES.adminQuizzes.lastIndexOf("/"));
+  if (pathname === adminApiPrefix || pathname.startsWith(`${adminApiPrefix}/`)) {
     if (!isAuthenticated) {
       return NextResponse.json({ error: "Unauthorized: Otentikasi diperlukan" }, { status: 401 });
     }
@@ -29,7 +36,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // 2. Protect Admin Web routes: /admin/*
-  if (pathname.startsWith("/admin")) {
+  if (pathname === ADMIN_ROUTES.dashboard || pathname.startsWith(`${ADMIN_ROUTES.dashboard}/`)) {
     if (!isAuthenticated) {
       const loginUrl = new URL(AUTH_ROUTES.login, request.url);
       loginUrl.searchParams.set("redirect", `${pathname}${search}`);
@@ -43,8 +50,17 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 3. Protect User features: /history/* and /academy/*
-  if (pathname.startsWith("/history") || pathname.startsWith("/academy")) {
+  // Proxy is an optimistic check; pages and API handlers verify the database session.
+  if (
+    [
+      PROTECTED_ROUTES.history,
+      PROTECTED_ROUTES.academy,
+      PROTECTED_ROUTES.community,
+      PUBLIC_ROUTES.sandboxWeb,
+      PUBLIC_ROUTES.sandboxAndroid,
+      PUBLIC_ROUTES.act,
+    ].some((route) => pathname === route || pathname.startsWith(`${route}/`))
+  ) {
     if (!isAuthenticated) {
       const loginUrl = new URL(AUTH_ROUTES.login, request.url);
       loginUrl.searchParams.set("redirect", `${pathname}${search}`);
@@ -54,22 +70,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 4. Redirect already-authenticated users trying to access /login or /register
-  if (pathname === AUTH_ROUTES.login || pathname === AUTH_ROUTES.register) {
-    if (isAuthenticated) {
-      const redirectParam = request.nextUrl.searchParams.get("redirect");
-      const targetUrl =
-        redirectParam?.startsWith("/") &&
-        !redirectParam.startsWith("//") &&
-        !redirectParam.startsWith("/\\")
-          ? redirectParam
-          : PUBLIC_ROUTES.home;
-
-      return NextResponse.redirect(new URL(targetUrl, request.url));
-    }
-
-    return NextResponse.next();
-  }
+  // Auth pages check the database themselves so a revoked cookie never prevents a new login.
 
   // All other routes are public
   return NextResponse.next();
@@ -83,7 +84,8 @@ export const config = {
     "/api/admin/:path*",
     "/history/:path*",
     "/academy/:path*",
-    "/login",
-    "/register",
+    "/community/:path*",
+    "/sandbox/:path*",
+    "/act",
   ],
 };

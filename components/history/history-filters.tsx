@@ -1,79 +1,106 @@
 "use client";
-
-import { Search } from "lucide-react";
-
-interface HistoryFiltersProps {
-  type: string;
-  onTypeChange: (val: string) => void;
-  search: string;
-  onSearchChange: (val: string) => void;
-  risk: string;
-  onRiskChange: (val: string) => void;
-}
+import { INVESTIGATION_STATUS_LABELS } from "@/lib/investigations/presentation";
 
 export function HistoryFilters({
-  type,
-  onTypeChange,
-  search,
-  onSearchChange,
-  risk,
-  onRiskChange,
-}: HistoryFiltersProps) {
-  const tabs = [
-    { id: "ALL", label: "Semua Analisis" },
-    { id: "URL", label: "Tautan URL" },
-    { id: "QR", label: "QR Code" },
-    { id: "APK", label: "Malware APK" },
-  ];
-
+  values,
+  onChange,
+}: {
+  values: { type: string; risk: string; status: string; search: string; from: string; to: string };
+  onChange: (key: string, value: string) => void;
+}) {
+  const field =
+    "w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800";
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-xs">
-      {/* Category Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5 rounded-2xl bg-slate-100 p-1">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => onTypeChange(tab.id)}
-            className={`cursor-pointer rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
-              type === tab.id
-                ? "bg-white text-slate-900 shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Search & Risk Selector */}
-      <div className="flex w-full items-center gap-3 sm:w-auto">
-        <div className="relative flex-1 sm:w-64">
-          <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Cari domain / nama file..."
-            className="w-full rounded-full border border-slate-200 bg-slate-50 py-1.5 pr-4 pl-9 text-xs text-slate-800 transition-colors outline-none placeholder:text-slate-400 focus:border-rose-400"
-          />
-        </div>
-
-        <div className="relative">
-          <select
-            value={risk}
-            onChange={(e) => onRiskChange(e.target.value)}
-            className="cursor-pointer rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-semibold text-slate-700 outline-none"
-          >
-            <option value="ALL">Semua Risiko</option>
-            <option value="CRITICAL">Critical</option>
-            <option value="HIGH">High</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="LOW">Low</option>
-            <option value="SAFE">Safe</option>
-          </select>
-        </div>
-      </div>
+    <div className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 sm:grid-cols-2 lg:grid-cols-3">
+      <label className="space-y-1.5 text-xs font-semibold text-slate-600">
+        Jenis input
+        <select
+          aria-label="Filter jenis input"
+          value={values.type}
+          onChange={(event) => onChange("type", event.target.value)}
+          className={field}
+        >
+          <option value="ALL">Semua jenis</option>
+          <option value="URL">Tautan URL</option>
+          <option value="QR">Kode QR</option>
+          <option value="APK">Berkas APK</option>
+        </select>
+      </label>
+      <label className="space-y-1.5 text-xs font-semibold text-slate-600">
+        Status
+        <select
+          aria-label="Filter status investigasi"
+          value={values.status}
+          onChange={(event) => onChange("status", event.target.value)}
+          className={field}
+        >
+          <option value="ALL">Semua status</option>
+          {Object.entries(INVESTIGATION_STATUS_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="space-y-1.5 text-xs font-semibold text-slate-600">
+        Risiko
+        <select
+          aria-label="Filter tingkat risiko"
+          value={values.risk}
+          onChange={(event) => onChange("risk", event.target.value)}
+          className={field}
+        >
+          <option value="ALL">Semua risiko</option>
+          {[
+            "SAFE",
+            "LOW",
+            "MEDIUM",
+            "WARNING",
+            "HIGH",
+            "DANGEROUS",
+            "PHISHING",
+            "MALWARE",
+            "CRITICAL",
+          ].map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="space-y-1.5 text-xs font-semibold text-slate-600">
+        Cari investigasi (Opsional)
+        <input
+          type="search"
+          aria-label="Cari investigasi"
+          maxLength={200}
+          value={values.search}
+          onChange={(event) => onChange("search", event.target.value)}
+          placeholder="Cari domain atau nama berkas…"
+          className={field}
+        />
+      </label>
+      <label className="space-y-1.5 text-xs font-semibold text-slate-600">
+        Dari tanggal (Opsional)
+        <input
+          type="date"
+          aria-label="Dari tanggal"
+          value={values.from}
+          onChange={(event) => onChange("from", event.target.value)}
+          className={field}
+        />
+      </label>
+      <label className="space-y-1.5 text-xs font-semibold text-slate-600">
+        Sampai tanggal (Opsional)
+        <input
+          type="date"
+          aria-label="Sampai tanggal"
+          min={values.from || undefined}
+          value={values.to}
+          onChange={(event) => onChange("to", event.target.value)}
+          className={field}
+        />
+      </label>
     </div>
   );
 }

@@ -18,12 +18,14 @@ import { NextRequest } from "next/server";
 import { GET as meGET } from "@/app/api/auth/me/route";
 import { POST as registerPOST } from "@/app/api/auth/register/route";
 import { signSessionToken, verifySessionToken } from "@/lib/auth/jwt";
+import { getPostLoginRedirect } from "@/lib/auth/redirect";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { defangUrl, isDefanged, refangUrl } from "@/lib/security/defang";
 import { hasPii, REDACTION_TAGS, scrubPii } from "@/lib/security/pii-scrubber";
 import { getSafeRedirectUrl } from "@/lib/validations/auth";
 import { proxy } from "@/proxy";
+import { ADMIN_USER_FIXTURE, STANDARD_USER_FIXTURE } from "../e2e/fixtures/user-fixtures";
 
 describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
   // =========================================================================
@@ -306,7 +308,7 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
         const payload = Buffer.from(
           JSON.stringify({
             userId: "usr_admin_001",
-            email: "admin@gmail.com",
+            email: ADMIN_USER_FIXTURE.email,
             name: "Guardian Admin",
             role: "ADMIN",
             exp: Math.floor(Date.now() / 1000) + 3600,
@@ -322,7 +324,7 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
         const foreignKey = new TextEncoder().encode("foreign-unauthorized-secret-key-32b");
         const foreignToken = await new SignJWT({
           userId: "usr_admin_001",
-          email: "admin@gmail.com",
+          email: ADMIN_USER_FIXTURE.email,
           name: "Guardian Admin",
           role: "ADMIN",
         })
@@ -368,7 +370,7 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
     describe("Concurrent Logins & Session Persistence", () => {
       it("supports multiple concurrent active sessions for the same user without collision", async () => {
         const testUser = await prisma.user.findFirst({
-          where: { email: "gading@gmail.com" },
+          where: { email: STANDARD_USER_FIXTURE.email },
         });
         expect(testUser).not.toBeNull();
         if (!testUser) return;
@@ -427,14 +429,14 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
     it("prepares valid admin and user test tokens", async () => {
       adminToken = await signSessionToken({
         userId: "usr_admin_001",
-        email: "admin@gmail.com",
+        email: ADMIN_USER_FIXTURE.email,
         name: "Guardian Admin",
         role: "ADMIN",
       });
 
       userToken = await signSessionToken({
         userId: "usr_user_002",
-        email: "gading@gmail.com",
+        email: STANDARD_USER_FIXTURE.email,
         name: "Citizen Analyst",
         role: "USER",
       });
@@ -578,10 +580,9 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
         });
         const res = await proxy(req);
 
-        expect(res.status).toBe(307);
-        const location = res.headers.get("location");
-        expect(location).toBe("http://localhost:3000/");
-        expect(location).not.toContain("evil.com");
+        expect(res.status).toBe(200);
+        expect(res.headers.get("location")).toBeNull();
+        expect(getPostLoginRedirect("USER", req.nextUrl.searchParams.get("redirect"))).toBe("/");
       });
 
       it("neutralizes open redirect attempts when authenticated user visits /login?redirect=/\\evil.com", async () => {
@@ -590,10 +591,9 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
         });
         const res = await proxy(req);
 
-        expect(res.status).toBe(307);
-        const location = res.headers.get("location");
-        expect(location).toBe("http://localhost:3000/");
-        expect(location).not.toContain("evil.com");
+        expect(res.status).toBe(200);
+        expect(res.headers.get("location")).toBeNull();
+        expect(getPostLoginRedirect("USER", req.nextUrl.searchParams.get("redirect"))).toBe("/");
       });
     });
   });
@@ -614,7 +614,7 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
       const body = await res.json();
       expect(body.authenticated).toBe(false);
       expect(body.user).toBeNull();
-      expect(body.error).toBe("Token sesi tidak valid");
+      expect(body.error).toBe("Sesi tidak ditemukan atau telah kedaluwarsa");
     });
 
     it("unconditionally rejects mock backdoor tokens with 'valid_' substrings on /api/auth/me", async () => {
@@ -641,7 +641,7 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
 
     it("rejects duplicate registration with HTTP 409 and never wipes the existing user or active sessions", async () => {
       const existingUser = await prisma.user.findFirst({
-        where: { email: "gading@gmail.com" },
+        where: { email: STANDARD_USER_FIXTURE.email },
         include: { sessions: true },
       });
       expect(existingUser).not.toBeNull();
@@ -683,7 +683,7 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
   describe("6. Server-Side Session Revocation Lifecycle", () => {
     it("authenticates active session with 200, then returns 401 immediately upon database revocation", async () => {
       const user = await prisma.user.findFirst({
-        where: { email: "gading@gmail.com" },
+        where: { email: STANDARD_USER_FIXTURE.email },
       });
       expect(user).not.toBeNull();
       if (!user) return;
@@ -735,7 +735,7 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
 
     it("rejects session with 401 when database expiresAt is in the past", async () => {
       const user = await prisma.user.findFirst({
-        where: { email: "gading@gmail.com" },
+        where: { email: STANDARD_USER_FIXTURE.email },
       });
       expect(user).not.toBeNull();
       if (!user) return;

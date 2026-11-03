@@ -1,3 +1,6 @@
+import { getInvestigationResult } from "@/lib/investigations/presentation";
+import { type Investigation, investigationSchema } from "@/lib/validations/investigation";
+import { apkUpload } from "../helpers/investigation-fixtures";
 /**
  * Tier 3: Cross-Feature Combinations (Integration User Journeys)
  * Validates complex, multi-module user flows across the full Guardian Lab architecture:
@@ -10,21 +13,11 @@
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import { prisma } from "../../lib/prisma";
 import { PROTECTED_ROUTES } from "../../lib/routes";
-import { INDONESIAN_APK_MALWARE_FIXTURES } from "./fixtures/malware-samples";
 import { INDONESIAN_PHISHING_FIXTURES } from "./fixtures/phishing-urls";
 import { QR_CODE_FIXTURES } from "./fixtures/qr-codes";
 import { ACADEMY_QUIZ_FIXTURES } from "./fixtures/quiz-fixtures";
 import { NEW_REGISTERED_USER_FIXTURE } from "./fixtures/user-fixtures";
-import {
-  CommunityReplaySchema,
-  executeRoute,
-  referenceCalculateRank,
-  referenceDefangUrl,
-  referenceScrubPii,
-  SandboxSessionStartSchema,
-  SandboxSessionStopSchema,
-  ThreatAnalysisResultSchema,
-} from "./helpers/test-harness";
+import { executeRoute, referenceCalculateRank } from "./helpers/test-harness";
 
 describe("Tier 3: Cross-Feature Combinations", () => {
   beforeAll(async () => {
@@ -50,42 +43,17 @@ describe("Tier 3: Cross-Feature Combinations", () => {
   // Flow 1: URL Analysis -> Forensic History -> History Detail -> Share Card
   // --------------------------------------------------------------------------
   describe("Flow 1: Phishing URL Analysis to Guardian Share Card Lifecycle", () => {
-    it("completes full lifecycle from threat inspection to shareable defanged warning card", async () => {
-      const suspiciousUrl = INDONESIAN_PHISHING_FIXTURES[0].url;
-
-      // 1. Submit suspicious URL to /api/analyze-url
-      const analysisRes = await executeRoute<Record<string, unknown>>("/api/analyze-url", "POST", {
-        url: suspiciousUrl,
+    it("keeps the same stored investigation between submission and history", async () => {
+      const res = await executeRoute("/api/analyze-url", "POST", {
+        url: INDONESIAN_PHISHING_FIXTURES[0].url,
       });
-      expect(analysisRes.status).toBe(200);
-
-      const parsedAnalysis = ThreatAnalysisResultSchema.safeParse(analysisRes.body);
-      expect(parsedAnalysis.success).toBe(true);
-      if (!parsedAnalysis.success) return;
-
-      const recordId = parsedAnalysis.data.id || "rec_hist_001";
-      const defangedUrl = parsedAnalysis.data.defangedTarget;
-
-      // Verify defanged integrity
-      expect(defangedUrl).toContain("[.]top");
-      expect(defangedUrl).not.toContain("https://");
-
-      // 2. Query Forensic History detail view route
-      const historyDetailRoute = PROTECTED_ROUTES.historyDetail(recordId);
-      expect(historyDetailRoute).toBe(`/history/${recordId}`);
-
-      // 3. Export Guardian Share Card payload
-      const shareCardPayload = {
-        historyRecordId: recordId,
-        defangedUrl,
-        dangerSummary: parsedAnalysis.data.humanFriendlySummary,
-        deceptionTricks: parsedAnalysis.data.deceptionTricks,
-        emergencyActions: parsedAnalysis.data.emergencyActionPlan,
-      };
-
-      expect(shareCardPayload.defangedUrl).toBe(defangedUrl);
-      expect(shareCardPayload.dangerSummary.length).toBeGreaterThan(0);
-      expect(shareCardPayload.deceptionTricks.length).toBeGreaterThanOrEqual(1);
+      expect(res.status).toBe(201);
+      const record = investigationSchema.parse(res.body);
+      const history = await executeRoute<{ records: Investigation[] }>("/api/history", "GET");
+      const stored = history.body.records.find((item) => item.id === record.id);
+      expect(stored).toEqual(record);
+      expect(getInvestigationResult(record)).toBeNull();
+      expect(PROTECTED_ROUTES.historyDetail(record.id)).toContain(record.id);
     });
   });
 
@@ -93,60 +61,21 @@ describe("Tier 3: Cross-Feature Combinations", () => {
   // Flow 2: Quishing QR -> Extraction -> Threat Scoring -> Web Sandbox
   // --------------------------------------------------------------------------
   describe("Flow 2: Quishing Investigation to Isolated Browser Sandbox Flow", () => {
-    it("pipes decoded QR target into AI scoring and initiates 180s browser sandbox", async () => {
-      const quishingSample = QR_CODE_FIXTURES[2]; // Fake QRIS phishing
-
-      // 1. Extract URL payload via QR helper
-      const qrRes = await executeRoute<{ extracted_text: string; is_url: boolean }>(
-        "/api/analyze-qr",
-        "POST",
-        {
-          imageBase64: quishingSample.simulatedBase64Image,
-          mimeType: quishingSample.mimeType,
-        },
-      );
-      expect(qrRes.status).toBe(200);
-      expect(qrRes.body.is_url).toBe(true);
-      const extractedTarget = qrRes.body.extracted_text;
-
-      // 2. Pipe extracted target to AI URL Threat Scoring
-      const urlAnalysisRes = await executeRoute<Record<string, unknown>>(
-        "/api/analyze-url",
-        "POST",
-        {
-          url: extractedTarget,
-        },
-      );
-      expect(urlAnalysisRes.status).toBe(200);
-      const threatData = ThreatAnalysisResultSchema.parse(urlAnalysisRes.body);
-      expect(threatData.riskLevel).toBe("PHISHING");
-
-      // 3. Launch isolated Web Sandbox session with extracted URL
-      const sandboxStartRes = await executeRoute<Record<string, unknown>>(
-        "/api/sandbox/session/start",
-        "POST",
-        {
-          type: "web",
-          target: extractedTarget,
-        },
-      );
-      expect(sandboxStartRes.status).toBe(200);
-      const sandboxSession = SandboxSessionStartSchema.parse(sandboxStartRes.body);
-      expect(sandboxSession.sessionId).toBeDefined();
-      expect(sandboxSession.expiresAt).toBeGreaterThan(Date.now());
-
-      // 4. Terminate sandbox session and clean up
-      const sandboxStopRes = await executeRoute<Record<string, unknown>>(
-        "/api/sandbox/session/stop",
-        "POST",
-        {
-          sessionId: sandboxSession.sessionId,
-        },
-      );
-      expect(sandboxStopRes.status).toBe(200);
-      const stopData = SandboxSessionStopSchema.parse(sandboxStopRes.body);
-      expect(stopData.success).toBe(true);
-      expect(stopData.destroyedSessionId).toBe(sandboxSession.sessionId);
+    it("keeps QR provenance and avoids a second URL investigation", async () => {
+      const sample = QR_CODE_FIXTURES[2];
+      const res = await executeRoute("/api/analyze-qr", "POST", {
+        imageBase64: sample.imageBase64,
+        mimeType: sample.mimeType,
+      });
+      expect(res.status).toBe(201);
+      const record = investigationSchema.parse(res.body);
+      expect(record.type).toBe("QR");
+      expect(record.target).toContain("qris-dana-kaget-pemberdayaan.xyz");
+      expect(record.inputMetadata.decoder).toBe("jsqr");
+      expect(record.status).toBe("UNAVAILABLE");
+      const stored = await prisma.forensicRecord.findUniqueOrThrow({ where: { id: record.id } });
+      expect(stored.type).toBe("QR");
+      expect(stored.riskLevel).toBeNull();
     });
   });
 
@@ -154,61 +83,17 @@ describe("Tier 3: Cross-Feature Combinations", () => {
   // Flow 3: Malicious APK -> Static X-Ray -> Emulator -> Community Replay
   // --------------------------------------------------------------------------
   describe("Flow 3: APK Malware X-Ray to Community Forensic Replay Pipeline", () => {
-    it("analyzes APK, scrubs PII, tests in emulator, and moderates for community", async () => {
-      const malwareSample = INDONESIAN_APK_MALWARE_FIXTURES[0];
-
-      // 1. Run static X-Ray analysis on fake courier APK
-      const apkRes = await executeRoute<Record<string, unknown>>("/api/analyze-apk", "POST", {
-        fileName: malwareSample.fileName,
-        fileSizeBytes: 3145728,
-      });
-      expect(apkRes.status).toBe(200);
-      const apkAnalysis = ThreatAnalysisResultSchema.parse(apkRes.body);
-      expect(apkAnalysis.riskLevel).toBe("CRITICAL");
-      expect(apkAnalysis.technicalEvidence.permissions).toContain("android.permission.RECEIVE_SMS");
-
-      // 2. Launch Android emulator sandbox session
-      const emulatorRes = await executeRoute<Record<string, unknown>>(
-        "/api/sandbox/session/start",
-        "POST",
-        {
-          type: "android",
-          target: malwareSample.fileName,
-        },
-      );
-      expect(emulatorRes.status).toBe(200);
-      const emulatorSession = SandboxSessionStartSchema.parse(emulatorRes.body);
-      expect(emulatorSession.viewport).toBe("mobile");
-
-      // 3. User submits case to Community Forensic Replay with PII sanitization
-      const rawUserNotes =
-        "Korban nomor 081234567890 mendapat file resi J&T palsu dengan bot 6123456789:AAFlkBz80pQc-4xZyR9m30Lk18eP_Oabcde";
-      const scrubbedNotes = referenceScrubPii(rawUserNotes);
-      expect(scrubbedNotes.sanitizedText).not.toContain("081234567890");
-
-      const submission = {
-        id: "rep_case_301",
-        userId: "usr_user_002",
-        title: "Bedah Malware APK Resi J&T Express 2026",
-        scamType: "APK Penyadap SMS OTP",
-        status: "PENDING_REVIEW" as const,
-        sanitizedEvidence: scrubbedNotes.sanitizedText,
-        defangedTarget: referenceDefangUrl(malwareSample.fileName),
-        submittedAt: Date.now(),
-      };
-      const parsedSubmission = CommunityReplaySchema.parse(submission);
-      expect(parsedSubmission.status).toBe("PENDING_REVIEW");
-
-      // 4. Admin approves case in moderation queue
-      const approvedCase = {
-        ...parsedSubmission,
-        status: "APPROVED" as const,
-      };
-      expect(approvedCase.status).toBe("APPROVED");
-
-      // 5. Case becomes playable at /community/[replayId]
-      const replayUrl = PROTECTED_ROUTES.communityReplay(approvedCase.id);
-      expect(replayUrl).toBe(`/community/${approvedCase.id}`);
+    it("stores extracted APK facts while model assessment remains unavailable", async () => {
+      const res = await executeRoute("/api/analyze-apk", "POST", apkUpload("courier.apk"));
+      expect(res.status).toBe(201);
+      const record = investigationSchema.parse(res.body);
+      expect(record.inputMetadata.staticExtractionPerformed).toBe(true);
+      expect(record.inputMetadata.binaryStored).toBe(false);
+      expect(record.analysisSource).toBeNull();
+      expect(record.summary).toBeNull();
+      expect(getInvestigationResult(record)).toBeNull();
+      const stored = await prisma.forensicRecord.findUniqueOrThrow({ where: { id: record.id } });
+      expect(stored.inputMetadata).toEqual(record.inputMetadata);
     });
   });
 

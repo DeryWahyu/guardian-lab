@@ -1,3 +1,4 @@
+import QRCode from "qrcode";
 /**
  * Test Fixtures: QR Codes, Quishing Payloads, and Corrupted QR Buffers
  * Covering legitimate QR conversion, Quishing scams (fake QRIS, phishing portals),
@@ -11,10 +12,10 @@ export interface QrCodeFixture {
   isUrl: boolean;
   expectedThreatLevel?: "SAFE" | "WARNING" | "DANGEROUS" | "PHISHING";
   mimeType: string;
-  simulatedBase64Image: string;
+  imageBase64: string;
 }
 
-export const QR_CODE_FIXTURES: QrCodeFixture[] = [
+const payloads: Omit<QrCodeFixture, "imageBase64">[] = [
   {
     id: "qr-clean-portal",
     label: "Legitimate Corporate Portal QR",
@@ -22,9 +23,6 @@ export const QR_CODE_FIXTURES: QrCodeFixture[] = [
     isUrl: true,
     expectedThreatLevel: "SAFE",
     mimeType: "image/png",
-    // 1x1 transparent PNG header mock
-    simulatedBase64Image:
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAA=",
   },
   {
     id: "qr-clean-text",
@@ -33,8 +31,6 @@ export const QR_CODE_FIXTURES: QrCodeFixture[] = [
     isUrl: false,
     expectedThreatLevel: "SAFE",
     mimeType: "image/png",
-    simulatedBase64Image:
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAA=",
   },
   {
     id: "qr-quishing-fake-qris",
@@ -43,8 +39,6 @@ export const QR_CODE_FIXTURES: QrCodeFixture[] = [
     isUrl: true,
     expectedThreatLevel: "PHISHING",
     mimeType: "image/png",
-    simulatedBase64Image:
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAA=",
   },
   {
     id: "qr-quishing-parking-ticket",
@@ -53,8 +47,6 @@ export const QR_CODE_FIXTURES: QrCodeFixture[] = [
     isUrl: true,
     expectedThreatLevel: "PHISHING",
     mimeType: "image/jpeg",
-    simulatedBase64Image:
-      "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=",
   },
 ];
 
@@ -67,3 +59,11 @@ export const BOUNDARY_QR_FIXTURES = {
   oversizedQrBuffer: new Uint8Array(20 * 1024 * 1024), // 20MB oversized image
   invalidMimeType: "application/x-msdownload",
 };
+
+export const QR_CODE_FIXTURES: QrCodeFixture[] = await Promise.all(
+  payloads.map(async (fixture) => ({
+    ...fixture,
+    mimeType: "image/png",
+    imageBase64: (await QRCode.toDataURL(fixture.encodedPayload)).split(",")[1],
+  })),
+);

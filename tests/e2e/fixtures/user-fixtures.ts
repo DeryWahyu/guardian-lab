@@ -14,7 +14,7 @@ export interface TestUserFixture {
 
 export const ADMIN_USER_FIXTURE: TestUserFixture = {
   id: "usr_admin_001",
-  email: "admin@gmail.com",
+  email: "admin@guardianlab.test",
   name: "Master Admin Guardian",
   passwordPlainText: "password",
   role: "ADMIN",
@@ -24,7 +24,7 @@ export const ADMIN_USER_FIXTURE: TestUserFixture = {
 
 export const STANDARD_USER_FIXTURE: TestUserFixture = {
   id: "usr_user_002",
-  email: "gading@gmail.com",
+  email: "user@guardianlab.test",
   name: "Gading",
   passwordPlainText: "password",
   role: "USER",

@@ -1,13 +1,22 @@
 import { NextResponse } from "next/server";
-import { signSessionToken } from "@/lib/auth/jwt";
+import { learningStreak } from "@/lib/academy/streak";
+import { rejectCrossOrigin } from "@/lib/auth/access";
 import { verifyPassword } from "@/lib/auth/password";
-import { getSessionCookieOptions, SESSION_COOKIE_NAME } from "@/lib/auth/session";
+import { getPostLoginRedirect } from "@/lib/auth/redirect";
+import {
+  createSessionToken,
+  getSessionCookieOptions,
+  SESSION_COOKIE_NAME,
+} from "@/lib/auth/session";
+import { InputError, readInput } from "@/lib/investigations/request-input";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validations/auth";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const originError = rejectCrossOrigin(request);
+    if (originError) return originError;
+    const body = await readInput(request, 16384, "json");
     const result = loginSchema.safeParse(body);
 
     if (!result.success) {
@@ -47,52 +56,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // Calculate streak maintenance / progression
+    // Login activity is separate from learning streaks.
     const now = new Date();
-    let newStreak = user.streakDays;
+    const { updatedUser, token } = await prisma.$transaction(async (database) => {
+      const updatedUser = await database.user.update({
+        where: { id: user.id },
+        data: {
+          lastActiveAt: now,
+        },
+      });
 
-    if (user.lastActiveAt) {
-      const lastActive = new Date(user.lastActiveAt);
-      const nowDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-      const lastDate = new Date(
-        Date.UTC(lastActive.getUTCFullYear(), lastActive.getUTCMonth(), lastActive.getUTCDate()),
-      );
-      const diffDays = Math.floor((nowDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-
-      if (diffDays === 1) {
-        newStreak += 1;
-      } else if (diffDays > 1) {
-        newStreak = 1;
-      }
-    } else {
-      newStreak = 1;
-    }
-
-    // Update user active time and streak in database
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        lastActiveAt: now,
-        streakDays: newStreak,
-      },
-    });
-
-    // Create signed JWT session token
-    const token = await signSessionToken({
-      userId: updatedUser.id,
-      email: updatedUser.email,
-      name: updatedUser.name,
-      role: updatedUser.role,
-    });
-
-    // Persist session record in database
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    await prisma.session.create({
-      data: {
-        userId: updatedUser.id,
-        token,
-        expiresAt,
-      },
+      // Create signed JWT session token
+      const token = await createSessionToken(updatedUser, database);
+      return { updatedUser, token };
     });
 
     const userProfile = {
@@ -101,7 +77,7 @@ export async function POST(request: Request) {
       name: updatedUser.name,
       role: updatedUser.role,
       exp: updatedUser.exp,
-      streakDays: updatedUser.streakDays,
+      streakDays: learningStreak(updatedUser.streakDays, updatedUser.lastLearningAt),
     };
 
     // Return response with Set-Cookie header attached
@@ -110,12 +86,15 @@ export async function POST(request: Request) {
       message: "Login berhasil",
       ...userProfile,
       user: userProfile,
+      redirectTo: getPostLoginRedirect(updatedUser.role, result.data.redirect),
     });
 
     response.cookies.set(SESSION_COOKIE_NAME, token, getSessionCookieOptions());
 
     return response;
   } catch (error) {
+    if (error instanceof InputError)
+      return NextResponse.json({ error: error.message }, { status: error.status });
     console.error("Login API error:", error);
     return NextResponse.json(
       {

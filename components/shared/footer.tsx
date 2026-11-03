@@ -1,10 +1,11 @@
-import { ExternalLink, Heart, Shield, ShieldAlert } from "lucide-react";
+import { ExternalLink, Heart, Shield } from "lucide-react";
 import Link from "next/link";
 import { ADMIN_ROUTES, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { BrandIdentity } from "./brand-identity";
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-stone-200/80 bg-white text-stone-600 transition-colors">
+    <footer className="w-full border-t border-slate-200/80 bg-white text-slate-600 transition-colors">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5 lg:gap-12">
           {/* Column 1: Brand & Mission (Spans 2 columns on lg) */}
@@ -13,20 +14,10 @@ export function Footer() {
               href={PUBLIC_ROUTES.home}
               className="group inline-flex cursor-pointer items-center gap-2.5"
             >
-              <div className="flex size-9 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-md shadow-rose-200 transition-transform group-hover:scale-105">
-                <ShieldAlert className="size-4.5" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg leading-tight font-extrabold tracking-tight text-slate-900">
-                  Guardian<span className="text-rose-600">Lab</span>
-                </span>
-                <span className="text-[10px] font-medium tracking-wide text-stone-500">
-                  Sandbox & Threat X-Ray
-                </span>
-              </div>
+              <BrandIdentity markClassName="size-9" />
             </Link>
 
-            <p className="max-w-sm text-sm leading-relaxed text-stone-500">
+            <p className="max-w-sm text-sm leading-relaxed text-slate-500">
               Platform Sandbox Anti-Phishing & Bedah APK yang mengintegrasikan tiga pilar:{" "}
               <strong className="font-semibold text-slate-800">Recognize</strong>,{" "}
               <strong className="font-semibold text-slate-800">Protect</strong>, dan{" "}
@@ -34,8 +25,8 @@ export function Footer() {
               dari jebakan cybercrime tanpa kompromi data pribadi.
             </p>
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-rose-200/60 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700">
-              <Shield className="size-3.5 text-rose-600" />
+            <div className="border-brand-200/60 bg-brand-50 text-brand-700 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold">
+              <Shield className="text-brand-600 size-3.5" />
               <span>MIT-Week 2026: Guardians of the Digital Space</span>
             </div>
           </div>
@@ -49,7 +40,7 @@ export function Footer() {
               <li>
                 <Link
                   href={PUBLIC_ROUTES.home}
-                  className="cursor-pointer transition-colors hover:text-rose-600"
+                  className="hover:text-brand-600 cursor-pointer transition-colors"
                 >
                   Gateway Deteksi URL
                 </Link>
@@ -57,7 +48,7 @@ export function Footer() {
               <li>
                 <Link
                   href={PUBLIC_ROUTES.sandboxWeb}
-                  className="cursor-pointer transition-colors hover:text-rose-600"
+                  className="hover:text-brand-600 cursor-pointer transition-colors"
                 >
                   Browser Web Sandbox
                 </Link>
@@ -65,7 +56,7 @@ export function Footer() {
               <li>
                 <Link
                   href={PUBLIC_ROUTES.homeWithTab("apk")}
-                  className="cursor-pointer transition-colors hover:text-rose-600"
+                  className="hover:text-brand-600 cursor-pointer transition-colors"
                 >
                   APK X-Ray Engine
                 </Link>
@@ -73,7 +64,7 @@ export function Footer() {
               <li>
                 <Link
                   href={PUBLIC_ROUTES.act}
-                  className="cursor-pointer transition-colors hover:text-rose-600"
+                  className="hover:text-brand-600 cursor-pointer transition-colors"
                 >
                   Guardian Share Card
                 </Link>
@@ -90,7 +81,7 @@ export function Footer() {
               <li>
                 <Link
                   href={PROTECTED_ROUTES.academy}
-                  className="cursor-pointer transition-colors hover:text-rose-600"
+                  className="hover:text-brand-600 cursor-pointer transition-colors"
                 >
                   Guardian Academy
                 </Link>
@@ -98,7 +89,7 @@ export function Footer() {
               <li>
                 <Link
                   href={PROTECTED_ROUTES.community}
-                  className="cursor-pointer transition-colors hover:text-rose-600"
+                  className="hover:text-brand-600 cursor-pointer transition-colors"
                 >
                   Community Forensic Replay
                 </Link>
@@ -106,7 +97,7 @@ export function Footer() {
               <li>
                 <Link
                   href={PROTECTED_ROUTES.history}
-                  className="cursor-pointer transition-colors hover:text-rose-600"
+                  className="hover:text-brand-600 cursor-pointer transition-colors"
                 >
                   Riwayat Investigasi
                 </Link>
@@ -114,7 +105,7 @@ export function Footer() {
               <li>
                 <Link
                   href={ADMIN_ROUTES.dashboard}
-                  className="cursor-pointer transition-colors hover:text-rose-600"
+                  className="hover:text-brand-600 cursor-pointer transition-colors"
                 >
                   Dashboard Admin
                 </Link>
@@ -128,26 +119,26 @@ export function Footer() {
               Keamanan & Privasi
             </h4>
             <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-1.5 text-stone-500">
+              <li className="flex items-center gap-1.5 text-slate-500">
                 <span className="size-1.5 rounded-full bg-emerald-500" />
                 <span>Zero Real PII Scrubber</span>
               </li>
-              <li className="flex items-center gap-1.5 text-stone-500">
+              <li className="flex items-center gap-1.5 text-slate-500">
                 <span className="size-1.5 rounded-full bg-emerald-500" />
                 <span>Auto-Destroy Sandbox 180s</span>
               </li>
-              <li className="flex items-center gap-1.5 text-stone-500">
+              <li className="flex items-center gap-1.5 text-slate-500">
                 <span className="size-1.5 rounded-full bg-emerald-500" />
-                <span>Dataset OJK & IASC 2026</span>
+                <span>Karantina APK di server</span>
               </li>
               <li>
                 <a
-                  href="https://github.com"
+                  href="https://nextjs.org"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex cursor-pointer items-center gap-1 text-stone-500 transition-colors hover:text-slate-800"
+                  className="inline-flex cursor-pointer items-center gap-1 text-slate-500 transition-colors hover:text-slate-800"
                 >
-                  <span>Open Source Repository</span>
+                  <span>Dibangun dengan Next.js</span>
                   <ExternalLink className="size-3" />
                 </a>
               </li>
@@ -156,13 +147,13 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-stone-200/60 pt-8 text-xs text-stone-500 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-200/60 pt-8 text-xs text-slate-500 sm:flex-row">
           <p>
             &copy; 2026 Guardian Lab. Dilindungi oleh semangat komunitas keamanan digital Indonesia.
           </p>
           <p className="flex items-center gap-1">
             <span>Dibuat dengan</span>
-            <Heart className="size-3.5 fill-rose-500 text-rose-500" />
+            <Heart className="fill-brand-500 text-brand-600 size-3.5" />
             <span>untuk ekosistem siber yang lebih aman.</span>
           </p>
         </div>

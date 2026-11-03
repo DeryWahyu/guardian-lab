@@ -1,32 +1,18 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth/session";
-import { prisma } from "@/lib/prisma";
+import { authorizeRequest } from "@/lib/auth/access";
+import { communityError } from "@/lib/community/api";
+import { listCommunityCases } from "@/lib/community/queries";
 import { safeConnection } from "@/lib/security/connection";
 
-export async function GET() {
+export async function GET(request: Request) {
   await safeConnection();
   try {
-    const user = await getCurrentUser();
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
-    }
-
-    const reviews = await prisma.communityReplay.findMany({
-      where: { status: "PENDING_REVIEW" },
-      include: {
-        user: {
-          select: { name: true, email: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
+    const auth = await authorizeRequest(request, "ADMIN");
+    if (auth.error) return auth.error;
+    return NextResponse.json(await listCommunityCases(request, auth.user, true), {
+      headers: { "Cache-Control": "private, no-store" },
     });
-
-    return NextResponse.json(reviews, { status: 200 });
   } catch (error) {
-    if ((error as { digest?: string })?.digest?.startsWith("NEXT_")) {
-      throw error;
-    }
-    console.error("Admin community reviews error:", error);
-    return NextResponse.json({ error: "Failed to fetch pending community cases" }, { status: 500 });
+    return communityError(error);
   }
 }

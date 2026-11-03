@@ -1,16 +1,48 @@
 import { z } from "zod";
+import { fitsPasswordLimit, MAX_PASSWORD_BYTES } from "@/lib/auth/password-policy";
+
+const passwordSchema = z
+  .string()
+  .max(MAX_PASSWORD_BYTES, "Password maksimal 72 byte UTF-8")
+  .refine(fitsPasswordLimit, "Password maksimal 72 byte UTF-8");
 
 export const loginSchema = z.object({
   email: z
     .string()
     .trim()
     .min(1, "Email wajib diisi")
+    .max(191, "Email maksimal 191 karakter")
     .email("Format email tidak valid")
     .toLowerCase(),
-  password: z.string().min(1, "Password wajib diisi"),
+  password: passwordSchema.min(1, "Password wajib diisi"),
+  redirect: z.string().optional(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+
+export const sessionUserSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  name: z.string(),
+  role: z.enum(["USER", "ADMIN"]),
+  exp: z.number(),
+  streakDays: z.number(),
+});
+
+export const sessionResponseSchema = z.object({ user: sessionUserSchema.nullable() });
+
+export const authSuccessSchema = z.object({
+  success: z.literal(true),
+  redirectTo: z.string(),
+  user: sessionUserSchema,
+});
+
+export function getAuthError(data: unknown, fallback: string): string {
+  const parsed = z
+    .object({ error: z.string().optional(), message: z.string().optional() })
+    .safeParse(data);
+  return parsed.success ? parsed.data.error || parsed.data.message || fallback : fallback;
+}
 
 export const baseRegisterSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter").max(50, "Nama maksimal 50 karakter"),
@@ -18,10 +50,10 @@ export const baseRegisterSchema = z.object({
     .string()
     .trim()
     .min(1, "Email wajib diisi")
+    .max(191, "Email maksimal 191 karakter")
     .email("Format email tidak valid")
     .toLowerCase(),
-  password: z
-    .string()
+  password: passwordSchema
     .min(8, "Password minimal 8 karakter")
     .regex(/[A-Za-z]/, "Password harus mengandung minimal satu huruf")
     .regex(/[0-9]/, "Password harus mengandung minimal satu angka"),
@@ -56,8 +88,27 @@ export type RegisterFormInput = z.infer<typeof registerFormSchema>;
 export function getSafeRedirectUrl(target: string | null | undefined, fallback = "/"): string {
   if (!target || typeof target !== "string") return fallback;
   const trimmed = target.trim();
-  if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.startsWith("/\\")) {
-    return trimmed;
+  let decoded = trimmed;
+  try {
+    for (let index = 0; index < 3; index++) {
+      if (
+        !decoded.startsWith("/") ||
+        decoded.startsWith("//") ||
+        decoded.includes("\\") ||
+        decoded
+          .split("")
+          .some((character) => character.charCodeAt(0) <= 32 || character.charCodeAt(0) === 127)
+      ) {
+        return fallback;
+      }
+      const next = decodeURIComponent(decoded);
+      if (next === decoded) break;
+      decoded = next;
+    }
+    const destination = new URL(trimmed, "https://guardian.invalid");
+    if (destination.origin === "https://guardian.invalid") return trimmed;
+  } catch {
+    return fallback;
   }
   return fallback;
 }

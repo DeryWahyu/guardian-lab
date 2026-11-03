@@ -47,8 +47,8 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
       className={cn(
         "inline-flex items-center rounded-full border p-1 transition-all duration-300",
         currentMode === "geek"
-          ? "border-slate-800 bg-slate-950/80 shadow-lg shadow-cyan-950/30"
-          : "border-stone-200/80 bg-stone-100/90 shadow-inner",
+          ? "shadow-brand-950/30 border-slate-800 bg-slate-950/80 shadow-lg"
+          : "border-slate-200/80 bg-slate-100/90 shadow-inner",
         className,
       )}
     >
@@ -59,13 +59,13 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
         className={cn(
           "flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 sm:text-sm",
           currentMode === "human"
-            ? "bg-white text-rose-600 shadow-xs shadow-stone-200"
+            ? "text-brand-600 bg-white shadow-xs shadow-slate-200"
             : currentMode === "geek"
               ? "text-slate-400 hover:text-slate-200"
-              : "text-stone-500 hover:text-stone-800",
+              : "text-slate-500 hover:text-slate-800",
         )}
       >
-        <Sparkles className="size-3.5 shrink-0 text-rose-500 sm:size-4" />
+        <Sparkles className="text-brand-600 size-3.5 shrink-0 sm:size-4" />
         <span>Mode Bahasa Manusia</span>
       </button>
 
@@ -76,11 +76,11 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
         className={cn(
           "flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 font-mono text-xs font-semibold transition-all duration-200 sm:text-sm",
           currentMode === "geek"
-            ? "border border-cyan-500/40 bg-[#0B0F17] text-cyan-400 shadow-xs shadow-cyan-900/50"
-            : "text-stone-500 hover:text-stone-800",
+            ? "border-brand-500/40 text-brand-400 shadow-brand-900/50 border bg-[#0B0F17] shadow-xs"
+            : "text-slate-500 hover:text-slate-800",
         )}
       >
-        <Terminal className="size-3.5 shrink-0 text-cyan-400 sm:size-4" />
+        <Terminal className="text-brand-400 size-3.5 shrink-0 sm:size-4" />
         <span>Mode Teknis (Geek View)</span>
       </button>
     </div>
@@ -89,7 +89,7 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
 
 export function DualModeToggle(props: DualModeToggleProps) {
   return (
-    <Suspense fallback={<div className="h-9 w-64 animate-pulse rounded-full bg-stone-200/70" />}>
+    <Suspense fallback={<div className="h-9 w-64 animate-pulse rounded-full bg-slate-200/70" />}>
       <DualModeToggleInner {...props} />
     </Suspense>
   );

@@ -6,55 +6,55 @@ export function PillarsSection() {
   const pillars = [
     {
       id: "recognize",
-      category: "Pilar 1: Recognize",
+      category: "Recognize",
       title: "Kenali Tautan Palsu",
       description:
-        "Deteksi leksikal typosquatting nama bank, Shannon entropy, serta verifikasi tautan QR phishing secara instan.",
+        "Ajukan tautan atau gambar QR untuk pemeriksaan. URL hasil QR dan status proses tersimpan pada riwayat yang sama.",
       actionLabel: "Coba Analisis URL",
       href: PUBLIC_ROUTES.homeWithTab("url"),
       Icon: Globe,
-      cardBg: "bg-rose-50/70 border-rose-200/70 text-rose-950",
-      iconBg: "bg-rose-100 text-rose-600",
-      accentText: "text-rose-600",
+      cardBg: "bg-white border-border text-foreground",
+      iconBg: "bg-brand-50 text-brand-600",
+      accentText: "text-brand-600",
     },
     {
       id: "protect",
-      category: "Pilar 2: Protect",
+      category: "Protect",
       title: "Browser Sandbox Terisolasi",
       description:
-        "Buka situs mencurigakan di browser cloud Chromium tanpa risiko malware merusak sistem atau mencuri data lokalmu.",
+        "Buka tautan melalui Chromium pada server terisolasi. Sesi dibatasi 180 detik dan unduhan APK masuk karantina server.",
       actionLabel: "Buka Web Sandbox",
       href: PUBLIC_ROUTES.sandboxWeb,
       Icon: Shield,
-      cardBg: "bg-amber-50/70 border-amber-200/70 text-amber-950",
-      iconBg: "bg-amber-100 text-amber-700",
-      accentText: "text-amber-700",
+      cardBg: "bg-white border-border text-foreground",
+      iconBg: "bg-brand-50 text-brand-600",
+      accentText: "text-brand-600",
     },
     {
       id: "investigate",
-      category: "Pilar 3: Investigate",
+      category: "Recognize",
       title: "Bedah Kedok APK",
       description:
-        "Reverse engineering static file APK kurir/undangan, telusuri izin berbahaya, dan intip token bot Telegram penipu.",
+        "Baca manifest, izin, serta indikator dari APK tanpa menjalankannya. Konstanta sensitif disamarkan pada hasil statis.",
       actionLabel: "Bongkar APK",
       href: PUBLIC_ROUTES.homeWithTab("apk"),
       Icon: FileCode2,
-      cardBg: "bg-sky-50/70 border-sky-200/70 text-sky-950",
-      iconBg: "bg-sky-100 text-sky-600",
-      accentText: "text-sky-600",
+      cardBg: "bg-white border-border text-foreground",
+      iconBg: "bg-brand-50 text-brand-600",
+      accentText: "text-brand-600",
     },
     {
       id: "act",
-      category: "Pilar 4: Act & Educate",
+      category: "Act",
       title: "Lindungi Sekitarmu",
       description:
-        "Cetak Guardian Share Card untuk grup chat keluarga dan asah insting keamanan digitalmu di Guardian Academy.",
+        "Buat Share Card dari hasil lengkap, ajukan kasus untuk moderasi, dan asah pemahaman melalui Academy.",
       actionLabel: "Buat Share Card",
       href: PUBLIC_ROUTES.act,
       Icon: Share2,
-      cardBg: "bg-purple-50/70 border-purple-200/70 text-purple-950",
-      iconBg: "bg-purple-100 text-purple-600",
-      accentText: "text-purple-600",
+      cardBg: "bg-white border-border text-foreground",
+      iconBg: "bg-brand-50 text-brand-600",
+      accentText: "text-brand-600",
     },
   ];
 
@@ -63,13 +63,13 @@ export function PillarsSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="mx-auto mb-12 max-w-2xl space-y-3 text-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/70 bg-rose-50 px-3 py-1 text-xs font-bold tracking-wider text-rose-600 uppercase">
+          <div className="border-brand-200/70 bg-brand-50 text-brand-600 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold tracking-wider uppercase">
             KENALAN DULU, YUK
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-            Banyak cara untuk <span className="text-rose-600">merasa lebih aman.</span>
+            Banyak cara untuk <span className="text-brand-600">merasa lebih aman.</span>
           </h2>
-          <p className="text-sm leading-relaxed text-stone-600 sm:text-base">
+          <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
             Tak perlu panik saat menerima tautan atau file asing. Pilih instrumen perlindungan yang
             kamu butuhkan hari ini.
           </p>

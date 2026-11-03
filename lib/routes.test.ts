@@ -23,8 +23,9 @@ describe("routes constants", () => {
     expect(PUBLIC_ROUTES.sandboxWebWithTarget("https://evil.com/phish?id=123")).toBe(
       "/sandbox/web?target=https%3A%2F%2Fevil.com%2Fphish%3Fid%3D123",
     );
-    expect(PUBLIC_ROUTES.actWithTarget("https://evil.com", "scan-123")).toBe(
-      "/act?target=https%3A%2F%2Fevil.com&id=scan-123",
+    expect(PUBLIC_ROUTES.actWithInvestigation("scan-123")).toBe("/act?id=scan-123");
+    expect(PUBLIC_ROUTES.actWithInvestigation("scan?target=forged")).toBe(
+      "/act?id=scan%3Ftarget%3Dforged",
     );
   });
 

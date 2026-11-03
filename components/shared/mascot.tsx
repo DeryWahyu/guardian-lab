@@ -27,33 +27,33 @@ export function CyberGuardianMascot({
       style={size ? { width: size, height: size } : undefined}
     >
       {/* Ambient Pastel Glow Behind Mascot */}
-      <div className="absolute -inset-4 -z-10 rounded-full bg-gradient-to-tr from-rose-400/20 via-amber-300/20 to-purple-400/20 blur-2xl" />
+      <div className="from-brand-200/20 to-brand-300/20 absolute -inset-4 -z-10 rounded-full bg-gradient-to-tr via-slate-200/20 blur-2xl" />
 
       {/* Floating Trust / Security Pills (Hero Pose) */}
       {displayBadges && (
         <>
           {/* Badge 1: Top-Left */}
-          <div className="absolute -top-3 -left-4 z-20 flex animate-bounce items-center gap-1.5 rounded-full border border-stone-200/80 bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-md shadow-stone-200/50 duration-1000 sm:-left-8">
-            <Lock className="size-3 text-rose-600" />
+          <div className="absolute -top-3 -left-4 z-20 flex animate-bounce items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-md shadow-slate-200/50 duration-1000 sm:-left-8">
+            <Lock className="text-brand-600 size-3" />
             <span>100% PII Masked</span>
           </div>
 
           {/* Badge 2: Top-Right */}
-          <div className="absolute -top-1 -right-3 z-20 flex animate-pulse items-center gap-1.5 rounded-full border border-stone-200/80 bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-md shadow-stone-200/50 sm:-right-6">
-            <Zap className="size-3 text-amber-500" />
+          <div className="absolute -top-1 -right-3 z-20 flex animate-pulse items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-md shadow-slate-200/50 sm:-right-6">
+            <Zap className="text-brand-600 size-3" />
             <span>Auto-Destroy 180s</span>
           </div>
 
           {/* Badge 3: Bottom-Left */}
-          <div className="absolute -bottom-2 -left-3 z-20 flex items-center gap-1.5 rounded-full border border-stone-200/80 bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-md shadow-xs shadow-stone-200/50 sm:-left-6">
-            <Shield className="size-3 text-emerald-600" />
-            <span>Anti-Quishing Guard</span>
+          <div className="absolute -bottom-2 -left-3 z-20 flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-md shadow-xs shadow-slate-200/50 sm:-left-6">
+            <Shield className="text-brand-600 size-3" />
+            <span>QR ke Tautan</span>
           </div>
 
           {/* Badge 4: Bottom-Right */}
-          <div className="absolute -right-2 -bottom-3 z-20 flex items-center gap-1.5 rounded-full border border-stone-200/80 bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-md shadow-xs shadow-stone-200/50 sm:-right-4">
-            <Sparkles className="size-3 text-purple-600" />
-            <span>AI Real-Time Scan</span>
+          <div className="absolute -right-2 -bottom-3 z-20 flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-md shadow-xs shadow-slate-200/50 sm:-right-4">
+            <Sparkles className="text-brand-600 size-3" />
+            <span>Bedah APK Statis</span>
           </div>
         </>
       )}
@@ -76,9 +76,9 @@ export function CyberGuardianMascot({
             y2="240"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#F43F5E" />
-            <stop offset="0.6" stopColor="#E11D48" />
-            <stop offset="1" stopColor="#9F1239" />
+            <stop stopColor="#14B8A6" />
+            <stop offset="0.6" stopColor="#0F766E" />
+            <stop offset="1" stopColor="#115E59" />
           </linearGradient>
 
           <linearGradient
@@ -89,8 +89,8 @@ export function CyberGuardianMascot({
             y2="200"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#881337" />
-            <stop offset="1" stopColor="#4C0519" />
+            <stop stopColor="#134E4A" />
+            <stop offset="1" stopColor="#0F172A" />
           </linearGradient>
 
           <linearGradient
@@ -101,8 +101,8 @@ export function CyberGuardianMascot({
             y2="180"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#FFF1F2" />
-            <stop offset="1" stopColor="#FFE4E6" />
+            <stop stopColor="#F8FAFC" />
+            <stop offset="1" stopColor="#E2E8F0" />
           </linearGradient>
 
           <linearGradient
@@ -113,9 +113,9 @@ export function CyberGuardianMascot({
             y2="240"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#F59E0B" />
-            <stop offset="0.5" stopColor="#D97706" />
-            <stop offset="1" stopColor="#B45309" />
+            <stop stopColor="#0F766E" />
+            <stop offset="0.5" stopColor="#115E59" />
+            <stop offset="1" stopColor="#134E4A" />
           </linearGradient>
 
           <linearGradient
@@ -126,8 +126,8 @@ export function CyberGuardianMascot({
             y2="210"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#38BDF8" />
-            <stop offset="1" stopColor="#0284C7" />
+            <stop stopColor="#5EEAD4" />
+            <stop offset="1" stopColor="#0F766E" />
           </linearGradient>
 
           <linearGradient
@@ -138,14 +138,14 @@ export function CyberGuardianMascot({
             y2="260"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#E11D48" />
-            <stop offset="1" stopColor="#881337" />
+            <stop stopColor="#0F766E" />
+            <stop offset="1" stopColor="#134E4A" />
           </linearGradient>
 
           <radialGradient id="eyeGlow" cx="0.5" cy="0.5" r="0.5">
-            <stop stopColor="#06B6D4" />
-            <stop offset="0.8" stopColor="#0891B2" />
-            <stop offset="1" stopColor="#164E63" />
+            <stop stopColor="#5EEAD4" />
+            <stop offset="0.8" stopColor="#0F766E" />
+            <stop offset="1" stopColor="#134E4A" />
           </radialGradient>
 
           <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
@@ -175,11 +175,11 @@ export function CyberGuardianMascot({
         <path
           d="M110 165 L140 185 L170 165 L160 215 L140 230 L120 215 Z"
           fill="#334155"
-          stroke="#0EA5E9"
+          stroke="#14B8A6"
           strokeWidth="2"
         />
         {/* Chest Glowing Core */}
-        <circle cx="140" cy="195" r="8" fill="#38BDF8" filter="url(#softGlow)" />
+        <circle cx="140" cy="195" r="8" fill="#5EEAD4" filter="url(#softGlow)" />
         <circle cx="140" cy="195" r="4" fill="#FFFFFF" />
 
         {/* Large Rounded Hood (Guardian Signature) */}
@@ -191,8 +191,8 @@ export function CyberGuardianMascot({
         <ellipse cx="140" cy="124" rx="46" ry="46" fill="url(#faceGrad)" />
 
         {/* Soft Blushing Cheeks */}
-        <ellipse cx="116" cy="140" rx="7" ry="4" fill="#FB7185" opacity="0.6" />
-        <ellipse cx="164" cy="140" rx="7" ry="4" fill="#FB7185" opacity="0.6" />
+        <ellipse cx="116" cy="140" rx="7" ry="4" fill="#5EEAD4" opacity="0.6" />
+        <ellipse cx="164" cy="140" rx="7" ry="4" fill="#5EEAD4" opacity="0.6" />
 
         {/* Expressive Anime/Pixar Cyber Visor Eyes */}
         {pose === "recognize" ? (
@@ -203,7 +203,7 @@ export function CyberGuardianMascot({
             {/* Winking right eye */}
             <path
               d="M152 124 Q162 118 172 124"
-              stroke="#0891B2"
+              stroke="#0F766E"
               strokeWidth="4"
               strokeLinecap="round"
             />
@@ -214,31 +214,31 @@ export function CyberGuardianMascot({
             {/* Left Eye */}
             <ellipse cx="122" cy="124" rx="9" ry="11" fill="url(#eyeGlow)" />
             <circle cx="120" cy="120" r="3.5" fill="#FFFFFF" />
-            <circle cx="124" cy="126" r="1.5" fill="#A5F3FC" />
+            <circle cx="124" cy="126" r="1.5" fill="#CCFBF1" />
 
             {/* Right Eye */}
             <ellipse cx="158" cy="124" rx="9" ry="11" fill="url(#eyeGlow)" />
             <circle cx="156" cy="120" r="3.5" fill="#FFFFFF" />
-            <circle cx="160" cy="126" r="1.5" fill="#A5F3FC" />
+            <circle cx="160" cy="126" r="1.5" fill="#CCFBF1" />
           </>
         )}
 
         {/* Friendly Confident Smile */}
         <path
           d="M132 144 Q140 152 148 144"
-          stroke="#881337"
+          stroke="#134E4A"
           strokeWidth="3"
           strokeLinecap="round"
           fill="none"
         />
 
-        {/* Golden Cyber Shield in Forearm */}
+        {/* Guardian Shield in Forearm */}
         <g transform="translate(10, 0)">
           {/* Shield Outline & Body */}
           <path
             d="M175 145 C205 145 228 152 230 178 C232 215 195 245 175 255 C155 245 118 215 120 178 C122 152 145 145 175 145 Z"
             fill="url(#shieldGrad)"
-            stroke="#FEF3C7"
+            stroke="#99F6E4"
             strokeWidth="3"
             filter="drop-shadow(0 4px 6px rgba(0,0,0,0.15))"
           />
@@ -247,7 +247,7 @@ export function CyberGuardianMascot({
             d="M175 158 C195 158 210 163 212 182 C214 208 188 230 175 238 C162 230 136 208 138 182 C140 163 155 158 175 158 Z"
             fill="#1E293B"
           />
-          {/* Golden Shield Star / Check */}
+          {/* Shield Star / Check */}
           <path
             d="M175 170 L180 185 L195 186 L183 195 L187 210 L175 200 L163 210 L167 195 L155 186 L170 185 Z"
             fill="url(#shieldEmblemGrad)"
@@ -255,9 +255,9 @@ export function CyberGuardianMascot({
         </g>
 
         {/* Floating Sparks / Stars */}
-        <circle cx="68" cy="75" r="3" fill="#FDE047" />
-        <circle cx="215" cy="65" r="4" fill="#FDE047" />
-        <circle cx="230" cy="110" r="2.5" fill="#F43F5E" />
+        <circle cx="68" cy="75" r="3" fill="#5EEAD4" />
+        <circle cx="215" cy="65" r="4" fill="#5EEAD4" />
+        <circle cx="230" cy="110" r="2.5" fill="#14B8A6" />
       </svg>
     </div>
   );

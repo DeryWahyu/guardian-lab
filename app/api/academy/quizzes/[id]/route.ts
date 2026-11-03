@@ -1,30 +1,18 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { academyError } from "@/lib/academy/http";
+import { quizDetail } from "@/lib/academy/quiz";
+import { authorizeRequest } from "@/lib/auth/access";
 import { safeConnection } from "@/lib/security/connection";
-
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   await safeConnection();
   try {
+    const auth = await authorizeRequest(request);
+    if (auth.error) return auth.error;
     const { id } = await params;
-    const quiz = await prisma.quiz.findUnique({
-      where: { id },
-      include: {
-        questions: {
-          orderBy: { order: "asc" },
-        },
-      },
+    return NextResponse.json(await quizDetail(id, auth.user.id, auth.user.role === "ADMIN"), {
+      headers: { "Cache-Control": "private, no-store" },
     });
-
-    if (!quiz) {
-      return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(quiz, { status: 200 });
   } catch (error) {
-    if ((error as { digest?: string })?.digest?.startsWith("NEXT_")) {
-      throw error;
-    }
-    console.error("Failed to fetch quiz detail:", error);
-    return NextResponse.json({ error: "Failed to fetch quiz detail" }, { status: 500 });
+    return academyError(error);
   }
 }

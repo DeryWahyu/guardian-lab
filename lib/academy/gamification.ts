@@ -1,5 +1,3 @@
-import { prisma } from "@/lib/prisma";
-
 export type GuardianRank = "Recruit" | "Junior Analyst" | "Cyber Sentinel" | "Forensic Master";
 
 export interface RankInfo {
@@ -39,49 +37,5 @@ export function calculateRank(exp: number): RankInfo {
     currentExp: exp,
     nextRankExp: 1000,
     progressPercent: 100,
-  };
-}
-
-export async function awardExpAndStreak(
-  userId: string,
-  expAward: number,
-): Promise<{ newExp: number; newStreak: number; rank: GuardianRank }> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { exp: true, streakDays: true, lastActiveAt: true },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const now = new Date();
-  const lastActive = new Date(user.lastActiveAt);
-  const diffHours = (now.getTime() - lastActive.getTime()) / (1000 * 60 * 60);
-
-  // If last active was between 16 and 48 hours ago, increment streak; if within 16 hours, keep streak
-  let newStreak = user.streakDays;
-  if (diffHours >= 16 && diffHours <= 48) {
-    newStreak += 1;
-  } else if (diffHours > 48) {
-    newStreak = 1; // streak reset
-  }
-
-  const newExp = user.exp + expAward;
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      exp: newExp,
-      streakDays: newStreak,
-      lastActiveAt: now,
-    },
-  });
-
-  const rankInfo = calculateRank(newExp);
-  return {
-    newExp,
-    newStreak,
-    rank: rankInfo.rank,
   };
 }

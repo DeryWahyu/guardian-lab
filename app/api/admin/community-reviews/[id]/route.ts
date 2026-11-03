@@ -1,38 +1,24 @@
-import type { ReplayStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth/session";
-import { prisma } from "@/lib/prisma";
+import { authorizeRequest } from "@/lib/auth/access";
+import { communityError } from "@/lib/community/api";
+import { reviewCommunityCase } from "@/lib/community/service";
+import { InputError, readInput } from "@/lib/investigations/request-input";
+import { communityReviewSchema } from "@/lib/validations/community";
+import { investigationIdSchema } from "@/lib/validations/investigation";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await getCurrentUser();
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
-    }
-
-    const { id } = await params;
-    const body = await request.json().catch(() => ({}));
-    const { status, adminNotes } = body as {
-      status: "APPROVED" | "REJECTED";
-      adminNotes?: string;
-    };
-
-    if (!["APPROVED", "REJECTED"].includes(status)) {
-      return NextResponse.json({ error: "Status must be APPROVED or REJECTED" }, { status: 400 });
-    }
-
-    const updated = await prisma.communityReplay.update({
-      where: { id },
-      data: {
-        status: status as ReplayStatus,
-        adminNotes,
-        reviewedAt: new Date(),
-      },
-    });
-
-    return NextResponse.json(updated, { status: 200 });
+    const auth = await authorizeRequest(request, "ADMIN");
+    if (auth.error) return auth.error;
+    const id = investigationIdSchema.safeParse((await params).id);
+    if (!id.success) throw new InputError("ID pengajuan tidak valid.");
+    const input = communityReviewSchema.safeParse(await readInput(request, 8192, "json"));
+    if (!input.success)
+      throw new InputError(
+        "Persetujuan memerlukan konfirmasi privasi. Penolakan memerlukan alasan minimal 10 karakter.",
+      );
+    return NextResponse.json(await reviewCommunityCase(id.data, auth.user.id, input.data));
   } catch (error) {
-    console.error("Admin review action error:", error);
-    return NextResponse.json({ error: "Failed to update community case review" }, { status: 500 });
+    return communityError(error);
   }
 }

@@ -1,30 +1,22 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { authorizeRequest } from "@/lib/auth/access";
+import { communityError } from "@/lib/community/api";
+import { getCommunityCase } from "@/lib/community/queries";
+import { InputError } from "@/lib/investigations/request-input";
 import { safeConnection } from "@/lib/security/connection";
+import { investigationIdSchema } from "@/lib/validations/investigation";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   await safeConnection();
   try {
-    const { id } = await params;
-    const replay = await prisma.communityReplay.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: { name: true, role: true },
-        },
-      },
+    const auth = await authorizeRequest(request);
+    if (auth.error) return auth.error;
+    const id = investigationIdSchema.safeParse((await params).id);
+    if (!id.success) throw new InputError("ID kasus tidak valid.");
+    return NextResponse.json(await getCommunityCase(id.data, auth.user), {
+      headers: { "Cache-Control": "private, no-store" },
     });
-
-    if (!replay) {
-      return NextResponse.json({ error: "Community case not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(replay, { status: 200 });
   } catch (error) {
-    if ((error as { digest?: string })?.digest?.startsWith("NEXT_")) {
-      throw error;
-    }
-    console.error("Failed to fetch community replay:", error);
-    return NextResponse.json({ error: "Failed to fetch community replay" }, { status: 500 });
+    return communityError(error);
   }
 }
