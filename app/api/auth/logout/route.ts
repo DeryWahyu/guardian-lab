@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import { rejectCrossOrigin } from "@/lib/auth/access";
 import { destroySession, SESSION_COOKIE_NAME } from "@/lib/auth/session";
+import { OTP_COOKIE, tokenFrom, digest } from "@/lib/auth/otp/core";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
     const originError = rejectCrossOrigin(request);
     if (originError) return originError;
     await destroySession(request);
+    const pending = tokenFrom(request);
+    if (pending)
+      await prisma.authChallenge.deleteMany({ where: { tokenHash: digest(`token:${pending}`) } });
 
     const response = NextResponse.json({
       success: true,
@@ -14,6 +19,7 @@ export async function POST(request: Request) {
     });
 
     response.cookies.delete(SESSION_COOKIE_NAME);
+    response.cookies.delete(OTP_COOKIE);
 
     return response;
   } catch (error) {

@@ -72,7 +72,7 @@ export const CommunityReplaySchema = communityCaseSchema;
 
 /**
  * PII Scrubber Oracle
- * Implements exact regex rules specified in ai-agent-docs/api-and-prompts.md:
+ * Baseline reference patterns for contract tests; production rules live in lib/security/pii-scrubber.ts.
  * - Phone: (\+62|62|0)8[1-9][0-9]{6,10} -> [REDACTED_PHONE]
  * - NIK / Bank Account: \b\d{16}\b -> [REDACTED_NIK_OR_ACCOUNT]
  * - Email: [a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+ -> [REDACTED_EMAIL]

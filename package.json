@@ -19,7 +19,7 @@
     "db:seed": "bun prisma/seed.ts",
     "db:studio": "bunx prisma studio",
     "apk:setup": "bun scripts/setup-apk-tools.mjs",
-    "academy:seed": "bun scripts/seed-academy.ts",
+    "academy:seed": "bun prisma/seed-academy.ts",
     "sandbox:build": "docker compose --env-file .env -f docker/sandbox/compose.yml --profile images build",
     "sandbox:up": "docker compose --env-file .env -f docker/sandbox/compose.yml up -d broker",
     "sandbox:down": "docker compose --env-file .env -f docker/sandbox/compose.yml down"
@@ -43,7 +43,9 @@
     "html-to-image": "^1.11.13",
     "jose": "^6.2.14",
     "jsqr": "^1.4.0",
+    "libphonenumber-js": "^1.13.15",
     "lucide-react": "^1.66.0",
+    "motion": "^14.9.0",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",

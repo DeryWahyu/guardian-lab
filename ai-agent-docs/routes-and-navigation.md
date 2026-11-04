@@ -1,114 +1,22 @@
-# Panduan Rute & Navigasi Terpusat — Guardian Lab
+# Rute dan Navigasi
 
-> **Dokumen:** `ai-agent-docs/routes-and-navigation.md`  
-> **Fokus Utama:** Sentralisasi Rute `lib/routes.ts` (Zero Hardcoded Routes), Rute Auth, Protected, Admin, API, dan Parameter Builders  
-> **Audience:** AI Coding Agent & Pengembang Fullstack Next.js
+[lib/routes.ts](../lib/routes.ts) menjadi sumber tunggal path internal dan pembentuk URL. Impor konstanta untuk `Link`, router, `redirect()`, dan `fetch()`; jangan menyusun ulang string rute di pemanggil.
 
----
-
-## 1. Filosofi Sentralisasi Rute (Zero Hardcoded Routes)
-
-Menuliskan path URL sebagai string manual (_hardcoded string literal_) seperti `"/sandbox/web"` atau `"/admin/quizzes"` di berbagai komponen dilarang keras karena:
-
-1. **Rentan Typo:** Kesalahan penulisan rute tidak terdeteksi saat _compile time_.
-2. **Refactoring Rapuh:** Perubahan rute atau parameter URL akan merusak navigasi di banyak file tanpa peringatan compiler.
-
-Seluruh rute internal aplikasi didaftarkan secara terpusat pada `lib/routes.ts`. **Setiap link (`<Link href="...">`), tombol navigasi, pemanggilan API (`fetch`), dan pengalihan (`redirect()`) WAJIB mengimpor konstanta dari file ini.**
-
----
-
-## 2. Struktur Pengelompokan Rute (`lib/routes.ts`)
-
-```typescript
-export const PUBLIC_ROUTES = {
-  home: "/",
-  sandboxWeb: "/sandbox/web",
-  sandboxAndroid: "/sandbox/android",
-  act: "/act",
-
-  // Parameter Builders
-  homeWithTab: (tab: "url" | "qr" | "apk") => `/?tab=${tab}`,
-  sandboxWebWithTarget: (target: string) => `/sandbox/web?target=${encodeURIComponent(target)}`,
-  actWithInvestigation: (id: string) => `/act?id=${encodeURIComponent(id)}`,
-} as const;
-
-export const AUTH_ROUTES = {
-  login: "/login",
-  register: "/register",
-} as const;
-
-export const PROTECTED_ROUTES = {
-  history: "/history",
-  historyDetail: (id: string) => `/history/${encodeURIComponent(id)}`,
-  academy: "/academy",
-  academyLesson: (id: string) => `/academy/${encodeURIComponent(id)}`,
-  community: "/community",
-  communityReplay: (id: string) => `/community/${encodeURIComponent(id)}`,
-} as const;
-
-export const ADMIN_ROUTES = {
-  dashboard: "/admin",
-  quizzes: "/admin/quizzes",
-  communityReviews: "/admin/community-reviews",
-  users: "/admin/users",
-} as const;
-
-export const API_ROUTES = {
-  analyzeUrl: "/api/analyze-url",
-  analyzeQr: "/api/analyze-qr",
-  analyzeApk: "/api/analyze-apk",
-  sandboxSessionStart: "/api/sandbox/session/start",
-  sandboxSessionStop: "/api/sandbox/session/stop",
-} as const;
-
-export const ROUTES = {
-  public: PUBLIC_ROUTES,
-  auth: AUTH_ROUTES,
-  protected: PROTECTED_ROUTES,
-  admin: ADMIN_ROUTES,
-  api: API_ROUTES,
-} as const;
-
-export default ROUTES;
-```
-
----
-
-## 3. Pedoman & Contoh Penggunaan
-
-### A. Tautan Navigasi (Next.js `<Link>`)
+## Pemakaian
 
 ```tsx
 import Link from "next/link";
-import { PUBLIC_ROUTES, PROTECTED_ROUTES, ADMIN_ROUTES } from "@/lib/routes";
+import { API_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 
-// ❌ DILARANG: String hardcoded
-<Link href="/sandbox/web">Buka Sandbox</Link>
+<Link href={PUBLIC_ROUTES.actWithInvestigation(investigationId)}>Buat Share Card</Link>;
 
-// ✅ BENAR: Mengimpor konstanta
-<Link href={PUBLIC_ROUTES.sandboxWeb}>Buka Sandbox</Link>
-<Link href={PROTECTED_ROUTES.academy}>Masuk Guardian Academy</Link>
-<Link href={ADMIN_ROUTES.quizzes}>Kelola Bank Soal</Link>
+const response = await fetch(API_ROUTES.historyDetail(investigationId));
 ```
 
-### B. Pengalihan Rute (`redirect()`)
+- Pilih kelompok `PUBLIC_ROUTES`, `AUTH_ROUTES`, `PROTECTED_ROUTES`, `ADMIN_ROUTES`, atau `API_ROUTES` sesuai pemanggil. Nama kelompok tidak menggantikan pemeriksaan sesi/peran.
+- Gunakan builder yang tersedia untuk ID, mode, target, filter, atau halaman. Tambahkan builder di sumber yang sama bila kebutuhan baru belum tercakup; encoding parameter dilakukan di sana.
+- Saat mengubah rute, selaraskan handler/halaman, seluruh pemanggil, aturan akses pada `proxy.ts` dan server, serta [tes rute](../lib/routes.test.ts).
+- Aturan state pada query ada di [ai-guidelines.md](./ai-guidelines.md#state-pada-url); pembatasan akses ada di [autentikasi](./features.md#autentikasi-dan-akses).
+- Halaman Tentang Guardian Lab, Kebijakan Privasi, dan Ketentuan Penggunaan memakai layout bersama pada [app/(public-info)](../app/(public-info)/layout.tsx), tanpa kewajiban login. Navbar varian informasi menaut ke Beranda dan ketiga halaman tersebut untuk semua status sesi; halaman aktif mengikuti pathname. Gaya navbar menggunakan komponen yang sama dengan landing dan halaman fitur. Kolom **Informasi** pada kedua varian footer memakai konstanta publik untuk menaut ketiganya.
 
-```tsx
-import { redirect } from "next/navigation";
-import { AUTH_ROUTES, PROTECTED_ROUTES } from "@/lib/routes";
-
-if (!session) {
-  redirect(AUTH_ROUTES.login);
-}
-```
-
-### C. Pemanggilan Endpoint Internal API (`fetch()`)
-
-```tsx
-import { API_ROUTES } from "@/lib/routes";
-
-const response = await fetch(API_ROUTES.analyzeUrl, {
-  method: "POST",
-  body: JSON.stringify({ url: targetUrl }),
-});
-```
+Jangan menyalin daftar konstanta ke dokumentasi. Path dan signature terbaru dibaca langsung dari kode.

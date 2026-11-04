@@ -8,59 +8,47 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
----
+# Guardian Lab — Instruksi AI
 
-# Guardian Lab — AI Agent Workspace Context & Guidelines
+Platform anti-phishing dan bedah APK untuk MIT-Week 2026, dengan pilar Recognize, Protect/Sandbox, dan Act. Stack: Next.js App Router, TypeScript, Bun, Tailwind v4, Prisma/MySQL.
 
-> **Project Name:** Guardian Lab (`guardian-lab`)  
-> **Event / Context:** _MIT-Week 2026: Guardians of the Digital Space – Empowering Today's Generation Toward a Safer Cyber Ecosystem_  
-> **Core Mission:** Platform Sandbox Anti-Phishing & Bedah APK yang mengintegrasikan tiga pilar: **Recognize (Mengenali)**, **Protect/Sandbox (Melindungi)**, dan **Act (Bertindak)**.
+## Eksekusi pengujian
 
----
+- **Default selama pengerjaan dan penyelesaian tugas: jangan membuat/menambah kode test, menjalankan build, test, lint, typecheck, atau pemeriksaan browser.** Pengujian didelegasikan kepada pengguna atau model AI lain.
+- Cukup perbarui [TEST_PLAN.md](TEST_PLAN.md) dengan cakupan perubahan, langkah pemeriksaan, hasil yang diharapkan, dan prasyarat. Gunakan daftar pemeriksaan tertunda, bukan log pekerjaan atau klaim kelulusan.
+- Sebelum eksekusi, tanyakan apakah pengguna ingin menjalankan pemeriksaan beserta cakupannya dan **tunggu persetujuan eksplisit**. Jika pengguna sudah menunda/mendelegasikan, cukup serahkan rencananya. Izin spesifik dalam sesi tetap berlaku untuk cakupan yang disetujui, bukan seluruh suite.
+- Jangan menyiapkan runtime atau memperbaiki lingkungan hanya untuk pengujian yang belum disetujui. Penyuntingan kode/dokumen dan peninjauan diff tetap boleh dilakukan.
 
-## 🧭 Documentation Routing for AI Agents
+## Baca sesuai tugas
 
-Dokumentasi sistem proyek telah dipecah secara modular di dalam folder [ai-agent-docs/](ai-agent-docs/). **Sebelum menulis atau memodifikasi kode**, AI Agent WAJIB membaca file dokumentasi yang relevan sesuai lingkup tugasnya:
+Mulai dengan [alur kerja](ai-agent-docs/agent-workflow.md). Baca hanya dokumen atau bagian yang relevan; jangan memuat seluruh folder secara rutin.
 
-| Lingkup Tugas yang Dikerjakan                                             | File Dokumentasi yang Wajib Dirujuk                                                    |
-| :------------------------------------------------------------------------ | :------------------------------------------------------------------------------------- |
-| **Checklist Alur Kerja & Eksekusi AI Agent**                              | [ai-agent-docs/agent-workflow.md](ai-agent-docs/agent-workflow.md)                     |
-| **Standar UI/UX, Loading Skeleton, & Bahasa**                             | [ai-agent-docs/ai-guidelines.md](ai-agent-docs/ai-guidelines.md)                       |
-| **Standar Kualitas Kode, Anti-Fat Files, & Biome**                        | [ai-agent-docs/code-quality.md](ai-agent-docs/code-quality.md)                         |
-| **Arsitektur Deployment Docker (Multi-Container)**                        | [ai-agent-docs/deployment.md](ai-agent-docs/deployment.md)                             |
-| **Sentralisasi Rute `lib/routes.ts`**                                     | [ai-agent-docs/routes-and-navigation.md](ai-agent-docs/routes-and-navigation.md)       |
-| **Peta Dokumen & Ringkasan Umum**                                         | [ai-agent-docs/index.md](ai-agent-docs/index.md)                                       |
-| **UI Copywriting, Tooltip, Edukasi, Kasus Viral Indonesia, Juknis**       | [ai-agent-docs/context-and-case-studies.md](ai-agent-docs/context-and-case-studies.md) |
-| **Arsitektur Sistem, Docker Sandbox (Chromium/Redroid), & Anti-Loophole** | [ai-agent-docs/system-architecture.md](ai-agent-docs/system-architecture.md)           |
-| **Prompt DeepSeek API, Kontrak JSON Schema, & PII Regex Scrubber**        | [ai-agent-docs/api-and-prompts.md](ai-agent-docs/api-and-prompts.md)                   |
-| **Implementasi Fitur Modul (Input URL/QR Helper, Web Sandbox, APK, Act)** | [ai-agent-docs/modules-specification.md](ai-agent-docs/modules-specification.md)       |
+Ikuti [aturan dokumentasi dan kebersihan perubahan](ai-agent-docs/documentation-and-cleanup.md) saat membuat dokumentasi atau mengubah kode.
 
----
+| Kebutuhan | Sumber utama |
+| --- | --- |
+| Kontrak fitur | [features.md](ai-agent-docs/features.md), pilih bagian fitur terkait |
+| Struktur kode, tipe, validasi | [code-quality.md](ai-agent-docs/code-quality.md) |
+| Dokumentasi dan pembersihan berkas terkait perubahan | [documentation-and-cleanup.md](ai-agent-docs/documentation-and-cleanup.md) |
+| UI, bahasa, form | [ai-guidelines.md](ai-agent-docs/ai-guidelines.md) |
+| Rute | [routes-and-navigation.md](ai-agent-docs/routes-and-navigation.md) |
+| Logo dan generasi maskot | [branding.md](ai-agent-docs/branding.md) |
+| Infrastruktur | [system-architecture.md](ai-agent-docs/system-architecture.md) dan [deployment.md](ai-agent-docs/deployment.md) |
 
-## 🛡️ Core Rules & Guardrails untuk AI Coding Agent
+[Peta lengkap](ai-agent-docs/index.md) hanya untuk menemukan dokumen. Skema, konstanta, dan implementasi dibaca dari kode; jangan disalin ke dokumentasi.
 
-1. **Zero Real PII (Data Pribadi Korban):**
-   - Dilarang keras meminta, menyimpan, atau mengirimkan kredensial asli pengguna.
-   - Selalu lewatkan teks analisis ke modul _PII Scrubber_ sebelum dikirim ke DeepSeek API.
-2. **Dual-Mode UI/UX (Mode Manusia vs Geek View):**
-   - Output analisis (baik URL maupun file APK) harus selalu memiliki toggle:
-     - **Mode Bahasa Manusia (Default):** Penjelasan ramah anak muda, analogi sederhana, dan kartu _"Kedok Penipu Terbongkar"_.
-     - **Mode Teknis (Geek View):** Rincian izin Android, potongan kode decompiled `jadx`, dan endpoint C2 bot Telegram.
-3. **Upload & Input Pengguna:**
-   - Website menerima input langsung: input URL, Upload/Scan gambar QR (sebagai helper konversi gambar QR menjadi teks/URL agar user tidak repot scan dan copy-paste manual), serta Upload file `.apk` secara manual oleh pengguna (drag-and-drop / file picker).
-   - Redesign hero terbaru pada 3 November 2026 memakai input manual tanpa tombol contoh atau preset. Pengguna memilih jenis input, memasukkan tautan atau berkas, lalu mengirim pemeriksaan sendiri.
-   - Tidak ada preset berkas malware atau shortcut eksekusi pengujian. Sampel file untuk pengujian demo/juri disiapkan dan dikirimkan oleh tim secara terpisah/eksternal untuk diunggah manual ke website.
-4. **Fungsi Web Sandbox (Bukan untuk Belajar, Tapi Proteksi Perangkat):**
-   - _Browser-in-Browser Sandbox_ (Chromium terisolasi) digunakan murni agar pengguna dapat membuka tautan yang terindikasi phishing/berbahaya tanpa rasa khawatir perangkat lokal mereka terinfeksi malware.
-   - Eksekusi berjalan di kontainer terisolasi (Chromium KasmVNC / Redroid) dengan masa aktif terbatasi (180 detik) dan pembersihan otomatis (_auto-destroy_).
-5. **Cakupan Pilar Act (Tanpa Pelaporan Portal Pemerintah):**
-   - Pilar _Act_ berfokus pada **Guardian Share Card** (generator gambar peringatan otomatis yang siap dibagikan ke WhatsApp grup keluarga/teman).
-   - **Tidak perlu ada fitur panduan darurat atau generator draf laporan ke portal resmi pemerintah.**
-6. **Standar Kode & Tooling:**
-   - **Frontend:** Next.js (App Router, TypeScript, Tailwind CSS v4). Gunakan `biome` (`bun run lint`) dan Prettier (`bun run format`) untuk menjaga kebersihan dan kerapian kode.
-   - Patuhi aturan dokumentasi Next.js pada `node_modules/next/dist/docs/`.
-7. **Pemanfaatan Mature Library (Anti-Reinventing the Wheel):**
-   - Jika ingin membangun suatu fitur dan telah tersedia library _mature_ yang teruji, aman, dan kompatibel di ekosistem, **utamakan langsung menggunakan library tersebut** daripada membuat implementasi kompleks dari nol.
+## Batas produk dan keamanan
+
+- **Zero Real PII:** jangan meminta/menyimpan/mengirim kredensial asli korban. Sanitasi teks sebelum persistensi atau pengiriman ke AI melalui PII Scrubber.
+- Hasil analisis memakai Mode Bahasa Manusia sebagai default dan Mode Teknis. Sajikan bukti tersimpan; jangan mengarang skor, permissions, atau C2.
+- Input URL, gambar QR, dan APK dimasukkan serta dikirim manual oleh pengguna. Tidak ada tombol contoh, preset malware, atau shortcut pengujian di website; sampel demo disiapkan tim secara eksternal.
+- Sandbox web melindungi perangkat melalui Chromium server terisolasi, maksimal 180 detik dan auto-destroy. Android dinamis belum aktif.
+- Act hanya berfokus pada Guardian Share Card. Panduan darurat dan generator laporan pemerintah tidak termasuk cakupan.
+- Gunakan library matang untuk fungsi kompleks yang sudah tersedia. Biome dan Prettier mengikuti konfigurasi proyek; aturan izin pemeriksaan tetap berlaku.
+
+## Referensi wajib gambar maskot
+
+Sebelum generate/edit maskot, baca [panduan branding](ai-agent-docs/branding.md#panduan-wajib-generasi-maskot), buka [guide empat sudut](public/guide/guardian-lab-fox-3d-guide.png) dengan tool pembaca gambar, lalu **sertakan gambar guide sebagai input referensi tool generasi**. Menulis path di prompt saja tidak cukup. Sertakan [logo cyan](public/brand/guardian-lab-koneksi.png) bila logo terlihat. Pertahankan identitas rubah 3D navy–cyan dari guide.
 
 <!-- BEGIN:nextjs-agent-feedback -->
 

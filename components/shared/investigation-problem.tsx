@@ -7,10 +7,12 @@ export function InvestigationProblem({
   problem,
   onRetry,
   id,
+  returnTo,
 }: {
   problem: LoadProblem;
   onRetry: () => void;
   id?: string;
+  returnTo?: string;
 }) {
   return (
     <div className="space-y-4">
@@ -32,7 +34,7 @@ export function InvestigationProblem({
           <Link
             className="bg-brand-600 rounded-full px-5 py-2 font-semibold text-white"
             href={AUTH_ROUTES.loginWithRedirect(
-              id ? PUBLIC_ROUTES.investigation(id) : PUBLIC_ROUTES.home,
+              returnTo ?? (id ? PUBLIC_ROUTES.investigation(id) : PUBLIC_ROUTES.home),
             )}
           >
             Masuk kembali

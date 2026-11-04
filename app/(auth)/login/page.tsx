@@ -7,19 +7,22 @@ import { LoginForm } from "./_components/login-form";
 
 export const metadata = {
   title: "Masuk — Guardian Lab",
-  description: "Masuk ke akun Guardian Lab untuk akses forensic history dan sandbox terisolasi.",
+  description: "Masuk untuk melanjutkan pemeriksaan dan aktivitasmu di Guardian Lab.",
 };
 
-export default function LoginPage() {
+type Props = { searchParams: Promise<{ redirect?: string | string[] }> };
+
+export default function LoginPage({ searchParams }: Props) {
   return (
-    <Suspense fallback={<AuthCardSkeleton title="Menyiapkan Sesi Masuk..." />}>
-      <LoginContent />
+    <Suspense fallback={<AuthCardSkeleton title="Menyiapkan halaman masuk…" />}>
+      <LoginContent searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function LoginContent() {
-  const user = await getCurrentUser();
-  if (user) redirect(getPostLoginRedirect(user.role));
+async function LoginContent({ searchParams }: Props) {
+  const [user, query] = await Promise.all([getCurrentUser(), searchParams]);
+  const requested = typeof query.redirect === "string" ? query.redirect : undefined;
+  if (user) redirect(getPostLoginRedirect(user.role, requested));
   return <LoginForm />;
 }

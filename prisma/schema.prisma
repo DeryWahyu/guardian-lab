@@ -87,20 +87,23 @@ enum ReplayStatus {
 // -------------------------------------------------------------
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String
-  role         Role     @default(USER)
-  exp          Int      @default(0)
-  streakDays   Int      @default(0)
-  lastLearningAt DateTime?
-  lastActiveAt DateTime @default(now())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  name            String
+  phone           String?   @unique @db.VarChar(16)
+  phoneVerifiedAt DateTime?
+  role            Role      @default(USER)
+  exp             Int       @default(0)
+  streakDays      Int       @default(0)
+  lastLearningAt  DateTime?
+  lastActiveAt    DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   // Relations
   sessions         Session[]
+  authChallenges   AuthChallenge[]
   forensicRecords  ForensicRecord[]
   sandboxSessions  SandboxSession[]
   userBadges       UserBadge[]
@@ -111,6 +114,35 @@ model User {
 
   @@index([email])
   @@index([role])
+}
+
+model AuthChallenge {
+  id             String    @id @default(cuid())
+  tokenHash      String    @unique @db.Char(64)
+  userId         String?
+  purpose        String    @db.VarChar(16)
+  phoneHash      String    @db.Char(64)
+  codeHash       String?   @db.Char(64)
+  codeExpiresAt  DateTime?
+  deliveryStatus String?   @db.VarChar(16)
+  redirectTo     String    @db.Text
+  attempts       Int       @default(0)
+  lastSentAt     DateTime?
+  expiresAt      DateTime
+  consumedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose])
+  @@index([expiresAt])
+}
+
+model AuthRateLimit {
+  key       String   @id @db.VarChar(128)
+  count     Int      @default(0)
+  expiresAt DateTime
+
+  @@index([expiresAt])
 }
 
 model Session {

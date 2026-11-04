@@ -1,4 +1,8 @@
 import { PUBLIC_ROUTES } from "./routes";
+
+export const LANDING_LOCATION_CHANGE_EVENT = "guardian:landing-location-change";
+export const LANDING_SECTION_CHANGE_EVENT = "guardian:landing-section-change";
+
 export function isNavigationActive(href: string, pathname: string, search: URLSearchParams) {
   const destination = new URL(href, "https://guardian.invalid");
   if (destination.pathname === PUBLIC_ROUTES.home) {

@@ -1,102 +1,51 @@
 "use client";
 
-import { Flame, Loader2, LockKeyhole, LogOut, Menu, Sparkles, X } from "lucide-react";
+import { Loader2, LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import type { UserSession } from "@/lib/auth/session";
 import { useSessionUser } from "@/lib/hooks/use-session-user";
-import { isNavigationActive } from "@/lib/navigation";
-import { ADMIN_ROUTES, AUTH_ROUTES, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { ADMIN_ROUTES, AUTH_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import { BrandIdentity } from "./brand-identity";
+import { HeaderNavigation, type HeaderVariant } from "./header-navigation";
+import landingStyles from "./landing-chrome.module.css";
 
 export interface HeaderProps {
   initialUser?: UserSession | null;
+  variant?: HeaderVariant;
 }
 
-export function Header({ initialUser }: HeaderProps) {
+export function Header({ initialUser, variant = "default" }: HeaderProps) {
   return (
     <Suspense>
-      <HeaderContent initialUser={initialUser} />
+      <HeaderContent initialUser={initialUser} variant={variant} />
     </Suspense>
   );
 }
-function HeaderContent({ initialUser }: HeaderProps) {
-  const pathname = usePathname();
-  const search = useSearchParams();
+function HeaderContent({ initialUser, variant }: HeaderProps) {
   const { user, isLoggingOut, handleLogout } = useSessionUser(initialUser);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navLinks = [
-    { label: "Gateway", href: PUBLIC_ROUTES.home },
-    { label: "Sandbox", href: PUBLIC_ROUTES.sandboxWeb, requiresAuth: true },
-    { label: "APK X-Ray", href: PUBLIC_ROUTES.homeWithTab("apk") },
-    { label: "Share Card", href: PUBLIC_ROUTES.act, requiresAuth: true },
-    { label: "Academy", href: PROTECTED_ROUTES.academy, requiresAuth: true },
-    { label: "Community", href: PROTECTED_ROUTES.community, requiresAuth: true },
-    { label: "History", href: PROTECTED_ROUTES.history, requiresAuth: true },
-  ];
+  const landing = variant === "landing";
 
   return (
-    <header className="bg-background/85 sticky top-0 z-50 w-full border-b border-slate-200/60 shadow-xs backdrop-blur-md transition-colors">
-      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className={landingStyles.header}>
+      <div className={landingStyles.headerInner}>
         {/* Brand Logo */}
         <Link
           href={PUBLIC_ROUTES.home}
+          data-landing-home={landing ? "" : undefined}
           className="group focus-visible:ring-brand-600 inline-flex cursor-pointer items-center gap-2.5 rounded-xl p-1 focus-visible:ring-2 focus-visible:outline-none"
         >
-          <BrandIdentity />
+          <BrandIdentity subtitle={null} markClassName="size-8" wordmarkClassName="text-base" />
         </Link>
 
-        {/* Desktop Nav Links */}
-        <nav className="hidden items-center gap-1 rounded-full border border-slate-200/40 bg-slate-100/60 p-1.5 xl:flex">
-          {navLinks.map((link) => {
-            const isActive = isNavigationActive(link.href, pathname, search);
-            return (
-              <Link
-                key={link.label}
-                aria-current={isActive ? "page" : undefined}
-                href={
-                  !user && link.requiresAuth ? AUTH_ROUTES.loginWithRedirect(link.href) : link.href
-                }
-                title={!user && link.requiresAuth ? "Masuk untuk membuka fitur ini" : undefined}
-                className={`cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
-                  isActive
-                    ? "text-brand-600 bg-white font-bold shadow-xs"
-                    : "text-slate-600 hover:bg-white/50 hover:text-slate-900"
-                }`}
-              >
-                {link.label}
-                {!user && link.requiresAuth && (
-                  <LockKeyhole aria-hidden="true" className="ml-1 inline size-3" />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+        <HeaderNavigation signedIn={Boolean(user)} variant={variant} />
 
         {/* Auth / Action Area */}
         <div className="hidden items-center gap-3 xl:flex">
           {user ? (
             <div className="flex items-center gap-2.5">
-              {/* Daily Streak Flame */}
-              <div
-                className="inline-flex items-center gap-1 rounded-full border border-orange-200/60 bg-orange-50 px-2.5 py-1 text-xs font-bold text-orange-600 shadow-xs"
-                title="Daily Streak Aktivitas"
-              >
-                <Flame className="size-3.5 animate-pulse fill-orange-500 text-orange-500 motion-reduce:animate-none" />
-                <span>{user.streakDays}d</span>
-              </div>
-
-              {/* EXP Gamification Badge */}
-              <div
-                className="inline-flex items-center gap-1 rounded-full border border-amber-200/60 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 shadow-xs"
-                title="Total EXP Guardian"
-              >
-                <Sparkles className="size-3.5 text-amber-500" />
-                <span>{user.exp || 0} EXP</span>
-              </div>
-
               {/* Admin Badge */}
               {user.role === "ADMIN" && (
                 <Link
@@ -135,10 +84,7 @@ function HeaderContent({ initialUser }: HeaderProps) {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link
-                href={AUTH_ROUTES.login}
-                className="bg-brand-600 shadow-brand-200/60 hover:bg-brand-700 cursor-pointer rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md transition-all active:scale-98"
-              >
+              <Link href={AUTH_ROUTES.login} className={landingStyles.login}>
                 Masuk
               </Link>
             </div>
@@ -162,25 +108,12 @@ function HeaderContent({ initialUser }: HeaderProps) {
           id="mobile-navigation"
           className="space-y-3 border-t border-slate-200 bg-white/95 px-4 py-6 shadow-lg backdrop-blur-md xl:hidden"
         >
-          <div className="flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={
-                  !user && link.requiresAuth ? AUTH_ROUTES.loginWithRedirect(link.href) : link.href
-                }
-                title={!user && link.requiresAuth ? "Masuk untuk membuka fitur ini" : undefined}
-                onClick={() => setMobileMenuOpen(false)}
-                aria-current={isNavigationActive(link.href, pathname, search) ? "page" : undefined}
-                className={`hover:bg-brand-50 hover:text-brand-600 cursor-pointer rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${isNavigationActive(link.href, pathname, search) ? "bg-brand-50 text-brand-600" : "text-slate-700"}`}
-              >
-                {link.label}
-                {!user && link.requiresAuth && (
-                  <LockKeyhole aria-hidden="true" className="ml-1 inline size-3" />
-                )}
-              </Link>
-            ))}
-          </div>
+          <HeaderNavigation
+            signedIn={Boolean(user)}
+            variant={variant}
+            mobile
+            onSelect={() => setMobileMenuOpen(false)}
+          />
 
           <div className="border-t border-slate-100 pt-4">
             {user ? (
@@ -226,12 +159,25 @@ function HeaderContent({ initialUser }: HeaderProps) {
               <Link
                 href={AUTH_ROUTES.login}
                 onClick={() => setMobileMenuOpen(false)}
-                className="bg-brand-600 shadow-brand-200 block w-full cursor-pointer rounded-full py-2.5 text-center text-sm font-semibold text-white shadow-md"
+                className={landingStyles.mobileLogin}
               >
                 Masuk ke Akun
               </Link>
             )}
           </div>
+        </div>
+      )}
+      {landing && (
+        <div
+          data-landing-progress
+          className={landingStyles.scrollProgress}
+          role="progressbar"
+          aria-label="Progres membaca halaman"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={0}
+        >
+          <span />
         </div>
       )}
     </header>

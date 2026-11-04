@@ -3,13 +3,13 @@ import { randomUUID } from "node:crypto";
 import { POST as login } from "@/app/api/auth/login/route";
 import { GET as ranking } from "@/app/api/community/leaderboard/route";
 import { GET as overview } from "@/app/api/platform/overview/route";
-import { demoAccounts, seedDemoAccounts } from "@/lib/auth/demo-accounts";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth/session";
 import { isNavigationActive } from "@/lib/navigation";
 import { prisma } from "@/lib/prisma";
 import { PUBLIC_ROUTES } from "@/lib/routes";
 import { platformOverviewSchema, rankingSchema } from "@/lib/validations/platform";
+import { demoAccounts, seedDemoAccounts } from "@/prisma/seeders/demo-accounts";
 
 const ids: string[] = [];
 afterAll(async () => {

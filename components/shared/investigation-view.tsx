@@ -1,14 +1,41 @@
 "use client";
 import { RefreshCw } from "lucide-react";
+import Link from "next/link";
 import { ResultPresenter } from "@/components/landing/results/result-presenter";
 import { ResultSkeleton } from "@/components/landing/results/result-skeleton";
 import { useInvestigation } from "@/lib/hooks/use-investigation";
+import { PROTECTED_ROUTES } from "@/lib/routes";
+import type { Investigation } from "@/lib/validations/investigation";
 import { InvestigationProblem } from "./investigation-problem";
 
-export function InvestigationView({ id, scope }: { id: string; scope?: string }) {
+export function InvestigationView({
+  id,
+  scope,
+  expectedType,
+  returnTo,
+}: {
+  id: string;
+  scope?: string;
+  expectedType?: Investigation["type"];
+  returnTo?: string;
+}) {
   const { record, loading, refreshing, problem, retry } = useInvestigation(id, scope);
   if (loading) return <ResultSkeleton />;
-  if (!record && problem) return <InvestigationProblem problem={problem} onRetry={retry} id={id} />;
+  if (!record && problem)
+    return <InvestigationProblem problem={problem} onRetry={retry} id={id} returnTo={returnTo} />;
+  if (record && expectedType && record.type !== expectedType) {
+    return (
+      <div role="status" className="space-y-3 rounded-2xl border border-slate-200 bg-white p-6">
+        <p>Jenis rekaman ini berbeda dari pemeriksaan di halaman ini.</p>
+        <Link
+          href={PROTECTED_ROUTES.historyDetail(record.id)}
+          className="inline-flex min-h-11 items-center font-semibold text-cyan-800 underline"
+        >
+          Buka hasil di riwayat
+        </Link>
+      </div>
+    );
+  }
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-end gap-3 text-xs text-slate-500">

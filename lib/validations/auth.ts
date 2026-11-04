@@ -1,10 +1,30 @@
 import { z } from "zod";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { fitsPasswordLimit, MAX_PASSWORD_BYTES } from "@/lib/auth/password-policy";
+import { AUTH_ROUTES } from "@/lib/routes";
 
 const passwordSchema = z
   .string()
   .max(MAX_PASSWORD_BYTES, "Password maksimal 72 byte UTF-8")
   .refine(fitsPasswordLimit, "Password maksimal 72 byte UTF-8");
+
+export const phoneSchema = z
+  .string()
+  .trim()
+  .max(32)
+  .transform((value, context) => {
+    const phone = parsePhoneNumberFromString(value, { defaultCountry: "ID", extract: false });
+    if (!phone?.isValid() || phone.ext) {
+      context.addIssue({ code: "custom", message: "Masukkan nomor WhatsApp yang valid" });
+      return z.NEVER;
+    }
+    return phone.number;
+  });
+
+export const newPasswordSchema = passwordSchema
+  .min(8, "Password minimal 8 karakter")
+  .regex(/[A-Za-z]/, "Password harus mengandung minimal satu huruf")
+  .regex(/[0-9]/, "Password harus mengandung minimal satu angka");
 
 export const loginSchema = z.object({
   email: z
@@ -37,6 +57,13 @@ export const authSuccessSchema = z.object({
   user: sessionUserSchema,
 });
 
+export const otpRequiredSchema = z.object({
+  success: z.literal(true),
+  status: z.literal("verification_required"),
+  redirectTo: z.literal(AUTH_ROUTES.otp),
+  deliveryQueued: z.boolean(),
+});
+
 export function getAuthError(data: unknown, fallback: string): string {
   const parsed = z
     .object({ error: z.string().optional(), message: z.string().optional() })
@@ -46,6 +73,7 @@ export function getAuthError(data: unknown, fallback: string): string {
 
 export const baseRegisterSchema = z.object({
   name: z.string().trim().min(2, "Nama minimal 2 karakter").max(50, "Nama maksimal 50 karakter"),
+  phone: phoneSchema,
   email: z
     .string()
     .trim()
@@ -53,11 +81,9 @@ export const baseRegisterSchema = z.object({
     .max(191, "Email maksimal 191 karakter")
     .email("Format email tidak valid")
     .toLowerCase(),
-  password: passwordSchema
-    .min(8, "Password minimal 8 karakter")
-    .regex(/[A-Za-z]/, "Password harus mengandung minimal satu huruf")
-    .regex(/[0-9]/, "Password harus mengandung minimal satu angka"),
+  password: newPasswordSchema,
   confirmPassword: z.string().optional(),
+  redirect: z.string().optional(),
 });
 
 export const registerSchema = baseRegisterSchema.refine(

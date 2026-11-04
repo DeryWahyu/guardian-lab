@@ -33,9 +33,12 @@ export async function createSessionToken(
     email: string;
     name: string;
     role: "ADMIN" | "USER";
+    phone: string | null;
+    phoneVerifiedAt: Date | null;
   },
   database: Pick<Prisma.TransactionClient, "session"> = prisma,
 ): Promise<string> {
+  if (!user.phone || !user.phoneVerifiedAt) throw new Error("Nomor WhatsApp belum diverifikasi");
   const token = await signSessionToken({
     userId: user.id,
     email: user.email,
@@ -87,6 +90,8 @@ export async function getCurrentUser(request?: Request): Promise<UserSession | n
             email: true,
             name: true,
             role: true,
+            phone: true,
+            phoneVerifiedAt: true,
             exp: true,
             streakDays: true,
             lastLearningAt: true,
@@ -100,6 +105,8 @@ export async function getCurrentUser(request?: Request): Promise<UserSession | n
       !dbSession ||
       dbSession.expiresAt <= new Date() ||
       !dbSession.user ||
+      !dbSession.user.phone ||
+      !dbSession.user.phoneVerifiedAt ||
       dbSession.user.id !== payload.userId
     ) {
       return null;

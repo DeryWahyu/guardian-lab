@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PUBLIC_ROUTES } from "@/lib/routes";
+import { PROTECTED_ROUTES } from "@/lib/routes";
 export function AndroidEmulatorView() {
   return (
     <section className="max-w-2xl space-y-4 rounded-2xl border border-amber-200 bg-white p-6">
@@ -13,7 +13,7 @@ export function AndroidEmulatorView() {
         Pemeriksaan statis tidak menjalankan aplikasinya.
       </p>
       <Link
-        href={PUBLIC_ROUTES.homeWithTab("apk")}
+        href={PROTECTED_ROUTES.apk}
         className="bg-brand-600 inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-semibold text-white"
       >
         Buka bedah APK statis

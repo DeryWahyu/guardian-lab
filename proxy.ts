@@ -54,6 +54,7 @@ export async function proxy(request: NextRequest) {
   if (
     [
       PROTECTED_ROUTES.history,
+      PROTECTED_ROUTES.apk,
       PROTECTED_ROUTES.academy,
       PROTECTED_ROUTES.community,
       PUBLIC_ROUTES.sandboxWeb,
@@ -83,6 +84,7 @@ export const config = {
     "/admin/:path*",
     "/api/admin/:path*",
     "/history/:path*",
+    "/apk/:path*",
     "/academy/:path*",
     "/community/:path*",
     "/sandbox/:path*",
