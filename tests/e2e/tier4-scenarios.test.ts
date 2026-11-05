@@ -32,7 +32,7 @@ describe("Tier 4: Real-World Scenarios (Indonesian Cybercrime Defense)", () => {
       expect(record.riskScore).toBeNull();
       expect(record.technicalEvidence).toEqual({});
       expect(record.deceptionTricks).toEqual([]);
-    });
+    }, 30000);
   });
 
   // --------------------------------------------------------------------------

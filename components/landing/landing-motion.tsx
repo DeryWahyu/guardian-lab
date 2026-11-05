@@ -1,6 +1,6 @@
 "use client";
 
-import { domAnimation, LazyMotion, m, MotionConfig } from "motion/react";
+import { domAnimation, LazyMotion, MotionConfig, m } from "motion/react";
 import { createContext, type ReactNode, useContext, useSyncExternalStore } from "react";
 
 const ReducedMotionContext = createContext(true);

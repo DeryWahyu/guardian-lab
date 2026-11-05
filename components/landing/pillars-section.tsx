@@ -7,9 +7,9 @@ import apkInspector from "@/public/landing/guardian-apk-inspector.webp";
 import protect from "@/public/landing/guardian-protect.webp";
 import recognize from "@/public/landing/guardian-recognize.webp";
 import share from "@/public/landing/guardian-share.webp";
+import shared from "./landing.module.css";
 import { LandingLink } from "./landing-link";
 import { SceneReveal } from "./landing-motion";
-import shared from "./landing.module.css";
 import styles from "./pillars.module.css";
 
 const features = [

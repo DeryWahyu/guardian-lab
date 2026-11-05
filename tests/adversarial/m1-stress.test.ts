@@ -656,6 +656,7 @@ describe("Milestone 1 Adversarial Challenge & Stress Suite", () => {
         body: JSON.stringify({
           name: "Attacker Trying To Wipe Account",
           email: existingUser.email,
+          phone: existingUser.phone ?? "+6281234567893",
           password: "AttackerPassword123!",
         }),
       });

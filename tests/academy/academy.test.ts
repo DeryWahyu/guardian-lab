@@ -59,6 +59,8 @@ beforeAll(async () => {
         email: `academy-${randomUUID()}@example.test`,
         passwordHash: "test-unused",
         role,
+        phone: `+628140000000${role === "USER" ? "1" : "2"}`,
+        phoneVerifiedAt: new Date(),
       },
     });
     users.push(user.id);

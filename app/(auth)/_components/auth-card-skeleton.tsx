@@ -9,8 +9,7 @@ export function AuthCardSkeleton({
   fields?: number;
 }) {
   return (
-    <section
-      role="status"
+    <output
       aria-label={title}
       aria-busy="true"
       className="animate-pulse motion-reduce:animate-none"
@@ -19,8 +18,8 @@ export function AuthCardSkeleton({
         <div className={styles.skeletonHeading} data-lines={fields === 2 ? 2 : 1} />
         <div className={styles.skeletonSubtitle} />
         <div className={cn(styles.form, fields === 5 && styles.registration)}>
-          {Array.from({ length: fields }, (_, index) => (
-            <div key={`field-${index}`} className={styles.field}>
+          {Array.from({ length: fields }, (_, index) => `field-${index + 1}`).map((field) => (
+            <div key={field} className={styles.field}>
               <div className={styles.skeletonLabel} />
               <div className={styles.skeletonInput} />
             </div>
@@ -32,6 +31,6 @@ export function AuthCardSkeleton({
         <div className={styles.skeletonPrompt} />
       </div>
       <span className="sr-only">{title}</span>
-    </section>
+    </output>
   );
 }

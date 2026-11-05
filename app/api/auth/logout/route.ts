@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { rejectCrossOrigin } from "@/lib/auth/access";
+import { digest, OTP_COOKIE, tokenFrom } from "@/lib/auth/otp/core";
 import { destroySession, SESSION_COOKIE_NAME } from "@/lib/auth/session";
-import { OTP_COOKIE, tokenFrom, digest } from "@/lib/auth/otp/core";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {

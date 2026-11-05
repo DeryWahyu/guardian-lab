@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { API_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import { z } from "zod";
+import { API_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import {
   authSuccessSchema,
   getAuthError,

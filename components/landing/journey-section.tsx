@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 import evidenceReader from "@/public/landing/guardian-evidence-reader.webp";
 import explorer from "@/public/landing/guardian-explorer.webp";
 import inputGuide from "@/public/landing/guardian-input-guide.webp";
+import styles from "./journey.module.css";
+import shared from "./landing.module.css";
 import { LandingLink } from "./landing-link";
 import { SceneReveal } from "./landing-motion";
-import shared from "./landing.module.css";
-import styles from "./journey.module.css";
 
 const steps = [
   {
@@ -43,7 +43,7 @@ export function JourneySection() {
         <p className={shared.sectionIntro}>
           Tak harus langsung tahu semuanya. Guardian menemanimu, satu langkah setiap kali.
         </p>
-        <ol className={styles.steps} role="list">
+        <ol className={styles.steps}>
           {steps.map((step, index) => (
             <li key={step.title}>
               <SceneReveal className={styles.illustration}>

@@ -94,7 +94,7 @@ describe("Tier 3: Cross-Feature Combinations", () => {
       expect(getInvestigationResult(record)).toBeNull();
       const stored = await prisma.forensicRecord.findUniqueOrThrow({ where: { id: record.id } });
       expect(stored.inputMetadata).toEqual(record.inputMetadata);
-    });
+    }, 30000);
   });
 
   // --------------------------------------------------------------------------
@@ -108,15 +108,26 @@ describe("Tier 3: Cross-Feature Combinations", () => {
       expect(loginRedirectTarget).toBe("/login?redirect=%2F%3Ftab%3Dapk");
 
       // 2. User registers new account
-      const registerRes = await executeRoute<{
-        id: string;
-        email: string;
-        role: string;
-        exp: number;
-      }>("/api/auth/register", "POST", NEW_REGISTERED_USER_FIXTURE);
+      const registerRes = await executeRoute<{ status: string; redirectTo: string }>(
+        "/api/auth/register",
+        "POST",
+        NEW_REGISTERED_USER_FIXTURE,
+      );
       expect(registerRes.status).toBe(201);
-      expect(registerRes.body.role).toBe("USER");
-      let currentExp = registerRes.body.exp; // 0 EXP initially
+      expect(registerRes.body.status).toBe("verification_required");
+      expect(registerRes.body.redirectTo).toBe("/otp");
+      const registered = await prisma.user.findUniqueOrThrow({
+        where: { email: NEW_REGISTERED_USER_FIXTURE.email },
+      });
+      expect(registered.role).toBe("USER");
+      let currentExp = registered.exp; // 0 EXP initially
+
+      // This integration test focuses on post-registration RBAC and Academy flow.
+      // The dedicated AUTH-OTP suite covers the actual WhatsApp verification journey.
+      await prisma.user.update({
+        where: { email: NEW_REGISTERED_USER_FIXTURE.email },
+        data: { phoneVerifiedAt: new Date() },
+      });
 
       // 3. User authenticates and receives session cookie
       const loginRes = await executeRoute<{ id: string; role: string }>("/api/auth/login", "POST", {

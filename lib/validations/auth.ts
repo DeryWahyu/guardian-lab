@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { z } from "zod";
 import { fitsPasswordLimit, MAX_PASSWORD_BYTES } from "@/lib/auth/password-policy";
 import { AUTH_ROUTES } from "@/lib/routes";
 

@@ -53,7 +53,7 @@ describe("Requested local account seeder", () => {
       expect((await response.json()).redirectTo).toBe(expected.role === "ADMIN" ? "/admin" : "/");
     }
   });
-  it("is idempotent and preserves investigation, EXP, custom name and unchanged sessions", async () => {
+  it("is idempotent and preserves investigation, EXP, updates official profile and retains valid sessions", async () => {
     const dery = await prisma.user.update({
       where: { email: "dery@gmail.com" },
       data: { exp: 17, name: "Custom Dery" },
@@ -70,7 +70,9 @@ describe("Requested local account seeder", () => {
     const token = await createSessionToken(dery);
     await seedDemoAccounts(prisma);
     const saved = await prisma.user.findUniqueOrThrow({ where: { id: dery.id } });
-    expect(saved.name).toBe("Custom Dery");
+    expect(saved.name).toBe("Dery Wahyu Perdana");
+    expect(saved.role).toBe("USER");
+    expect(saved.phone).toBe("+6282377341268");
     expect(saved.exp).toBe(17);
     expect(await prisma.forensicRecord.count({ where: { id: record.id } })).toBe(1);
     expect(await prisma.session.count({ where: { token } })).toBe(1);
@@ -122,6 +124,8 @@ describe("Database-backed public statistics and private ranking", () => {
         name: "Private ranking identity",
         email: `ranking-${randomUUID()}@example.test`,
         passwordHash: "unused",
+        phone: "+6281299991111",
+        phoneVerifiedAt: new Date(),
         exp: 99999,
       },
     });

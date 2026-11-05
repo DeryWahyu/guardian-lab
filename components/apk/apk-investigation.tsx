@@ -130,10 +130,10 @@ export function ApkInvestigation({ user }: { user: UserSession }) {
           Jangan unggah berkas yang memuat data pribadi asli.
         </p>
         {mutation.isLoading && (
-          <p role="status" className="mt-3 text-xs leading-relaxed text-slate-600">
+          <output className="mt-3 text-xs leading-relaxed text-slate-600">
             Proses dapat memerlukan waktu hingga sekitar satu menit. Tunggu hingga selesai dan
             jangan kirim ulang.
-          </p>
+          </output>
         )}
       </form>
       {(recordId || mutation.isLoading || mutation.requestError) && (

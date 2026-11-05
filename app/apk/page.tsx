@@ -53,10 +53,10 @@ async function ApkContent({ searchParams }: Props) {
 
 function ApkPageSkeleton() {
   return (
-    <div role="status" aria-label="Memeriksa sesi APK" className="mx-auto max-w-5xl space-y-8 p-8">
+    <output aria-label="Memeriksa sesi APK" className="mx-auto max-w-5xl space-y-8 p-8">
       <div className="h-12 w-56 max-w-full animate-pulse rounded-xl bg-slate-200 motion-reduce:animate-none" />
       <div className="h-96 animate-pulse rounded-3xl bg-slate-100 motion-reduce:animate-none" />
-    </div>
+    </output>
   );
 }
 

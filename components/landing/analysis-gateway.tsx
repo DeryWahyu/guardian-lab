@@ -5,9 +5,9 @@ import { InvestigationRequestFeedback } from "@/components/shared/investigation-
 import { cn } from "@/lib/utils";
 import type { AnalysisGatewayProps } from "./analysis-gateway-types";
 import { AuthGateModal } from "./auth-gate-modal";
+import styles from "./gateway.module.css";
 import { GatewaySkeleton } from "./gateway-skeleton";
 import { GatewayUrlField } from "./gateway-url-field";
-import styles from "./gateway.module.css";
 import { QrUploadDialog } from "./qr-upload-dialog";
 import { useAnalysisGateway } from "./use-analysis-gateway";
 
@@ -42,9 +42,9 @@ function AnalysisGatewayInner(props: AnalysisGatewayProps) {
         <p className={styles.fieldHelp}>Tautannya belum dibuka di perangkatmu.</p>
         {/* AI sedang disiapkan; skor risiko belum tersedia. */}
         {gateway.isLoading && (
-          <p role="status" className={styles.fieldHelp}>
+          <output className={styles.fieldHelp}>
             Input sedang dibaca dan dicatat. Tunggu sampai status investigasi tampil.
-          </p>
+          </output>
         )}
       </form>
       <QrUploadDialog

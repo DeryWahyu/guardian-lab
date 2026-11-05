@@ -35,6 +35,7 @@ export const STANDARD_USER_FIXTURE: TestUserFixture = {
 export const NEW_REGISTERED_USER_FIXTURE = {
   name: "Siti Rahmawati",
   email: "siti.rahma@example.com",
+  phone: "+6281234567890",
   password: "PasswordSuperKuat2026!",
 };
 

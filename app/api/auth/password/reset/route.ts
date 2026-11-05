@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rejectCrossOrigin } from "@/lib/auth/access";
-import { hashPassword } from "@/lib/auth/password";
 import {
   digest,
   getPending,
@@ -9,7 +8,8 @@ import {
   pendingCookieOptions,
   tokenFrom,
 } from "@/lib/auth/otp/core";
-import { SESSION_COOKIE_NAME, getSessionCookieOptions } from "@/lib/auth/session";
+import { hashPassword } from "@/lib/auth/password";
+import { getSessionCookieOptions, SESSION_COOKIE_NAME } from "@/lib/auth/session";
 import { InputError, readInput } from "@/lib/investigations/request-input";
 import { prisma } from "@/lib/prisma";
 import { AUTH_ROUTES } from "@/lib/routes";

@@ -25,7 +25,7 @@ export function InvestigationView({
     return <InvestigationProblem problem={problem} onRetry={retry} id={id} returnTo={returnTo} />;
   if (record && expectedType && record.type !== expectedType) {
     return (
-      <div role="status" className="space-y-3 rounded-2xl border border-slate-200 bg-white p-6">
+      <output className="space-y-3 rounded-2xl border border-slate-200 bg-white p-6">
         <p>Jenis rekaman ini berbeda dari pemeriksaan di halaman ini.</p>
         <Link
           href={PROTECTED_ROUTES.historyDetail(record.id)}
@@ -33,7 +33,7 @@ export function InvestigationView({
         >
           Buka hasil di riwayat
         </Link>
-      </div>
+      </output>
     );
   }
   return (

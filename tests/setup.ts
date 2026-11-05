@@ -1,7 +1,29 @@
-import { afterAll, beforeAll } from "bun:test";
+import { afterAll, beforeAll, mock, setDefaultTimeout } from "bun:test";
 import { PrismaClient } from "@prisma/client";
 import { hash } from "bcryptjs";
+import * as nextServer from "next/server";
 import { ADMIN_USER_FIXTURE, STANDARD_USER_FIXTURE } from "./e2e/fixtures/user-fixtures";
+import { recordOtpDelivery } from "./helpers/otp-delivery";
+
+setDefaultTimeout(30000);
+
+mock.module("next/server", () => ({
+  ...nextServer,
+  after: (fn: () => unknown) => {
+    void Promise.resolve()
+      .then(fn)
+      .catch(() => {});
+  },
+}));
+
+// Keep OTP tests deterministic without replacing globalThis.fetch in individual files.
+// The production Fonnte adapter remains unmodified; only the Bun test module is mocked.
+mock.module("@/lib/auth/otp/fonnte", () => ({
+  sendWhatsApp: async (phone: string, code: string) => {
+    recordOtpDelivery(phone, code);
+    return true;
+  },
+}));
 
 // Unit tests never execute an external container runtime. Dedicated runtime verification is separate.
 process.env.SANDBOX_BROKER_URL = "";
@@ -36,7 +58,9 @@ beforeAll(async () => {
       `Migrasi test gagal: ${(errors || output).replaceAll(testUrl.toString(), "[DATABASE_URL]")}`,
     );
   const { prisma } = await import("../lib/prisma");
-  for (const user of [ADMIN_USER_FIXTURE, STANDARD_USER_FIXTURE]) {
+  const fixtures = [ADMIN_USER_FIXTURE, STANDARD_USER_FIXTURE];
+  for (let index = 0; index < fixtures.length; index++) {
+    const user = fixtures[index];
     await prisma.user.create({
       data: {
         id: user.id,
@@ -46,10 +70,12 @@ beforeAll(async () => {
         exp: user.exp,
         streakDays: user.streakDays,
         passwordHash: await hash(user.passwordPlainText, 4),
+        phone: `+628120000000${index + 1}`,
+        phoneVerifiedAt: new Date(),
       },
     });
   }
-}, 30000);
+});
 
 afterAll(async () => {
   const { prisma } = await import("../lib/prisma");
@@ -61,4 +87,4 @@ afterAll(async () => {
   } finally {
     await administrator.$disconnect();
   }
-}, 30000);
+});

@@ -4,9 +4,9 @@ import { LANDING_SECTIONS } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import ctaGuide from "@/public/landing/guardian-cta-guide.webp";
 import styles from "./cta.module.css";
+import shared from "./landing.module.css";
 import { LandingLink } from "./landing-link";
 import { SceneReveal } from "./landing-motion";
-import shared from "./landing.module.css";
 
 export function CtaBanner() {
   return (

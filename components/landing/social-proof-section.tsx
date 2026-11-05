@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 import academyReader from "@/public/landing/guardian-academy-reader.webp";
 import communityHelper from "@/public/landing/guardian-community-helper.webp";
 import styles from "./community.module.css";
+import shared from "./landing.module.css";
 import { LandingFaq } from "./landing-faq";
 import { SceneReveal } from "./landing-motion";
-import shared from "./landing.module.css";
 import { PlatformStats } from "./platform-stats";
 
 const paths = [
@@ -49,7 +49,8 @@ export function SocialProofSection() {
           Belajar bareng, jaga sesama.
         </h2>
         <p className={shared.sectionIntro}>
-          Bangun kebiasaan digital yang lebih waspada. Ada pelajaran dan pengalaman untuk dipelajari.
+          Bangun kebiasaan digital yang lebih waspada. Ada pelajaran dan pengalaman untuk
+          dipelajari.
         </p>
         <div className={styles.learning}>
           {paths.map(({ id, label, icon: Icon, title, description, action, href, image }) => (

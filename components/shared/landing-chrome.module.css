@@ -83,6 +83,7 @@
   box-shadow: inset 2px 0 #0e7490;
   font-weight: 650;
 }
+/* biome-ignore lint/correctness/noUnknownPseudoClass: CSS Modules global selector targets the runtime menu id. */
 .header :global(#mobile-navigation) {
   max-height: calc(100dvh - 96px);
   overflow-y: auto;

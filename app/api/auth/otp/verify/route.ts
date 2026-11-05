@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rejectCrossOrigin } from "@/lib/auth/access";
-import { getPostLoginRedirect } from "@/lib/auth/redirect";
-import {
-  createSessionToken,
-  getSessionCookieOptions,
-  SESSION_COOKIE_NAME,
-} from "@/lib/auth/session";
 import {
   clientKey,
   codeDigest,
@@ -17,6 +11,12 @@ import {
   rateLimit,
   tokenFrom,
 } from "@/lib/auth/otp/core";
+import { getPostLoginRedirect } from "@/lib/auth/redirect";
+import {
+  createSessionToken,
+  getSessionCookieOptions,
+  SESSION_COOKIE_NAME,
+} from "@/lib/auth/session";
 import { InputError, readInput } from "@/lib/investigations/request-input";
 import { prisma } from "@/lib/prisma";
 import { AUTH_ROUTES } from "@/lib/routes";

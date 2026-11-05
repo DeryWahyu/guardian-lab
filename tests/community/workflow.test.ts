@@ -80,7 +80,13 @@ describe("Stored investigation contribution and moderation", () => {
       await prisma.user.findUniqueOrThrow({ where: { id: ADMIN_USER_FIXTURE.id } }),
     );
     const other = await prisma.user.create({
-      data: { name: "Fixture", email: `${prefix}@example.test`, passwordHash: "fixture" },
+      data: {
+        name: "Fixture",
+        email: `${prefix}@example.test`,
+        passwordHash: "fixture",
+        phone: "+6281500000001",
+        phoneVerifiedAt: new Date(),
+      },
     });
     otherToken = await createSessionToken(other);
     recordId = (await source()).id;

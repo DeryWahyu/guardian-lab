@@ -116,12 +116,7 @@ export function OtpForm() {
         </p>
       </>
     );
-  if (!status)
-    return (
-      <section role="status" className={styles.heading}>
-        Menyiapkan verifikasi…
-      </section>
-    );
+  if (!status) return <output className={styles.heading}>Menyiapkan verifikasi…</output>;
   const description =
     status.purpose === "VERIFY" && status.maskedPhone
       ? `Masukkan kode enam digit untuk ${status.maskedPhone}.`
@@ -165,9 +160,7 @@ export function OtpForm() {
           </p>
         )}
         {notice && !verify.error && !resend.error && (
-          <p className={styles.otpNotice} role="status">
-            {notice}
-          </p>
+          <output className={styles.otpNotice}>{notice}</output>
         )}
         <button type="submit" className={styles.submit} disabled={verify.pending || resend.pending}>
           {verify.pending ? (

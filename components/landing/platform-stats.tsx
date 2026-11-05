@@ -13,14 +13,14 @@ export function PlatformStats() {
   return (
     <div className={styles.metrics}>
       {resource.loading ? (
-        <div role="status" aria-label="Memuat statistik" aria-busy="true" className={styles.stats}>
+        <output aria-label="Memuat statistik" aria-busy="true" className={styles.stats}>
           {[0, 1, 2].map((item) => (
             <div key={item} className={styles.statSkeleton} aria-hidden="true">
               <span />
               <span />
             </div>
           ))}
-        </div>
+        </output>
       ) : resource.problem || !data ? (
         <div role="alert" className={styles.problem}>
           <p>Statistik belum dapat dimuat.</p>

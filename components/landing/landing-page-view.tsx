@@ -1,14 +1,14 @@
 "use client";
+import { useRef } from "react";
 import { Footer } from "@/components/shared/footer";
 import { Header } from "@/components/shared/header";
 import type { UserSession } from "@/lib/auth/session";
-import { useRef } from "react";
 import { CtaBanner } from "./cta-banner";
 import { JourneySection } from "./journey-section";
+import styles from "./landing.module.css";
 import { LandingInvestigation } from "./landing-investigation";
 import { LandingMotion } from "./landing-motion";
 import { LandingScrollControls } from "./landing-scroll-controls";
-import styles from "./landing.module.css";
 import { PillarsSection } from "./pillars-section";
 import { SocialProofSection } from "./social-proof-section";
 export interface LandingPageViewProps {

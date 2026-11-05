@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
-import { phoneSchema } from "@/lib/validations/auth";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { phoneSchema } from "@/lib/validations/auth";
 
 export const demoAccounts = [
   { email: "admin@gmail.com", name: "Admin", role: "ADMIN" as const, phone: "08132745175" },

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
+import { learningStreak } from "@/lib/academy/streak";
 import { rejectCrossOrigin } from "@/lib/auth/access";
-import { verifyPassword } from "@/lib/auth/password";
 import {
   clientKey,
   createPending,
@@ -9,13 +9,13 @@ import {
   rateLimit,
 } from "@/lib/auth/otp/core";
 import { sendOtp } from "@/lib/auth/otp/send";
+import { verifyPassword } from "@/lib/auth/password";
 import { getPostLoginRedirect } from "@/lib/auth/redirect";
 import {
   createSessionToken,
   getSessionCookieOptions,
   SESSION_COOKIE_NAME,
 } from "@/lib/auth/session";
-import { learningStreak } from "@/lib/academy/streak";
 import { InputError, readInput } from "@/lib/investigations/request-input";
 import { prisma } from "@/lib/prisma";
 import { AUTH_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";

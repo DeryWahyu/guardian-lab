@@ -2,6 +2,13 @@
 
 Dokumen serah-terima untuk pengguna atau model AI penguji. Ini **rencana**, bukan laporan kelulusan. Eksekusi mengikuti [izin pada AGENTS.md](./AGENTS.md#eksekusi-pengujian); jangan menjalankan perintah hanya karena tercantum di sini. Ambil hanya kelompok yang sesuai perubahan dan minta persetujuan sebelum menambah cakupan atau menulis test baru.
 
+## Cakupan otomatis yang tersedia (tetap tertunda)
+
+- [ ] Suite auth mencakup registrasi dengan nomor WhatsApp, OTP, login akun terverifikasi/belum terverifikasi, pemulihan password, redirect aman, dan fixture seeder.
+- [ ] Suite APK mencakup guard akses/redirect, upload multipart, ekstraksi statis, batas arsip, sanitasi bukti, serta hasil unavailable tanpa skor rekaan.
+- [ ] Suite landing/public/auth mencakup kontrak render, copy utama, navigasi, dialog QR, statistik, dan tautan dokumentasi.
+- [ ] Suite integrasi/adversarial/flow mencakup idempotensi, konkurensi, isolasi owner, transisi investigasi, komunitas, Academy, dan sandbox offline.
+
 ## Prioritas perubahan saat ini
 
 - [ ] **SEED-02 — Struktur dan perintah:** setelah persetujuan pemeriksaan pada database uji yang telah dimigrasi dan Prisma Client yang sesuai, jalankan `bun run academy:seed` dua kali: tiga materi tersedia, kuis yang telah diedit tetap utuh, dan akun demo tidak dibuat. Jalankan `bun run db:seed` dua kali pada lingkungan lokal: empat akun terverifikasi dan materi tersedia tanpa duplikasi, data/EXP dipertahankan, serta invalidasi sesi mengikuti SEED-01. Dengan `NODE_ENV=production`, `db:seed` menolak sebelum menyentuh database; `academy:seed` tetap dapat digunakan secara terpisah. Periksa kedua entry point dan impor test lama mengarah ke `prisma/seeders`.
@@ -63,14 +70,14 @@ Prasyarat: runtime hanya dijalankan setelah disetujui. Pemeriksaan login/registr
 
 ## Pemeriksaan teknis jika disetujui
 
-| Cakupan         | Perintah yang dapat dipilih         | Hasil yang diharapkan                                                |
-| --------------- | ----------------------------------- | -------------------------------------------------------------------- |
-| Tipe            | `bunx tsc --noEmit`                 | Tidak ada error tipe; Prisma Client harus sesuai schema.             |
-| Lint            | `bun run lint`                      | Tidak ada error Biome.                                               |
-| Format          | `bun run format:check`              | Tidak ada perbedaan format.                                          |
-| Unit/integrasi  | `bun test <file terkait>`           | Skenario relevan lulus; jangan otomatis memperluas ke seluruh suite. |
-| Build           | `bun run build`                     | Build selesai dengan aset dan CSS yang benar.                        |
-| Runtime sandbox | Pilih perintah pada bagian berikut. | Container/stream/jaringan/cleanup bekerja pada lingkungan uji.       |
+| Cakupan         | Perintah yang dapat dipilih            | Hasil yang diharapkan                                                                                                                           |
+| --------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tipe            | `bunx tsc --noEmit`                    | Tidak ada error tipe; Prisma Client harus sesuai schema.                                                                                        |
+| Lint            | `bun run lint`                         | Tidak ada error Biome.                                                                                                                          |
+| Format          | `bun run format:check`                 | Tidak ada perbedaan format.                                                                                                                     |
+| Unit/integrasi  | `DATABASE_URL=<database-uji> bun test` | Skenario relevan lulus; `bunfig.toml` membatasi concurrency ke satu worker agar fixture MySQL dan toolchain JADX tidak saling berebut resource. |
+| Build           | `bun run build`                        | Build selesai dengan aset dan CSS yang benar.                                                                                                   |
+| Runtime sandbox | Pilih perintah pada bagian berikut.    | Container/stream/jaringan/cleanup bekerja pada lingkungan uji.                                                                                  |
 
 ## Regresi fitur bila terkait perubahan
 
@@ -99,7 +106,8 @@ Jalankan hanya bila disetujui dan runtime uji siap:
 ## Prasyarat eksekusi
 
 - Sesuaikan lingkungan melalui [deployment.md](./ai-agent-docs/deployment.md) hanya setelah cakupan pengujian disetujui. Jangan mengubah `.env` atau data aplikasi untuk sekadar menyiapkan QA.
-- Tes database memakai [tests/setup.ts](./tests/setup.ts) dari [bunfig.toml](./bunfig.toml): MySQL sementara berprefix `guardian_lab_test_`, migrasi dan fixture terisolasi, lalu cleanup. Jangan menjalankan seed demo atau reset pada database aplikasi.
+- Tes database memakai [tests/setup.ts](./tests/setup.ts) dari [bunfig.toml](./bunfig.toml): MySQL sementara berprefix `guardian_lab_test_`, migrasi dan fixture terisolasi, lalu cleanup. `maxConcurrency = 1` menjaga ekstraksi JADX serta skenario constraint tetap deterministik. Jangan menjalankan seed demo atau reset pada database aplikasi.
+- Jika Turbopack gagal membuat worker karena pembatasan lingkungan, gunakan fallback resmi `bunx next build --webpack` setelah persetujuan build; jangan mengubah `.env` atau mematikan SSR hanya untuk melewati pemeriksaan.
 - APK memakai Java/JADX terverifikasi dan fixture jinak pada `tests/fixtures/apk/`; jangan gunakan malware hidup. Tes Bun sandbox memakai provider fixture; pemeriksaan container nyata terpisah.
 - Pengujian Share Card/komunitas yang memerlukan hasil lengkap memakai fixture terkontrol pada database uji, karena model AI belum aktif. Mock clipboard/share agar tidak mengirim pesan kepada orang lain.
 - Setelah eksekusi yang disetujui, tandai hanya hasil yang benar-benar diperiksa, tulis kegagalan singkat yang masih perlu ditangani, dan hapus kasus selesai yang tidak lagi relevan. Jangan menambah arsip log panjang.

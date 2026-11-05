@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { rejectCrossOrigin } from "@/lib/auth/access";
-import { hashPassword } from "@/lib/auth/password";
 import {
   clientKey,
   createPending,
@@ -9,7 +8,8 @@ import {
   rateLimit,
 } from "@/lib/auth/otp/core";
 import { sendOtp } from "@/lib/auth/otp/send";
-import { SESSION_COOKIE_NAME, getSessionCookieOptions } from "@/lib/auth/session";
+import { hashPassword } from "@/lib/auth/password";
+import { getSessionCookieOptions, SESSION_COOKIE_NAME } from "@/lib/auth/session";
 import { InputError, readInput } from "@/lib/investigations/request-input";
 import { prisma } from "@/lib/prisma";
 import { AUTH_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";

@@ -1,6 +1,6 @@
 "use client";
 
-import { type MouseEvent, type ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import { LANDING_LOCATION_CHANGE_EVENT } from "@/lib/navigation";
 
 type Props = {
