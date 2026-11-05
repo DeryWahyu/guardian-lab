@@ -6,6 +6,7 @@ import type { UserSession } from "@/lib/auth/session";
 import { CtaBanner } from "./cta-banner";
 import { JourneySection } from "./journey-section";
 import styles from "./landing.module.css";
+import { landingTypography } from "./landing-font";
 import { LandingInvestigation } from "./landing-investigation";
 import { LandingMotion } from "./landing-motion";
 import { LandingScrollControls } from "./landing-scroll-controls";
@@ -19,7 +20,11 @@ export function LandingPageView({ initialUser }: LandingPageViewProps) {
   return (
     <LandingMotion>
       <div ref={pageRef} className={styles.page}>
-        <Header initialUser={initialUser} variant="landing" />
+        <Header
+          initialUser={initialUser}
+          variant="landing"
+          dialogClassName={landingTypography}
+        />
         <main>
           <LandingInvestigation initialUser={initialUser} />
           <PillarsSection />

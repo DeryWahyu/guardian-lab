@@ -97,7 +97,7 @@
   line-height: 1.6;
 }
 .stats dd {
-  font-family: var(--font-landing-display), sans-serif;
+  font-family: inherit;
   font-size: 26px;
   font-weight: 650;
   line-height: 1;

@@ -6,9 +6,10 @@ export function rejectCrossOrigin(request: Request): NextResponse | null {
   if (!origin || ["GET", "HEAD", "OPTIONS"].includes(request.method)) return null;
   let expected = new URL(request.url);
   const host = request.headers.get("host");
-  // NextURL normalizes loopback addresses to localhost; retain the browser's actual Host.
+  // Next may use the wildcard bind address in Docker or normalize loopback to localhost.
+  // Recover only loopback Hosts on the same port; forwarded headers are not trusted.
   if (
-    expected.hostname === "localhost" &&
+    ["localhost", "0.0.0.0", "[::]"].includes(expected.hostname) &&
     host &&
     /^(?:localhost|127(?:\.\d{1,3}){3}|\[::1\])(?::\d+)?$/i.test(host)
   ) {

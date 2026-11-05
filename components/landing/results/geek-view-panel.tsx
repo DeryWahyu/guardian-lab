@@ -22,7 +22,8 @@ export function GeekViewPanel({
       <h3 className="font-mono text-base font-semibold">Bukti teknis tersimpan</h3>
       <p className="font-mono text-xs break-all text-slate-300">{result.defangedTarget}</p>
       <p className="text-xs text-slate-300">
-        {result.riskLevel} · {result.riskScore}/100 · {result.scamCategory}
+        {result.technicalEvidence.urlModel ? "Indikator model: " : ""}{result.riskLevel} ·{" "}
+        {result.riskScore}/100 · {result.scamCategory}
       </p>
       <label className="block text-xs text-slate-400" htmlFor="evidence-search">
         Cari bukti (Opsional)
@@ -33,7 +34,11 @@ export function GeekViewPanel({
         value={search}
         maxLength={200}
         onChange={(event) => onSearchChange?.(event.target.value)}
-        placeholder="Cari permission, endpoint, atau nama atribut…"
+        placeholder={
+          result.technicalEvidence.urlModel
+            ? "Cari versi model, threshold, atau nama atribut…"
+            : "Cari permission, endpoint, atau nama atribut…"
+        }
         className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
       />
       <p className="text-xs text-slate-400">

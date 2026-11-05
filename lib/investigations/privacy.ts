@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import { sanitizeModelUrl } from "@/lib/security/model-url";
 import { scrubPii } from "@/lib/security/pii-scrubber";
 
 /** No credentials or query/fragment values are retained in investigation targets. */
@@ -7,11 +8,7 @@ export function sanitizeInvestigationText(input: string): string {
   try {
     const url = new URL(input);
     if (["http:", "https:"].includes(url.protocol)) {
-      url.username = "";
-      url.password = "";
-      for (const key of [...url.searchParams.keys()]) url.searchParams.set(key, "[REDACTED]");
-      if (url.hash) url.hash = "[REDACTED]";
-      text = url.toString();
+      return sanitizeModelUrl(input) ?? "[TAUTAN_DISAMARKAN]";
     }
   } catch {
     // Plain text QR payloads and filenames still pass through the PII scrubber.

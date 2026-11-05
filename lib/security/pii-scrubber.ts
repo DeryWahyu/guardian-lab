@@ -1,8 +1,8 @@
 /**
  * Guardian Lab: PII Scrubber Module
  * Sanitizes Indonesian phone numbers, 16-digit NIK/bank accounts, emails,
- * and Telegram bot tokens before sending data to external AI models (DeepSeek)
- * or storing in forensic archives.
+ * and Telegram bot tokens before sending sanitized URLs to the private AI service
+ * or storing data in forensic archives.
  */
 
 export interface PiiScrubResult {

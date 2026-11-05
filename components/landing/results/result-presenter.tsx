@@ -8,6 +8,7 @@ import { SandboxLaunchLink } from "@/components/sandbox/sandbox-launch-link";
 import { DualModeToggle } from "@/components/shared/dual-mode-toggle";
 import { InvestigationMetadata } from "@/components/shared/investigation-metadata";
 import { InvestigationStatusPanel } from "@/components/shared/investigation-status-panel";
+import { UrlModelNotice } from "@/components/shared/url-model-notice";
 import workspace from "@/components/workspace/workspace.module.css";
 import { getApkStaticReport } from "@/lib/apk/presentation";
 import { getInvestigationResult } from "@/lib/investigations/presentation";
@@ -67,6 +68,7 @@ function ResultPresenterInner({
         <DualModeToggle mode={mode} />
       </div>
       <InvestigationMetadata record={record} />
+      <UrlModelNotice model={result.technicalEvidence.urlModel} />
       {apkReport && (
         <ApkStaticPanel
           presentation={presentation}
@@ -86,6 +88,7 @@ function ResultPresenterInner({
             riskLevel={result.riskLevel}
             defangedTarget={result.defangedTarget}
             scamCategory={result.scamCategory}
+            model={result.technicalEvidence.urlModel}
           />
           <KedokCard
             riskLevel={result.riskLevel}

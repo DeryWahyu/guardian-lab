@@ -8,15 +8,18 @@ export function LogoutDialog({
   pending,
   error,
   onConfirm,
+  className,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pending: boolean;
   error: string | null;
   onConfirm: () => void;
+  className?: string;
 }) {
   return (
     <ConfirmDialog
+      className={className}
       open={open}
       onOpenChange={onOpenChange}
       title="Keluar dari akun?"

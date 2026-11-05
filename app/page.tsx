@@ -1,15 +1,9 @@
-import { Bricolage_Grotesque } from "next/font/google";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { landingTypography } from "@/components/landing/landing-font";
 import { LandingPageView } from "@/components/landing/landing-page-view";
 import { getCurrentUser } from "@/lib/auth/session";
 import { PROTECTED_ROUTES } from "@/lib/routes";
-
-const landingDisplay = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-landing-display",
-  display: "swap",
-});
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -29,7 +23,7 @@ async function LandingContent({ searchParams }: Props) {
 
 export default function HomePage({ searchParams }: Props) {
   return (
-    <div className={landingDisplay.variable}>
+    <div className={landingTypography}>
       <Suspense fallback={<LandingPageView initialUser={null} />}>
         <LandingContent searchParams={searchParams} />
       </Suspense>

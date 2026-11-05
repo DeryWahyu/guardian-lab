@@ -1,38 +1,18 @@
-"use client";
-
-import { m } from "motion/react";
 import Image from "next/image";
-import guardian from "@/public/landing/guardian-hero-01.webp";
+import guardian from "@/public/landing/guardian-hero-full-body.png";
 import styles from "./hero.module.css";
-import { useHeroMotion } from "./use-hero-motion";
 
-const sizes = "(min-width: 1100px) 506px, (min-width: 768px) 364px, 260px";
+const sizes = "(min-width: 1100px) 576px, (min-width: 768px) 362px, 264px";
 
 export function HeroScene() {
-  const motion = useHeroMotion();
   return (
     <>
-      <div ref={motion.scene} className={styles.visual}>
-        <m.div
-          className={styles.scenery}
-          aria-hidden="true"
-          style={
-            motion.reducedMotion
-              ? undefined
-              : { x: motion.x, y: motion.y, rotate: motion.rotate }
-          }
-        >
-          <m.div
-            className={styles.scenery}
-            style={motion.reducedMotion ? undefined : { y: motion.scrollY }}
-          >
-            <div className={styles.halo} />
-          </m.div>
-        </m.div>
+      <div className={styles.visual}>
         <Image
           className={styles.fox}
           src={guardian}
-          alt="Guardian dengan kaca pembesar dan ekor besar, bertumpu pada tepi bar pemeriksaan."
+          alt="Guardian, rubah investigator seluruh badan, memegang kaca pembesar dan bertumpu pada kolom tautan."
+          fill
           loading="eager"
           fetchPriority="high"
           sizes={sizes}
@@ -40,7 +20,7 @@ export function HeroScene() {
         />
       </div>
       <div className={styles.hand} aria-hidden="true">
-        <Image src={guardian} alt="" sizes={sizes} draggable={false} />
+        <Image src={guardian} alt="" fill loading="eager" sizes={sizes} draggable={false} />
       </div>
     </>
   );

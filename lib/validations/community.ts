@@ -1,28 +1,32 @@
 import { z } from "zod";
+import { matchesUrlModel, urlModelEvidenceSchema } from "./guardian-ml";
 import { investigationIdSchema, riskLevelSchema, scanTypeSchema } from "./investigation";
 
 export const communityStatusSchema = z.enum(["PENDING_REVIEW", "APPROVED", "REJECTED"]);
-export const communityReportSchema = z.object({
-  schemaVersion: z.literal(1),
-  type: scanTypeSchema,
-  target: z.string(),
-  riskLevel: riskLevelSchema,
-  riskScore: z.number().int().min(0).max(100),
-  scamCategory: z.string(),
-  summary: z.string(),
-  deceptionTricks: z.array(z.string()),
-  technicalEvidence: z.object({
-    entropy: z.number().nonnegative().optional(),
-    permissions: z.array(z.string()).optional(),
-    c2Endpoints: z.array(z.string()).optional(),
-  }),
-  analysisSource: z
-    .string()
-    .min(1)
-    .refine((value) => value !== "LEGACY_UNVERIFIED"),
-  modelVersion: z.string().min(1),
-  analyzedAt: z.iso.datetime(),
-});
+export const communityReportSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    type: scanTypeSchema,
+    target: z.string(),
+    riskLevel: riskLevelSchema,
+    riskScore: z.number().int().min(0).max(100),
+    scamCategory: z.string(),
+    summary: z.string(),
+    deceptionTricks: z.array(z.string()),
+    technicalEvidence: z.object({
+      urlModel: urlModelEvidenceSchema.optional(),
+      entropy: z.number().nonnegative().optional(),
+      permissions: z.array(z.string()).optional(),
+      c2Endpoints: z.array(z.string()).optional(),
+    }),
+    analysisSource: z
+      .string()
+      .min(1)
+      .refine((value) => value !== "LEGACY_UNVERIFIED"),
+    modelVersion: z.string().min(1),
+    analyzedAt: z.iso.datetime(),
+  })
+  .refine(matchesUrlModel, "Snapshot model URL harus mempertahankan indikator dan metadata aslinya.");
 export type CommunityReport = z.infer<typeof communityReportSchema>;
 export const communityCaseSchema = z.object({
   id: investigationIdSchema,

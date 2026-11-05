@@ -47,6 +47,11 @@ export default function TermsPage() {
           bukti pencurian. Tidak ditemukannya suatu indikator bukan jaminan bahwa situs atau
           aplikasi aman.
         </p>
+        <p>
+          Indikator AI dari pola URL disediakan untuk riset nonkomersial dan masih perlu
+          verifikasi. Skor bukan probabilitas phishing pada trafik nyata atau keputusan yang
+          sudah dikonfirmasi. Model tidak memeriksa isi halaman maupun redirect.
+        </p>
       </section>
       <section>
         <h2>APK dan sandbox</h2>

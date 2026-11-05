@@ -8,6 +8,7 @@ import { AuthGateModal } from "./auth-gate-modal";
 import styles from "./gateway.module.css";
 import { GatewaySkeleton } from "./gateway-skeleton";
 import { GatewayUrlField } from "./gateway-url-field";
+import { landingTypography } from "./landing-font";
 import { QrUploadDialog } from "./qr-upload-dialog";
 import { useAnalysisGateway } from "./use-analysis-gateway";
 
@@ -38,14 +39,20 @@ function AnalysisGatewayInner(props: AnalysisGatewayProps) {
           qrTriggerRef={qrTrigger}
           onOpenQr={gateway.openQr}
         />
-        <InvestigationRequestFeedback error={gateway.requestError} uncertain={gateway.uncertain} />
-        <p className={styles.fieldHelp}>Tautannya belum dibuka di perangkatmu.</p>
-        {/* AI sedang disiapkan; skor risiko belum tersedia. */}
-        {gateway.isLoading && (
-          <output className={styles.fieldHelp}>
-            Input sedang dibaca dan dicatat. Tunggu sampai status investigasi tampil.
-          </output>
-        )}
+        <div className={styles.fieldDetails}>
+          {gateway.urlError && (
+            <p id="url-error" role="alert" className={styles.urlError}>
+              {gateway.urlError}
+            </p>
+          )}
+          <InvestigationRequestFeedback error={gateway.requestError} uncertain={gateway.uncertain} />
+          <p className={styles.fieldHelp}>Tautannya belum dibuka di perangkatmu.</p>
+          {gateway.isLoading && (
+            <output className={styles.fieldHelp}>
+              Input sedang dibaca dan dicatat. Tunggu sampai status investigasi tampil.
+            </output>
+          )}
+        </div>
       </form>
       <QrUploadDialog
         open={gateway.overlays.qrOpen}
@@ -63,6 +70,7 @@ function AnalysisGatewayInner(props: AnalysisGatewayProps) {
         returnFocus={() => (gateway.overlays.handingOff() ? false : qrTrigger.current)}
       />
       <AuthGateModal
+        className={landingTypography}
         isOpen={gateway.overlays.authOpen}
         onClose={gateway.overlays.closeAuth}
         onOpenChangeComplete={gateway.overlays.finishClose}

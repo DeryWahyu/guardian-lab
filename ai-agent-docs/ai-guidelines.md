@@ -13,7 +13,7 @@
 - Elemen yang dapat diklik menggunakan `cursor-pointer`; kontrol disabled menampilkan kondisi yang sesuai. Utamakan penanganan di komponen primitif dan CSS global.
 - Gunakan elemen semantik, label yang terhubung dengan kontrol, fokus terlihat, dan dukungan keyboard. Status tidak boleh disampaikan melalui warna saja.
 - Aksi destruktif memakai [ConfirmDialog](../components/shared/confirm-dialog.tsx) dengan dampak serta label tindakan yang jelas. Jangan gunakan `window.confirm()` atau `window.alert()`.
-- Gunakan Sonner untuk notifikasi operasi. Kesalahan yang perlu diperbaiki pada form juga tampil di dekat kontrol terkait.
+- Gunakan Sonner melalui satu `Toaster` global di root layout untuk notifikasi operasi. Toast tampil minimalis di kanan bawah dengan latar putih, teks/ikon netral, bayangan halus, dan warna status hanya pada border kiri: hijau sukses, merah error, biru info, kuning peringatan, serta abu-abu untuk pesan umum/loading. Ikon status dan pesan tetap membedakan jenis notifikasi selain warna; tombol tutup memakai label aksesibel Bahasa Indonesia. Gaya berlaku di semua halaman, termasuk tema gelap, dengan margin responsif pada ponsel. Kesalahan yang perlu diperbaiki pada form juga tampil di dekat kontrol terkait.
 - Saat mutasi berjalan, tampilkan pending, cegah pengiriman ganda, dan sediakan pemulihan yang sesuai. Hormati reduced motion.
 
 ## Loading, kosong, error, dan konten

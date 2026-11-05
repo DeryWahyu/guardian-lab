@@ -52,11 +52,13 @@ export async function transitionInvestigation(
   if (input.status === "PROCESSING") data.startedAt = new Date();
   else data.finishedAt = new Date();
   if (input.status === "COMPLETED") {
-    const result = investigationResultSchema.parse(input.result);
+    const result = investigationResultSchema.parse({
+      ...input.result,
+      summary: sanitizeInvestigationText(input.result.summary),
+      deceptionTricks: input.result.deceptionTricks.map(sanitizeInvestigationText),
+      technicalEvidence: sanitizeEvidence(input.result.technicalEvidence),
+    });
     Object.assign(data, result, {
-      summary: sanitizeInvestigationText(result.summary),
-      deceptionTricks: result.deceptionTricks.map(sanitizeInvestigationText),
-      technicalEvidence: sanitizeEvidence(result.technicalEvidence),
       errorCode: null,
       errorMessage: null,
     });

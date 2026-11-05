@@ -82,11 +82,6 @@ export function GatewayUrlField({
         Tautan dicatat tanpa membuka situs di perangkatmu. Tautan tanpa protokol menggunakan HTTPS.
         Maksimal 16.384 karakter.
       </p>
-      {error && (
-        <p id="url-error" role="alert" className={styles.urlError}>
-          {error}
-        </p>
-      )}
     </>
   );
 }

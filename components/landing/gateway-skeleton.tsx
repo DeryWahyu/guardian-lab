@@ -16,7 +16,9 @@ export function GatewaySkeleton() {
           <span className="ml-auto h-8 w-16 shrink-0 animate-pulse rounded-full bg-slate-100 motion-reduce:animate-none" />
           <span className={`${styles.submit} ${styles.skeletonSubmit}`} />
         </div>
-        <div className="mt-3 ml-4.5 h-3 w-3/5 rounded bg-slate-100" />
+        <div className={styles.fieldDetails}>
+          <div className="mt-3 ml-4.5 h-3 w-3/5 rounded bg-slate-100" />
+        </div>
       </div>
     </section>
   );

@@ -3,10 +3,13 @@
  * Shared contracts for URL detection, QR analysis, forensic storage, and dual-mode presentation.
  */
 
+import type { UrlModelEvidence } from "@/lib/validations/guardian-ml";
+
 export type AnalysisMode = "human" | "geek";
 
 export interface TechnicalEvidence {
   [key: string]: unknown;
+  urlModel?: UrlModelEvidence;
   entropy?: number;
   typosquatTarget?: string;
   levenshteinDistance?: number;

@@ -14,16 +14,17 @@ import landingStyles from "./landing-chrome.module.css";
 export interface HeaderProps {
   initialUser?: UserSession | null;
   variant?: HeaderVariant;
+  dialogClassName?: string;
 }
 
-export function Header({ initialUser, variant = "default" }: HeaderProps) {
+export function Header({ initialUser, variant = "default", dialogClassName }: HeaderProps) {
   return (
     <Suspense>
-      <HeaderContent initialUser={initialUser} variant={variant} />
+      <HeaderContent initialUser={initialUser} variant={variant} dialogClassName={dialogClassName} />
     </Suspense>
   );
 }
-function HeaderContent({ initialUser, variant }: HeaderProps) {
+function HeaderContent({ initialUser, variant, dialogClassName }: HeaderProps) {
   const {
     user,
     isLoggingOut,
@@ -196,6 +197,7 @@ function HeaderContent({ initialUser, variant }: HeaderProps) {
         </div>
       )}
       <LogoutDialog
+        className={dialogClassName}
         open={logoutOpen}
         onOpenChange={changeLogoutOpen}
         pending={isLoggingOut}

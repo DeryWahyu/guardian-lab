@@ -52,6 +52,11 @@ export default function AboutPage() {
           perkiraan. Pemeriksaan APK bersifat statis, dan eksekusi Android dinamis belum tersedia.
           Hasil pemeriksaan bukan jaminan bahwa suatu tautan atau aplikasi aman.
         </p>
+        <p>
+          Model AI membaca pola URL dan tautan hasil QR sebagai indikator riset nonkomersial.
+          Model masih dikembangkan; skor rendah tetap perlu verifikasi. Isi halaman dan
+          redirect tidak diperiksa oleh model ini.
+        </p>
       </section>
       <section>
         <h2>Mulai dengan input pilihanmu</h2>

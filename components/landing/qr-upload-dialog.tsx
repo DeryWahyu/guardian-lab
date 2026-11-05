@@ -5,7 +5,9 @@ import { ArrowRight, Loader2, QrCode, X } from "lucide-react";
 import type { FormEvent } from "react";
 import { InvestigationRequestFeedback } from "@/components/shared/investigation-request-feedback";
 import { InvestigationUploadField } from "@/components/shared/investigation-upload-field";
+import { cn } from "@/lib/utils";
 import styles from "./gateway.module.css";
+import { landingTypography } from "./landing-font";
 
 type Props = {
   open: boolean;
@@ -38,7 +40,10 @@ export function QrUploadDialog(props: Props) {
     >
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.backdrop} />
-        <Dialog.Popup finalFocus={props.returnFocus} className={styles.dialog}>
+        <Dialog.Popup
+          finalFocus={props.returnFocus}
+          className={cn(landingTypography, styles.dialog)}
+        >
           <div className={styles.dialogHeading}>
             <QrCode aria-hidden="true" />
             <Dialog.Title className={styles.dialogTitle}>Baca tautan dari kode QR</Dialog.Title>

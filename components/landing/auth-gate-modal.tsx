@@ -5,8 +5,10 @@ import { Lock, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { BrandMark } from "@/components/shared/brand-identity";
 import { AUTH_ROUTES, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 
 export interface AuthGateModalProps {
+  className?: string;
   isOpen: boolean;
   onClose: () => void;
   pendingType: "url" | "qr" | "apk";
@@ -17,6 +19,7 @@ export interface AuthGateModalProps {
 }
 
 export function AuthGateModal({
+  className,
   isOpen,
   onClose,
   pendingType,
@@ -55,7 +58,10 @@ export function AuthGateModal({
         <Dialog.Backdrop className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm" />
         <Dialog.Popup
           finalFocus={returnFocus}
-          className="bg-background fixed top-1/2 left-1/2 z-50 flex max-h-[90dvh] w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4 overflow-y-auto rounded-3xl border border-slate-200/90 p-6 text-center shadow-2xl shadow-slate-900/20 sm:p-8"
+          className={cn(
+            "bg-background fixed top-1/2 left-1/2 z-50 flex max-h-[90dvh] w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4 overflow-y-auto rounded-3xl border border-slate-200/90 p-6 text-center shadow-2xl shadow-slate-900/20 sm:p-8",
+            className,
+          )}
         >
           {/* Close Button */}
           <Dialog.Close

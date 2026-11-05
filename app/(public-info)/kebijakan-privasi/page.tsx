@@ -57,6 +57,12 @@ export default function PrivacyPage() {
           menggantikan kehati-hatianmu: jangan kirim password, OTP, token, atau kredensial korban.
         </p>
         <p>
+          Untuk pemeriksaan AI, backend mengirim URL yang sudah disaring ke layanan model
+          privat. Gambar QR didekode di server sebelum tautannya dikirim. Layanan model
+          memproses pola URL tanpa membuka situs tujuan; skor dan metadata model disimpan
+          bersama hasil investigasi. Data akun dan gambar QR tidak dikirim ke model URL.
+        </p>
+        <p>
           File APK diperiksa di server tanpa dipasang di perangkatmu. Sandbox web berjalan
           terpisah di server dan memiliki sesi maksimal 180 detik. Berakhirnya sesi sandbox tidak
           menghapus riwayat investigasi yang telah tersimpan.

@@ -8,7 +8,7 @@ Tema: _Guardians of the Digital Space – Empowering Today's Generation Toward a
 
 | Pilar     | Kaitan dengan produk                                                                         |
 | --------- | -------------------------------------------------------------------------------------------- |
-| Recognize | Input URL/QR serta ekstraksi statis APK. Penilaian risiko AI masih menunggu integrasi model. |
+| Recognize | Indikator riset AI untuk URL/QR serta ekstraksi statis APK, dengan hasil yang tetap perlu verifikasi. |
 | Protect   | Chromium server terisolasi untuk membuka target; Android dinamis belum tersedia.             |
 | Act       | Guardian Share Card dari hasil lengkap tersimpan untuk dibagikan pengguna.                   |
 
