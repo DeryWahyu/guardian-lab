@@ -26,7 +26,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       <div className={styles.formColumn}>
         <div className={styles.formStack}>
           <header className={styles.brand}>
-            <Link href={PUBLIC_ROUTES.home} aria-label="Guardian Lab — beranda">
+            <Link href={PUBLIC_ROUTES.home} aria-label="Guardian Lab, beranda">
               <BrandIdentity subtitle={null} markClassName="size-8" wordmarkClassName="text-lg" />
             </Link>
           </header>

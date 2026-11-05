@@ -1,35 +1,57 @@
 "use client";
 import Link from "next/link";
+import { WorkspaceStage } from "@/components/workspace/workspace-stage";
+import workspace from "@/components/workspace/workspace.module.css";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import { LearningProblem, LearningSkeleton, learningControl } from "./learning-ui";
 import { useQuizAttempt } from "./use-quiz-attempt";
 export function QuizLessonView({ id, scope }: { id: string; scope: string }) {
   const attempt = useQuizAttempt(id, scope);
   const quiz = attempt.resource.data;
-  if (attempt.resource.loading) return <LearningSkeleton />;
-  if (!quiz || attempt.resource.problem) return <LearningProblem retry={attempt.resource.retry} />;
+  if (attempt.resource.loading) return <LearningSkeleton presentation="workspace" />;
+  if (!quiz || attempt.resource.problem)
+    return <LearningProblem presentation="workspace" retry={attempt.resource.retry} />;
+  const answeredCount = quiz.questions.filter(
+    (question) => attempt.answers[question.id]?.length,
+  ).length;
   return (
     <div className="space-y-6">
       <Link href={PROTECTED_ROUTES.academy} className="text-brand-700 text-sm underline">
         Kembali ke Academy
       </Link>
-      <div className="space-y-3">
-        <h1 className="text-3xl font-semibold">{quiz.title}</h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-slate-600">{quiz.description}</p>
+      <WorkspaceStage
+        title={quiz.title}
+        description={quiz.description}
+        pose={attempt.result?.passed ? "success" : "academy"}
+        tone="yellow"
+        compact={Boolean(attempt.result)}
+        reaction={attempt.pending ? "busy" : attempt.result?.passed ? "success" : "idle"}
+      >
         <p className="text-sm">
           Lulus minimal 70%.{" "}
           {quiz.isCompleted
             ? "EXP kuis ini sudah diperoleh; latihan ulang tetap tersimpan."
             : `Hadiah kelulusan pertama: ${quiz.expReward} EXP.`}
         </p>
-      </div>
+        <div className="mt-4 space-y-2">
+          <p className="text-xs font-semibold text-slate-600" aria-live="polite">
+            {answeredCount} dari {quiz.questions.length} soal terjawab
+          </p>
+          <progress
+            max={quiz.questions.length}
+            value={answeredCount}
+            className={workspace.sessionProgress}
+            aria-label="Soal terjawab"
+          />
+        </div>
+      </WorkspaceStage>
       {attempt.result && (
         <section
           aria-live="polite"
           className={`space-y-2 rounded-2xl border p-6 ${attempt.result.passed ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}
         >
           <h2 className="text-xl font-semibold">
-            Nilai {attempt.result.score}/100 —{" "}
+            Nilai {attempt.result.score}/100:{" "}
             {attempt.result.passed ? "Lulus" : "Coba pelajari kembali"}
           </h2>
           <p>
@@ -58,7 +80,7 @@ export function QuizLessonView({ id, scope }: { id: string; scope: string }) {
             <fieldset
               key={q.id}
               disabled={attempt.pending || Boolean(attempt.result)}
-              className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6"
+              className={`${workspace.question} space-y-3`}
             >
               <legend className="sr-only">Soal {index + 1}</legend>
               <p className="text-sm font-semibold [overflow-wrap:anywhere]">
@@ -69,10 +91,7 @@ export function QuizLessonView({ id, scope }: { id: string; scope: string }) {
               </p>
               <div className="space-y-2">
                 {q.options.map((o) => (
-                  <label
-                    key={o.id}
-                    className="has-checked:border-brand-600 has-checked:bg-brand-50 flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 text-sm"
-                  >
+                  <label key={o.id} className={workspace.answerOption}>
                     <input
                       type={q.multiple ? "checkbox" : "radio"}
                       name={q.id}
@@ -104,11 +123,7 @@ export function QuizLessonView({ id, scope }: { id: string; scope: string }) {
           </p>
         )}
         {!attempt.result && (
-          <button
-            type="submit"
-            disabled={attempt.pending}
-            className="bg-brand-600 min-h-11 rounded-xl px-5 py-3 font-semibold text-white disabled:opacity-50"
-          >
+          <button type="submit" disabled={attempt.pending} className={workspace.primary}>
             {attempt.pending ? "Menyimpan jawaban…" : "Kirim jawaban"}
           </button>
         )}

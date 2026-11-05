@@ -11,6 +11,7 @@ export function ConfirmDialog({
   error,
   onConfirm,
   confirmLabel,
+  pendingLabel = "Menyimpan keputusan…",
   tone = "danger",
 }: {
   open: boolean;
@@ -21,6 +22,7 @@ export function ConfirmDialog({
   error?: string | null;
   onConfirm: () => void;
   confirmLabel: string;
+  pendingLabel?: string;
   tone?: "brand" | "danger";
 }) {
   return (
@@ -62,7 +64,7 @@ export function ConfirmDialog({
                   : "bg-brand-600 hover:bg-brand-700 focus-visible:outline-brand-600",
               )}
             >
-              {pending ? "Menyimpan keputusan…" : confirmLabel}
+              {pending ? pendingLabel : confirmLabel}
             </button>
           </div>
         </AlertDialog.Popup>

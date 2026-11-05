@@ -13,16 +13,26 @@ export function InvestigationView({
   scope,
   expectedType,
   returnTo,
+  presentation = "default",
 }: {
   id: string;
   scope?: string;
   expectedType?: Investigation["type"];
   returnTo?: string;
+  presentation?: "default" | "workspace";
 }) {
   const { record, loading, refreshing, problem, retry } = useInvestigation(id, scope);
   if (loading) return <ResultSkeleton />;
   if (!record && problem)
-    return <InvestigationProblem problem={problem} onRetry={retry} id={id} returnTo={returnTo} />;
+    return (
+      <InvestigationProblem
+        presentation={presentation}
+        problem={problem}
+        onRetry={retry}
+        id={id}
+        returnTo={returnTo}
+      />
+    );
   if (record && expectedType && record.type !== expectedType) {
     return (
       <output className="space-y-3 rounded-2xl border border-slate-200 bg-white p-6">
@@ -57,7 +67,7 @@ export function InvestigationView({
           {problem.message} Tampilan berikut menggunakan data terakhir yang berhasil dimuat.
         </div>
       )}
-      <ResultPresenter result={record} />
+      <ResultPresenter result={record} presentation={presentation} />
     </div>
   );
 }

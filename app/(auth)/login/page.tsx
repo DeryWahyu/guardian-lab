@@ -6,7 +6,7 @@ import { AuthCardSkeleton } from "../_components/auth-card-skeleton";
 import { LoginForm } from "./_components/login-form";
 
 export const metadata = {
-  title: "Masuk — Guardian Lab",
+  title: "Masuk | Guardian Lab",
   description: "Masuk untuk melanjutkan pemeriksaan dan aktivitasmu di Guardian Lab.",
 };
 

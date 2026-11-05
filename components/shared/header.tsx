@@ -8,6 +8,7 @@ import { useSessionUser } from "@/lib/hooks/use-session-user";
 import { ADMIN_ROUTES, AUTH_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import { BrandIdentity } from "./brand-identity";
 import { HeaderNavigation, type HeaderVariant } from "./header-navigation";
+import { LogoutDialog } from "./logout-dialog";
 import landingStyles from "./landing-chrome.module.css";
 
 export interface HeaderProps {
@@ -23,7 +24,15 @@ export function Header({ initialUser, variant = "default" }: HeaderProps) {
   );
 }
 function HeaderContent({ initialUser, variant }: HeaderProps) {
-  const { user, isLoggingOut, handleLogout } = useSessionUser(initialUser);
+  const {
+    user,
+    isLoggingOut,
+    requestLogout,
+    confirmLogout,
+    logoutOpen,
+    changeLogoutOpen,
+    logoutError,
+  } = useSessionUser(initialUser);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const landing = variant === "landing";
@@ -69,11 +78,14 @@ function HeaderContent({ initialUser, variant }: HeaderProps) {
               {/* Logout Button */}
               <button
                 type="button"
-                onClick={handleLogout}
+                onClick={requestLogout}
                 disabled={isLoggingOut}
                 className="hover:bg-brand-50 hover:text-brand-600 cursor-pointer rounded-full p-2 text-slate-400 transition-colors"
                 title="Keluar"
-                aria-label="Logout"
+                aria-label="Keluar"
+                aria-haspopup="dialog"
+                aria-expanded={logoutOpen}
+                aria-busy={isLoggingOut}
               >
                 {isLoggingOut ? (
                   <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
@@ -143,16 +155,19 @@ function HeaderContent({ initialUser, variant }: HeaderProps) {
                     className="bg-brand-50 text-brand-700 block rounded-xl px-4 py-2.5 text-sm font-semibold"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Dashboard admin
+                    Dasbor admin
                   </Link>
                 )}
                 <button
                   type="button"
-                  onClick={handleLogout}
+                  onClick={requestLogout}
                   disabled={isLoggingOut}
+                  aria-haspopup="dialog"
+                  aria-expanded={logoutOpen}
+                  aria-busy={isLoggingOut}
                   className="hover:bg-brand-50 hover:text-brand-600 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-slate-100 py-2.5 text-sm font-semibold text-slate-700 transition-colors"
                 >
-                  <LogOut className="size-4" /> Keluar dari Akun
+                  <LogOut className="size-4" /> Keluar dari akun
                 </button>
               </div>
             ) : (
@@ -180,6 +195,13 @@ function HeaderContent({ initialUser, variant }: HeaderProps) {
           <span />
         </div>
       )}
+      <LogoutDialog
+        open={logoutOpen}
+        onOpenChange={changeLogoutOpen}
+        pending={isLoggingOut}
+        error={logoutError}
+        onConfirm={() => void confirmLogout()}
+      />
     </header>
   );
 }

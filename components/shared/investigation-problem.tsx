@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ResultError } from "@/components/landing/results/result-error";
+import { WorkspaceEmpty } from "@/components/workspace/workspace-state";
+import workspace from "@/components/workspace/workspace.module.css";
 import type { LoadProblem } from "@/lib/investigations/client";
 import { AUTH_ROUTES, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 
@@ -8,12 +10,50 @@ export function InvestigationProblem({
   onRetry,
   id,
   returnTo,
+  presentation = "default",
 }: {
   problem: LoadProblem;
   onRetry: () => void;
   id?: string;
   returnTo?: string;
+  presentation?: "default" | "workspace";
 }) {
+  if (presentation === "workspace")
+    return (
+      <div role="alert">
+        <WorkspaceEmpty
+          title={
+            problem.kind === "not_found"
+              ? "Rekaman tidak ditemukan."
+              : problem.kind === "forbidden"
+                ? "Rekaman ini tidak dapat diakses."
+                : problem.kind === "unauthenticated"
+                  ? "Masuk untuk melanjutkan."
+                  : "Data belum dapat dimuat."
+          }
+          description={problem.message}
+        >
+          {problem.retryable && (
+            <button type="button" onClick={onRetry} className={workspace.primary}>
+              Coba lagi
+            </button>
+          )}
+          {problem.kind === "unauthenticated" && (
+            <Link
+              className={workspace.primary}
+              href={AUTH_ROUTES.loginWithRedirect(
+                returnTo ?? (id ? PUBLIC_ROUTES.investigation(id) : PUBLIC_ROUTES.home),
+              )}
+            >
+              Masuk kembali
+            </Link>
+          )}
+          <Link href={PROTECTED_ROUTES.history} className={workspace.secondary}>
+            Buka riwayat
+          </Link>
+        </WorkspaceEmpty>
+      </div>
+    );
   return (
     <div className="space-y-4">
       <ResultError

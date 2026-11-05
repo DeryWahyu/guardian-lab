@@ -8,6 +8,8 @@ import { ResultPresenter } from "@/components/landing/results/result-presenter";
 import { InvestigationRequestFeedback } from "@/components/shared/investigation-request-feedback";
 import { InvestigationUploadField } from "@/components/shared/investigation-upload-field";
 import { InvestigationView } from "@/components/shared/investigation-view";
+import { WorkspaceStage } from "@/components/workspace/workspace-stage";
+import workspace from "@/components/workspace/workspace.module.css";
 import type { UserSession } from "@/lib/auth/session";
 import { useInvestigationFiles } from "@/lib/hooks/use-investigation-files";
 import { useInvestigationSubmit } from "@/lib/hooks/use-investigation-submit";
@@ -57,7 +59,7 @@ export function ApkInvestigation({ user }: { user: UserSession }) {
     mutation.submit(API_ROUTES.analyzeApk, body, files.apkFile.name);
   }
   useEffect(() => {
-    if (!recordId && !mutation.isLoading && !mutation.requestError) return;
+    if (!recordId && !mutation.requestError) return;
     const timer = setTimeout(
       () =>
         resultRef.current?.scrollIntoView({
@@ -79,73 +81,92 @@ export function ApkInvestigation({ user }: { user: UserSession }) {
     : PROTECTED_ROUTES.apkWithMode(params.get("mode") === "geek" ? "geek" : "human");
   return (
     <>
-      <form
-        noValidate
-        aria-label="Pemeriksaan file APK"
-        aria-busy={mutation.isLoading}
-        onSubmit={(event) => {
-          event.preventDefault();
-          submit();
-        }}
-        className="max-w-2xl rounded-3xl border border-slate-200 bg-white p-5 shadow-xs sm:p-7"
+      <WorkspaceStage
+        title="Kenali APK sebelum memasangnya."
+        description="Baca identitas, izin, dan jejak kode aplikasi bersama Guardian. Berkas diperiksa tanpa dipasang atau dijalankan."
+        pose="apk"
+        tone="lavender"
+        reaction={
+          mutation.requestError
+            ? "error"
+            : mutation.isLoading
+              ? "busy"
+              : files.apkFile
+                ? "ready"
+                : "idle"
+        }
+        compact={Boolean(recordId)}
       >
-        <InvestigationUploadField
-          type="apk"
-          file={files.apkFile}
-          error={files.errors.apk}
-          disabled={mutation.isLoading}
-          onSelect={(selected) => {
-            files.selectFiles("apk", selected);
-            inputChanged();
+        <form
+          noValidate
+          aria-label="Pemeriksaan file APK"
+          aria-busy={mutation.isLoading}
+          onSubmit={(event) => {
+            event.preventDefault();
+            submit();
           }}
-          onClear={() => {
-            files.clearFile("apk");
-            inputChanged();
-          }}
-        />
-        <InvestigationRequestFeedback
-          error={mutation.requestError}
-          uncertain={mutation.uncertain}
-        />
-        <button
-          type="submit"
-          disabled={mutation.isLoading || !files.apkFile}
-          className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-cyan-800 px-5 py-3 text-sm font-semibold text-white hover:bg-cyan-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-800 disabled:cursor-not-allowed disabled:opacity-50"
+          className={workspace.panel}
         >
-          {mutation.isLoading ? (
-            <Loader2
-              className="size-4 animate-spin motion-reduce:animate-none"
-              aria-hidden="true"
-            />
-          ) : (
-            <ArrowRight className="size-4" aria-hidden="true" />
+          <InvestigationUploadField
+            type="apk"
+            file={files.apkFile}
+            error={files.errors.apk}
+            disabled={mutation.isLoading}
+            onSelect={(selected) => {
+              files.selectFiles("apk", selected);
+              inputChanged();
+            }}
+            onClear={() => {
+              files.clearFile("apk");
+              inputChanged();
+            }}
+          />
+          <InvestigationRequestFeedback
+            error={mutation.requestError}
+            uncertain={mutation.uncertain}
+          />
+          <button
+            type="submit"
+            disabled={mutation.isLoading || !files.apkFile}
+            className={`${workspace.primary} mt-5 w-full`}
+          >
+            {mutation.isLoading ? (
+              <Loader2
+                className="size-4 animate-spin motion-reduce:animate-none"
+                aria-hidden="true"
+              />
+            ) : (
+              <ArrowRight className="size-4" aria-hidden="true" />
+            )}
+            {mutation.isLoading ? "Memeriksa APK…" : "Periksa APK"}
+          </button>
+          <p className="mt-4 text-xs leading-relaxed text-slate-600">
+            AI sedang disiapkan. Skor risiko belum tersedia; temuan statis yang berhasil diekstrak
+            tetap ditampilkan.
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-slate-500">
+            Jangan unggah berkas yang memuat data pribadi asli.
+          </p>
+          {mutation.isLoading && (
+            <output className="mt-3 text-xs leading-relaxed text-slate-600">
+              Proses dapat memerlukan waktu hingga sekitar satu menit. Tunggu hingga selesai dan
+              jangan kirim ulang.
+            </output>
           )}
-          {mutation.isLoading ? "Memeriksa APK…" : "Periksa APK"}
-        </button>
-        <p className="mt-4 text-xs leading-relaxed text-slate-600">
-          AI sedang disiapkan. Skor risiko belum tersedia; temuan statis yang berhasil diekstrak
-          tetap ditampilkan.
-        </p>
-        <p className="mt-2 text-xs leading-relaxed text-slate-500">
-          Jangan unggah berkas yang memuat data pribadi asli.
-        </p>
-        {mutation.isLoading && (
-          <output className="mt-3 text-xs leading-relaxed text-slate-600">
-            Proses dapat memerlukan waktu hingga sekitar satu menit. Tunggu hingga selesai dan
-            jangan kirim ulang.
-          </output>
-        )}
-      </form>
+        </form>
+      </WorkspaceStage>
       {(recordId || mutation.isLoading || mutation.requestError) && (
         <section ref={resultRef} aria-label="Hasil pemeriksaan APK" className="scroll-mt-28">
           {mutation.isLoading || mutation.requestError ? (
             <ResultPresenter
+              presentation="workspace"
               result={null}
               isLoading={mutation.isLoading}
               error={mutation.requestError}
             />
           ) : recordId ? (
             <InvestigationView
+              presentation="workspace"
               id={recordId}
               scope={`${user.id}:${user.role}`}
               expectedType="APK"

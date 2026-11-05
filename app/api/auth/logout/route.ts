@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json({
       success: true,
-      message: "Logout berhasil",
+      message: "Berhasil keluar dari akun.",
     });
 
     response.cookies.delete(SESSION_COOKIE_NAME);

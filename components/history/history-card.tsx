@@ -1,5 +1,6 @@
 import { FileCode2, FileSearch, Globe, QrCode } from "lucide-react";
 import Link from "next/link";
+import workspace from "@/components/workspace/workspace.module.css";
 import {
   getInvestigationLabel,
   getInvestigationMessage,
@@ -14,7 +15,7 @@ export function HistoryCard({ record }: { record: Investigation }) {
   const result = getInvestigationResult(record);
   const Icon = record.type === "APK" ? FileCode2 : record.type === "QR" ? QrCode : Globe;
   return (
-    <article className="flex flex-col justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-5">
+    <article className={workspace.historyRow}>
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="inline-flex items-center gap-2 text-xs font-bold text-slate-600">
@@ -35,7 +36,7 @@ export function HistoryCard({ record }: { record: Investigation }) {
           {result?.humanFriendlySummary ?? getInvestigationMessage(record)}
         </p>
       </div>
-      <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-3 text-xs text-slate-500">
+      <div className={workspace.historyRowActions}>
         <time dateTime={record.createdAt}>
           {new Date(record.createdAt).toLocaleDateString("id-ID")}
         </time>

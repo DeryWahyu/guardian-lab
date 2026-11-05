@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Guardian Lab — Anti-Phishing Sandbox & APK X-Ray Analysis",
+  title: "Guardian Lab | Anti-Phishing Sandbox & APK X-Ray Analysis",
   description:
     "Platform Sandbox Anti-Phishing & Bedah APK yang mengintegrasikan tiga pilar: Recognize, Protect, dan Act.",
 };

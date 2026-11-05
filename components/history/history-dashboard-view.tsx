@@ -1,7 +1,10 @@
 "use client";
-import { FileSearch, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { InvestigationProblem } from "@/components/shared/investigation-problem";
+import { WorkspaceStage } from "@/components/workspace/workspace-stage";
+import { WorkspaceEmpty, WorkspaceSkeleton } from "@/components/workspace/workspace-state";
+import workspace from "@/components/workspace/workspace.module.css";
 import { PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import { HistoryCard } from "./history-card";
 import { HistoryFilters } from "./history-filters";
@@ -18,15 +21,27 @@ export function HistoryDashboardView({ accessScope }: { accessScope?: string }) 
   const outsidePage = data && data.pagination.page > data.pagination.totalPages;
   return (
     <div className="space-y-5">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <WorkspaceStage
+        title="Jejak pemeriksaanmu, di satu tempat."
+        description="Temukan kembali tautan dan berkas yang pernah kamu periksa. Buka rekamannya untuk membaca status dan bukti tersimpan."
+        pose="history"
+      >
+        <HistoryFilters values={history.values} onChange={history.setFilter} />
+      </WorkspaceStage>
+      <div className={workspace.summary}>
         {statistics.map(([label, value]) => (
-          <div key={label} className="rounded-3xl border border-slate-200 bg-white p-5">
-            <p className="text-2xl font-bold text-slate-900">{value ?? "—"}</p>
-            <p className="mt-1 text-xs text-slate-500">{label}</p>
+          <div key={label}>
+            {value === undefined ? (
+              <span className="text-sm text-slate-500">
+                {loading ? "Memuat…" : "Belum tersedia"}
+              </span>
+            ) : (
+              <strong>{value}</strong>
+            )}
+            <p>{label}</p>
           </div>
         ))}
       </div>
-      <HistoryFilters values={history.values} onChange={history.setFilter} />
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
         <p>
           {data
@@ -54,16 +69,9 @@ export function HistoryDashboardView({ accessScope }: { accessScope?: string }) 
         </div>
       </div>
       {loading ? (
-        <section aria-label="Memuat riwayat" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((key) => (
-            <div
-              key={key}
-              className="h-48 animate-pulse rounded-3xl bg-slate-100 motion-reduce:animate-none"
-            />
-          ))}
-        </section>
+        <WorkspaceSkeleton label="Memuat riwayat" />
       ) : !data && problem ? (
-        <InvestigationProblem problem={problem} onRetry={history.retry} />
+        <InvestigationProblem presentation="workspace" problem={problem} onRetry={history.retry} />
       ) : (
         data && (
           <div className="space-y-5">
@@ -76,30 +84,31 @@ export function HistoryDashboardView({ accessScope }: { accessScope?: string }) 
               </p>
             )}
             {data.records.length ? (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-3">
                 {data.records.map((record) => (
                   <HistoryCard key={record.id} record={record} />
                 ))}
               </div>
             ) : (
-              <div className="space-y-4 rounded-3xl border border-slate-200 bg-white p-8 text-center">
-                <FileSearch className="mx-auto size-8 text-slate-400" aria-hidden="true" />
-                <h2 className="text-lg font-bold text-slate-900">
-                  {outsidePage
+              <WorkspaceEmpty
+                pose="history"
+                title={
+                  outsidePage
                     ? "Halaman tidak tersedia"
                     : history.hasFilters
                       ? "Tidak ada investigasi yang cocok"
-                      : "Belum ada investigasi"}
-                </h2>
-                <p className="text-sm text-slate-500">
-                  {outsidePage
+                      : "Belum ada investigasi"
+                }
+                description={
+                  outsidePage
                     ? "Buka halaman pertama untuk melihat rekaman yang tersedia."
                     : history.hasFilters
                       ? "Ubah atau hapus filter untuk melihat rekaman lain."
-                      : "Mulai dengan memasukkan URL, gambar QR, atau berkas APK."}
-                </p>
+                      : "Mulai dengan memasukkan URL, gambar QR, atau berkas APK."
+                }
+              >
                 <Link
-                  className="bg-brand-600 inline-flex rounded-full px-5 py-2 text-sm font-semibold text-white"
+                  className={workspace.primary}
                   href={
                     outsidePage || history.hasFilters
                       ? PROTECTED_ROUTES.history
@@ -110,7 +119,7 @@ export function HistoryDashboardView({ accessScope }: { accessScope?: string }) 
                     ? "Lihat semua investigasi"
                     : "Mulai investigasi"}
                 </Link>
-              </div>
+              </WorkspaceEmpty>
             )}
             {data.pagination.total > 0 && (
               <nav

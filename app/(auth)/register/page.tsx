@@ -6,7 +6,7 @@ import { AuthCardSkeleton } from "../_components/auth-card-skeleton";
 import { RegisterForm } from "./_components/register-form";
 
 export const metadata = {
-  title: "Daftar Akun — Guardian Lab",
+  title: "Daftar Akun | Guardian Lab",
   description:
     "Buat akun Guardian Lab untuk memeriksa ancaman digital dan menyimpan riwayat pemeriksaan.",
 };

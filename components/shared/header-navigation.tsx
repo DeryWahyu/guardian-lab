@@ -87,19 +87,23 @@ export function HeaderNavigation({ signedIn, variant, mobile = false, onSelect }
   const activeTab = tab === "url" || tab === "qr" ? tab : undefined;
   const featureLinks: NavigationLink[] = [
     {
-      label: "Gateway",
+      label: "Beranda",
       href: PUBLIC_ROUTES.home,
       landingHref: PUBLIC_ROUTES.homeWithGateway(activeTab),
     },
-    { label: "Sandbox", href: PUBLIC_ROUTES.sandboxWeb, requiresAuth: true },
-    { label: "APK X-Ray", href: PROTECTED_ROUTES.apk, requiresAuth: true },
-    { label: "Share Card", href: PUBLIC_ROUTES.act, requiresAuth: true },
-    { label: "Academy", href: PROTECTED_ROUTES.academy, requiresAuth: true },
-    { label: "Community", href: PROTECTED_ROUTES.community, requiresAuth: true },
-    { label: "History", href: PROTECTED_ROUTES.history, requiresAuth: true },
+    { label: "Ruang Uji", href: PUBLIC_ROUTES.sandboxWeb, requiresAuth: true },
+    { label: "Bedah APK", href: PROTECTED_ROUTES.apk, requiresAuth: true },
+    { label: "Bagikan Hasil", href: PUBLIC_ROUTES.act, requiresAuth: true },
+    { label: "Belajar", href: PROTECTED_ROUTES.academy, requiresAuth: true },
+    { label: "Komunitas", href: PROTECTED_ROUTES.community, requiresAuth: true },
+    { label: "Riwayat", href: PROTECTED_ROUTES.history, requiresAuth: true },
   ];
   const links =
-    variant === "information" ? informationLinks : landing && !signedIn ? sectionLinks : featureLinks;
+    variant === "information"
+      ? informationLinks
+      : landing && !signedIn
+        ? sectionLinks
+        : featureLinks;
   return (
     <nav
       aria-label="Navigasi utama"

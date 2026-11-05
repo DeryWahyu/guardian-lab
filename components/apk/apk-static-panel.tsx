@@ -1,15 +1,18 @@
 import { explainPermission } from "@/lib/apk/presentation";
 import type { ApkStaticReport } from "@/lib/validations/apk-static";
 import { ApkStaticTechnical } from "./apk-static-technical";
+import { ApkPermissionList } from "./apk-permission-list";
 
 export function ApkStaticPanel({
   report,
   mode,
   sha256,
+  presentation = "default",
 }: {
   report: ApkStaticReport;
   mode: "human" | "geek";
   sha256?: string;
+  presentation?: "default" | "workspace";
 }) {
   return (
     <section
@@ -68,7 +71,9 @@ export function ApkStaticPanel({
               Deklarasi izin berbeda dari izin yang sudah diberikan. Efeknya bergantung pada versi
               Android dan persetujuan pengguna.
             </p>
-            {report.manifest.permissions.length ? (
+            {report.manifest.permissions.length && presentation === "workspace" ? (
+              <ApkPermissionList permissions={report.manifest.permissions} />
+            ) : report.manifest.permissions.length ? (
               <div className="max-h-80 space-y-2 overflow-auto">
                 {report.manifest.permissions.map((permission) => (
                   <div

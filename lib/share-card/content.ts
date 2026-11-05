@@ -92,7 +92,7 @@ export function buildShareCard(record: Investigation) {
   return {
     ...data,
     text: [
-      `Guardian Lab — ${data.title}`,
+      `Guardian Lab: ${data.title}`,
       risk.label,
       `Skor risiko: ${data.riskScore}/100`,
       `${data.type === "APK" ? "Berkas" : "Target dinonaktifkan"}: ${target}`,

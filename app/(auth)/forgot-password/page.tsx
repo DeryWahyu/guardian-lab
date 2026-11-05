@@ -6,7 +6,7 @@ import { ForgotForm } from "./_components/forgot-form";
 
 type Props = { searchParams: Promise<{ redirect?: string | string[] }> };
 export const metadata = {
-  title: "Lupa password — Guardian Lab",
+  title: "Lupa password | Guardian Lab",
   description: "Pulihkan akses akun melalui WhatsApp.",
 };
 async function RecoveryContent({ searchParams }: Props) {

@@ -134,7 +134,7 @@ describe("AUTH-UI-01..04, AUTH-ASSET-01, AUTH-FORM-01..02: Auth Forms & Layout S
     expect(html).toContain("<main>");
 
     // Verify brand header with link to home
-    expect(html).toContain('aria-label="Guardian Lab — beranda"');
+    expect(html).toContain('aria-label="Guardian Lab, beranda"');
 
     // Verify AuthArtwork landmark and 3D fox mascot description
     expect(html).toContain('aria-label="Teman jelajah digitalmu"');

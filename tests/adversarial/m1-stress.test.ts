@@ -1,5 +1,5 @@
 /**
- * Guardian Lab — Milestone 1 Adversarial Challenger Stress Test Harness
+ * Guardian Lab: Milestone 1 Adversarial Challenger Stress Test Harness
  *
  * Exhaustively stress-tests:
  * 1. PII Scrubber robustness under extreme & evasive inputs (re-entrancy, regex statefulness,

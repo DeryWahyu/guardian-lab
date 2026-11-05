@@ -4,7 +4,7 @@ import { DashboardView } from "@/components/admin/dashboard-view";
 import { getAdminDashboard } from "@/lib/admin/dashboard";
 
 export const metadata = {
-  title: "Dashboard Admin — Guardian Lab",
+  title: "Dashboard Admin | Guardian Lab",
   description: "Ringkasan investigasi, aktivitas sandbox, dan moderasi komunitas Guardian Lab.",
 };
 

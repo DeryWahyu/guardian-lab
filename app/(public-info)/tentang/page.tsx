@@ -27,15 +27,15 @@ export default function AboutPage() {
         <h2>Tiga pilar Guardian Lab</h2>
         <ul>
           <li>
-            <strong>Recognize — kenali.</strong> Mulai dari tautan, gambar QR, atau file APK.
+            <strong>Recognize: kenali.</strong> Mulai dari tautan, gambar QR, atau file APK.
             Baca status pemeriksaan dan temuan yang tersedia tanpa memasang APK di perangkatmu.
           </li>
           <li>
-            <strong>Protect — periksa di ruang terpisah.</strong> Jika diperlukan, buka situs
+            <strong>Protect: periksa di ruang terpisah.</strong> Jika diperlukan, buka situs
             melalui sandbox web yang berjalan di server, dengan sesi maksimal 180 detik.
           </li>
           <li>
-            <strong>Act — bagikan peringatan.</strong> Hasil yang sudah lengkap dapat dibuat
+            <strong>Act: bagikan peringatan.</strong> Hasil yang sudah lengkap dapat dibuat
             menjadi Guardian Share Card. Kasus yang diajukan pemilik dan disetujui admin dapat
             dipelajari melalui komunitas.
           </li>

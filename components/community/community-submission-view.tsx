@@ -4,6 +4,9 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ResultSkeleton } from "@/components/landing/results/result-skeleton";
 import { InvestigationProblem } from "@/components/shared/investigation-problem";
+import { WorkspaceStage } from "@/components/workspace/workspace-stage";
+import { WorkspaceEmpty } from "@/components/workspace/workspace-state";
+import workspace from "@/components/workspace/workspace.module.css";
 import { useApiResource } from "@/lib/hooks/use-api-resource";
 import { API_ROUTES, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import { communityPreviewSchema } from "@/lib/validations/community";
@@ -14,7 +17,18 @@ import { useCommunityMutation } from "./use-community-mutation";
 
 export function CommunitySubmissionView({ scope }: { scope: string }) {
   const id = useSearchParams().get("id");
-  return <SubmissionForm key={`${scope}:${id}`} id={id} scope={scope} />;
+  return (
+    <div className="space-y-6">
+      <WorkspaceStage
+        title="Bagikan bukti yang bisa dipelajari."
+        description="Tinjau snapshot investigasimu sebelum mengajukannya. Kasus ditampilkan secara anonim setelah disetujui admin."
+        pose="community"
+        tone="lavender"
+        compact={Boolean(id)}
+      />
+      <SubmissionForm key={`${scope}:${id}`} id={id} scope={scope} />
+    </div>
+  );
 }
 function SubmissionForm({ scope, id }: { scope: string; id: string | null }) {
   const valid = investigationIdSchema.safeParse(id).success;
@@ -27,17 +41,25 @@ function SubmissionForm({ scope, id }: { scope: string; id: string | null }) {
   const action = useCommunityMutation();
   if (!valid)
     return (
-      <p className="rounded-xl border bg-white p-6">
-        Pilih hasil lengkap dari{" "}
-        <Link href={PROTECTED_ROUTES.history} className="underline">
-          riwayat investigasi
-        </Link>{" "}
-        untuk mengajukan kasus.
-      </p>
+      <WorkspaceEmpty
+        title="Mulai dari hasil investigasimu."
+        description="Pengajuan memerlukan hasil analisis lengkap. Pilih rekaman dari riwayat untuk melihat snapshot yang akan diajukan."
+        pose="evidence"
+      >
+        <Link href={PROTECTED_ROUTES.history} className={workspace.primary}>
+          Pilih investigasi
+        </Link>
+      </WorkspaceEmpty>
     );
   if (resource.loading) return <ResultSkeleton />;
   if (resource.problem)
-    return <InvestigationProblem problem={resource.problem} onRetry={resource.retry} />;
+    return (
+      <InvestigationProblem
+        presentation="workspace"
+        problem={resource.problem}
+        onRetry={resource.retry}
+      />
+    );
   const data = resource.data;
   if (!data) return null;
   return (
@@ -85,7 +107,7 @@ function SubmissionForm({ scope, id }: { scope: string; id: string | null }) {
       )}
       {!data.existing && data.report && (
         <form
-          className="space-y-4 rounded-xl border border-slate-200 bg-white p-5"
+          className={`${workspace.panel} space-y-4`}
           onSubmit={(event) => {
             event.preventDefault();
             if (id && consent)
@@ -111,11 +133,7 @@ function SubmissionForm({ scope, id }: { scope: string; id: string | null }) {
               anonim jika disetujui admin. <span className="text-rose-600">*</span>
             </span>
           </label>
-          <button
-            type="submit"
-            disabled={!consent || action.pending}
-            className="bg-brand-600 min-h-11 rounded-xl px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
-          >
+          <button type="submit" disabled={!consent || action.pending} className={workspace.primary}>
             {action.pending ? "Mengirim pengajuan…" : "Ajukan untuk ditinjau"}
           </button>
         </form>

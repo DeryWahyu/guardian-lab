@@ -3,6 +3,7 @@
 ## Bahasa dan bukti
 
 - Gunakan Bahasa Indonesia yang ramah dan jelas. Istilah seperti phishing, sandbox, permissions, dan C2 boleh dipertahankan bila membantu ketepatan.
+- Hindari karakter em dash (U+2014) pada copy, metadata, dan dokumentasi. Gunakan koma, titik, titik dua, atau susun ulang kalimat sesuai konteks; judul halaman boleh memakai pemisah vertikal.
 - Hasil analisis menyediakan Mode Bahasa Manusia sebagai default dan Mode Teknis (Geek View). Keduanya membaca hasil tersimpan yang sama.
 - Jelaskan izin APK sebagai kemampuan yang diminta, bukan bukti bahwa pencurian sudah terjadi. Tampilkan kartu temuan hanya jika ada bukti pendukung.
 - Status model, hasil kosong, dan keterbatasan fitur harus terlihat. Jangan mengganti skor yang belum tersedia dengan nol atau data contoh.

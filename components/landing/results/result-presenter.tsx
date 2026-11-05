@@ -8,9 +8,11 @@ import { SandboxLaunchLink } from "@/components/sandbox/sandbox-launch-link";
 import { DualModeToggle } from "@/components/shared/dual-mode-toggle";
 import { InvestigationMetadata } from "@/components/shared/investigation-metadata";
 import { InvestigationStatusPanel } from "@/components/shared/investigation-status-panel";
+import workspace from "@/components/workspace/workspace.module.css";
 import { getApkStaticReport } from "@/lib/apk/presentation";
 import { getInvestigationResult } from "@/lib/investigations/presentation";
 import { PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 import type { Investigation } from "@/lib/validations/investigation";
 import { GeekViewPanel } from "./geek-view-panel";
 import { KedokCard } from "./kedok-card";
@@ -24,6 +26,7 @@ export interface ResultPresenterProps {
   error?: string | null;
   onRetry?: () => void;
   className?: string;
+  presentation?: "default" | "workspace";
 }
 function ResultPresenterInner({
   result: record,
@@ -31,6 +34,7 @@ function ResultPresenterInner({
   error,
   onRetry,
   className,
+  presentation = "default",
 }: ResultPresenterProps) {
   const params = useSearchParams();
   const pathname = usePathname();
@@ -46,11 +50,14 @@ function ResultPresenterInner({
   if (!record) return null;
   const result = getInvestigationResult(record);
   const apkReport = getApkStaticReport(record);
-  if (!result) return <InvestigationStatusPanel record={record} />;
+  if (!result) return <InvestigationStatusPanel record={record} presentation={presentation} />;
   return (
     <section
       aria-label="Hasil Analisis Forensik Keamanan"
-      className="mx-auto max-w-4xl space-y-6 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8"
+      className={cn(
+        "mx-auto max-w-4xl space-y-6 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8",
+        presentation === "workspace" && workspace.workspaceResult,
+      )}
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -62,6 +69,7 @@ function ResultPresenterInner({
       <InvestigationMetadata record={record} />
       {apkReport && (
         <ApkStaticPanel
+          presentation={presentation}
           report={apkReport}
           mode={mode}
           sha256={

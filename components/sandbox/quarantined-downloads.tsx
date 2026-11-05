@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import type { z } from "zod";
+import { WorkspaceEmpty } from "@/components/workspace/workspace-state";
+import workspace from "@/components/workspace/workspace.module.css";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import type { sandboxSessionSchema } from "@/lib/validations/sandbox";
 import { useQuarantinedDownloads } from "./use-quarantined-downloads";
@@ -11,10 +13,7 @@ export function QuarantinedDownloads({
 }) {
   const { pending, error, records, analyze } = useQuarantinedDownloads(session);
   return (
-    <section
-      aria-labelledby="quarantine-title"
-      className="space-y-4 rounded-2xl border border-amber-200 bg-white p-5"
-    >
+    <section aria-labelledby="quarantine-title" className={`${workspace.panel} space-y-4`}>
       <h2 id="quarantine-title" className="text-lg font-semibold">
         Karantina unduhan APK
       </h2>
@@ -24,7 +23,11 @@ export function QuarantinedDownloads({
         sesi berakhir.
       </p>
       {!session.downloads.length && !Object.keys(records).length && (
-        <p className="text-sm text-slate-500">Belum ada APK yang dikarantina pada sesi ini.</p>
+        <WorkspaceEmpty
+          pose="apk"
+          title="Belum ada unduhan APK."
+          description="APK yang selesai diunduh dalam sesi akan muncul di sini. Berkas tetap berada di server, lalu dapat dibedah secara statis."
+        />
       )}
       <ul className="space-y-3">
         {session.downloads.map((file, i) => (
@@ -42,7 +45,7 @@ export function QuarantinedDownloads({
                 type="button"
                 onClick={() => void analyze(file.id)}
                 disabled={Boolean(pending) || session.status !== "ACTIVE"}
-                className="bg-brand-600 min-h-11 rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                className={workspace.primary}
               >
                 {pending === file.id ? "Membedah APK..." : "Bedah APK statis"}
               </button>

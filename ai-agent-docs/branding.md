@@ -4,14 +4,14 @@
 
 Logo resmi **Koneksi** terdiri dari dua pita saling terhubung berwarna navy `#0F172A` dan cyan `#0891B2`, tanpa teks di dalam gambar. Maskot resmi adalah **Rubah Investigator 3D** berwarna navy–krem dengan jaket cyan.
 
-| Aset                                                                          | Pemakaian                                                                                    |
-| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `public/brand/guardian-lab-koneksi.png`                                       | Logo antarmuka dan Share Card, 512 px.                                                       |
-| `app/icon.png`, `app/favicon.ico`, `app/apple-icon.png`                       | Ikon App Router yang diturunkan dari logo cyan.                                              |
-| `public/brand/guardian-lab-fox.webp`                                          | Maskot 3D utama dan banner penutup, dioptimalkan untuk web.                                  |
-| `public/brand/guardian-lab-fox-auth.webp`                                     | Pose auth dengan kepala/pandangan ke kiri menuju form.                                       |
-| `public/landing/*.webp`                                                      | Pose rubah yang digunakan pada landing.                                                      |
-| `public/guide/guardian-lab-fox-3d-guide.png`                                  | Satu gambar referensi empat sudut: depan, kiri, kanan, belakang.                             |
+| Aset                                                    | Pemakaian                                                        |
+| ------------------------------------------------------- | ---------------------------------------------------------------- |
+| `public/brand/guardian-lab-koneksi.png`                 | Logo antarmuka dan Share Card, 512 px.                           |
+| `app/icon.png`, `app/favicon.ico`, `app/apple-icon.png` | Ikon App Router yang diturunkan dari logo cyan.                  |
+| `public/brand/guardian-lab-fox.webp`                    | Maskot 3D utama dan banner penutup, dioptimalkan untuk web.      |
+| `public/brand/guardian-lab-fox-auth.webp`               | Pose auth dengan kepala/pandangan ke kiri menuju form.           |
+| `public/landing/*.webp`                                 | Pose rubah yang digunakan pada landing.                          |
+| `public/guide/guardian-lab-fox-3d-guide.png`            | Satu gambar referensi empat sudut: depan, kiri, kanan, belakang. |
 
 Gunakan [BrandIdentity dan BrandMark](../components/shared/brand-identity.tsx) untuk identitas bersama. Nama sistem tetap berupa teks yang dapat dibaca pembaca layar; gunakan `alt=""` jika nama sudah tampil di sebelah logo. `BrandMark` memakai PNG lokal agar ekspor Share Card memakai aset yang sama dengan pratinjau.
 
@@ -57,3 +57,13 @@ Perilaku URL/QR, APK, login, dan pemulihan input berada di [kontrak input](./fea
 ## Autentikasi
 
 Layout auth memenuhi satu viewport dinamis tanpa margin luar atau scroll: form putih di kiri, panel navy–cyan sampai tepi layar di kanan. Judul sambutan dilengkapi satu kalimat subjudul; tanpa badge keamanan, footer, atau tombol kembali di pojok. Display memakai Bricolage Grotesque; field berlatar tipis tanpa ikon awal, dengan toggle password. Pose `public/brand/guardian-lab-fox-auth.webp` melampaui batas panel dengan pandangan ke kiri menuju form. Pisahkan latar dan gambar; framing desktop sedikit bergeser ke kanan dan diperbesar. Panel memakai cahaya lembut, pola grid, serta watermark logo Koneksi bertonal rendah di kanan; hindari ikon kilau, bola, dan garis orbit. Pada ponsel portrait, ilustrasi ringkas berada di pojok kanan atas tanpa watermark; viewport pendek memakai field registrasi dua kolom, lalu tiga kolom untuk tiga field awal pada layar sangat pendek. Logo dan ilustrasi ponsel dapat disembunyikan saat ruang sangat pendek agar kontrol tetap muat, termasuk ketika keyboard terbuka. Gunakan static import `next/image`. Kontrak pemulihan akses ada pada [fitur autentikasi](./features.md#autentikasi-dan-akses).
+
+## Halaman fitur pengguna
+
+Halaman Sandbox, APK X-Ray, Share Card, Academy, komunitas, peringkat, dan riwayat memakai shell bersama di [components/workspace](../components/workspace/). Navbar tetap memakai komponen publik yang sama. Konten maksimal 1.120 px, kolom baca detail 880 px; Bricolage Grotesque untuk judul dan Geist untuk isi. Palet putih, navy, cyan pucat, lavender, dan kuning mengikuti landing. Tinggi halaman mengikuti isi dan tidak dipaksa satu viewport.
+
+Area pengantar menempatkan alat atau ringkasan di kiri dan rubah besar di kanan. Permukaan panel dipisahkan dari ilustrasi agar telinga, ekor, dan kaki dapat melampaui batas tanpa menutup kontrol. Ponsel memakai maskot ringkas di samping judul, kemudian deskripsi dan kontrol selebar konten. Sandbox aktif, halaman detail, dan hasil tersedia memakai pengantar lebih ringkas.
+
+Pose baru transparan tersedia di `public/features/`: `guardian-sandbox.webp` (menjaga browser), `guardian-history.webp` (membuka arsip), `guardian-share.webp` (membawa kartu kosong), dan `guardian-success.webp` (apresiasi belajar). Pose APK, Academy, komunitas, dan pembaca bukti memakai kembali aset landing. Pilihan aset ada pada [workspace-mascot.tsx](../components/workspace/workspace-mascot.tsx); gambar memakai static import dan tidak menerima pointer.
+
+Gerakan hanya merespons fokus, pilihan berkas, pending, hasil, atau interaksi kontrol. Tidak ada cursor effect, parallax, atau animasi maskot terus-menerus. Reduced motion menonaktifkan transisi dan animasi. Penghitung soal dan sisa waktu mengikuti state sebenarnya; hasil unavailable tidak dirayakan atau diubah menjadi penilaian aman. Komponen hasil bersama menerima presentasi workspace secara eksplisit agar tampilan landing tetap memakai default.

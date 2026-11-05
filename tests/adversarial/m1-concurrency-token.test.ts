@@ -1,5 +1,5 @@
 /**
- * Guardian Lab — Milestone 1 Iteration 2 Adversarial Concurrency & Token Tampering Stress Harness
+ * Guardian Lab: Milestone 1 Iteration 2 Adversarial Concurrency & Token Tampering Stress Harness
  *
  * Verifies:
  * 1. Database integrity under concurrency (simultaneous registrations, duplicate email checks, case-insensitive collision).

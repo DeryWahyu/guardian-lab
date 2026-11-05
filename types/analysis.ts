@@ -1,5 +1,5 @@
 /**
- * Guardian Lab — Threat Analysis Type Definitions
+ * Guardian Lab: Threat Analysis Type Definitions
  * Shared contracts for URL detection, QR analysis, forensic storage, and dual-mode presentation.
  */
 
