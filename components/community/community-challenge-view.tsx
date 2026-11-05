@@ -5,18 +5,18 @@ import {
   LearningSkeleton,
   learningControl,
 } from "@/components/academy/learning-ui";
+import { WorkspaceMascot } from "@/components/workspace/workspace-mascot";
+import workspace from "@/components/workspace/workspace.module.css";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import { useCommunityChallenge } from "./use-community-challenge";
 export function CommunityChallengeView({ id, scope }: { id: string; scope: string }) {
   const attempt = useCommunityChallenge(id, scope);
   const data = attempt.resource.data;
-  if (attempt.resource.loading) return <LearningSkeleton />;
-  if (!data || attempt.resource.problem) return <LearningProblem retry={attempt.resource.retry} />;
+  if (attempt.resource.loading) return <LearningSkeleton presentation="workspace" />;
+  if (!data || attempt.resource.problem)
+    return <LearningProblem presentation="workspace" retry={attempt.resource.retry} />;
   return (
-    <section
-      aria-labelledby="challenge-title"
-      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6"
-    >
+    <section aria-labelledby="challenge-title" className={`${workspace.panel} space-y-5`}>
       <div className="space-y-2">
         <h2 id="challenge-title" className="text-xl font-semibold">
           Uji pemahaman kasus
@@ -43,6 +43,7 @@ export function CommunityChallengeView({ id, scope }: { id: string; scope: strin
             {attempt.result.correctCount} dari {attempt.result.totalQuestions} benar. +
             {attempt.result.expEarned} EXP.
           </p>
+          {attempt.result.passed && <WorkspaceMascot pose="success" reaction="success" small />}
           <Link href={PROTECTED_ROUTES.academy} className="inline-block underline">
             Lihat progres belajar
           </Link>
@@ -67,10 +68,7 @@ export function CommunityChallengeView({ id, scope }: { id: string; scope: strin
                 {i + 1}. {q.questionText}
               </legend>
               {q.options.map((option) => (
-                <label
-                  key={option.id}
-                  className="has-checked:border-brand-600 has-checked:bg-brand-50 flex min-h-11 items-start gap-3 rounded-xl border border-slate-200 p-3 text-sm"
-                >
+                <label key={option.id} className={workspace.answerOption}>
                   <input
                     type="radio"
                     name={`case-${q.id}`}
@@ -99,11 +97,7 @@ export function CommunityChallengeView({ id, scope }: { id: string; scope: strin
           </p>
         )}
         {!attempt.result && (
-          <button
-            type="submit"
-            disabled={attempt.pending}
-            className="bg-brand-600 min-h-11 rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
-          >
+          <button type="submit" disabled={attempt.pending} className={workspace.primary}>
             {attempt.pending ? "Menyimpan hasil..." : "Kirim jawaban kasus"}
           </button>
         )}

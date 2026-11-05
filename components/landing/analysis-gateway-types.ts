@@ -1,12 +1,7 @@
-import type { UserSession } from "@/lib/auth/session";
-import type { Investigation } from "@/lib/validations/investigation";
+import type { InvestigationSubmitOptions } from "@/lib/hooks/use-investigation-submit";
 
-export interface AnalysisGatewayProps {
-  currentUser?: UserSession | null;
-  defaultTab?: "url" | "qr" | "apk";
-  onAnalysisStart?: () => void;
-  onAnalysisSuccess?: (result: Investigation) => void;
-  onAnalysisError?: (error: string) => void;
-  onInputChange?: () => void;
+export interface AnalysisGatewayProps extends InvestigationSubmitOptions {
+  defaultTab?: "url" | "qr";
   className?: string;
+  onInputChange?: () => void;
 }

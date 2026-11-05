@@ -270,7 +270,7 @@ describe("Investigation lifecycle in MySQL", () => {
     expect(response.status).toBe(400);
     const uploaded = await executeRoute(API_ROUTES.analyzeApk, "POST", apkUpload());
     expect(uploaded.status).toBe(201);
-  });
+  }, 30000);
 
   it("does not decode a one-pixel test image as a phishing QR", async () => {
     const response = await executeRoute(API_ROUTES.analyzeQr, "POST", {

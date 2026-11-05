@@ -12,6 +12,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { BrandIdentity } from "@/components/shared/brand-identity";
+import { LogoutDialog } from "@/components/shared/logout-dialog";
 import type { UserSession } from "@/lib/auth/session";
 import { useSessionUser } from "@/lib/hooks/use-session-user";
 import { ADMIN_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
@@ -25,7 +26,8 @@ const navigation = [
 
 export function AdminShell({ user, children }: { user: UserSession; children: ReactNode }) {
   const pathname = usePathname();
-  const { isLoggingOut, handleLogout } = useSessionUser(user);
+  const { isLoggingOut, requestLogout, confirmLogout, logoutOpen, changeLogoutOpen, logoutError } =
+    useSessionUser(user);
   return (
     <div className="bg-background min-h-screen text-slate-900 lg:flex">
       <aside className="border-b border-slate-200 bg-white lg:fixed lg:inset-y-0 lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-b-0">
@@ -81,9 +83,11 @@ export function AdminShell({ user, children }: { user: UserSession; children: Re
             </div>
             <button
               type="button"
-              onClick={handleLogout}
+              onClick={requestLogout}
               disabled={isLoggingOut}
               aria-busy={isLoggingOut}
+              aria-haspopup="dialog"
+              aria-expanded={logoutOpen}
               className="focus-visible:outline-brand-600 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 focus-visible:outline-2 disabled:cursor-wait disabled:opacity-60"
             >
               {isLoggingOut ? (
@@ -97,6 +101,13 @@ export function AdminShell({ user, children }: { user: UserSession; children: Re
         </header>
         <main className="mx-auto max-w-7xl p-5 sm:p-8 lg:p-10">{children}</main>
       </div>
+      <LogoutDialog
+        open={logoutOpen}
+        onOpenChange={changeLogoutOpen}
+        pending={isLoggingOut}
+        error={logoutError}
+        onConfirm={() => void confirmLogout()}
+      />
     </div>
   );
 }

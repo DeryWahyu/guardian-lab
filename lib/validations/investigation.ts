@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { matchesUrlModel, urlModelEvidenceSchema } from "./guardian-ml";
 
 export const investigationIdSchema = z
   .string()
@@ -27,6 +28,7 @@ export const riskLevelSchema = z.enum([
 ]);
 const technicalEvidenceSchema = z
   .object({
+    urlModel: urlModelEvidenceSchema.optional(),
     entropy: z.number().nonnegative().optional(),
     typosquatTarget: z.string().optional(),
     permissions: z.array(z.string()).optional(),
@@ -36,21 +38,23 @@ const technicalEvidenceSchema = z
   })
   .catchall(z.json());
 
-export const investigationResultSchema = z.object({
-  riskLevel: riskLevelSchema,
-  riskScore: z.number().int().min(0).max(100),
-  scamCategory: z.string().trim().min(1).max(191),
-  summary: z.string().trim().min(1).max(20000),
-  deceptionTricks: z.array(z.string().max(2000)).max(50),
-  technicalEvidence: technicalEvidenceSchema,
-  analysisSource: z
-    .string()
-    .trim()
-    .min(1)
-    .max(191)
-    .refine((value) => value !== "LEGACY_UNVERIFIED"),
-  modelVersion: z.string().trim().min(1).max(191),
-});
+export const investigationResultSchema = z
+  .object({
+    riskLevel: riskLevelSchema,
+    riskScore: z.number().int().min(0).max(100),
+    scamCategory: z.string().trim().min(1).max(191),
+    summary: z.string().trim().min(1).max(20000),
+    deceptionTricks: z.array(z.string().max(2000)).max(50),
+    technicalEvidence: technicalEvidenceSchema,
+    analysisSource: z
+      .string()
+      .trim()
+      .min(1)
+      .max(191)
+      .refine((value) => value !== "LEGACY_UNVERIFIED"),
+    modelVersion: z.string().trim().min(1).max(191),
+  })
+  .refine(matchesUrlModel, "Hasil model URL memerlukan bukti dan metadata yang konsisten.");
 export const investigationSchema = z.object({
   id: investigationIdSchema,
   userId: z.string(),

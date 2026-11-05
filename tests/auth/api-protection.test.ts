@@ -81,6 +81,8 @@ describe("Authenticated feature access", () => {
         name: "Access check",
         role,
         passwordHash: await hashPassword("Fixture1234"),
+        phone: `+62812${Math.floor(10000000 + Math.random() * 90000000)}`,
+        phoneVerifiedAt: new Date(),
       },
     });
     ownedUsers.push(id);
@@ -204,18 +206,18 @@ describe("Authenticated feature access", () => {
       request("POST", undefined, {
         name: "New Guardian",
         email,
+        phone: "+6281234567891",
         password: "Fixture1234",
         role: "ADMIN",
       }),
     );
     expect(response.status).toBe(201);
-    const result = authSuccessSchema.parse(await response.json());
-    ownedUsers.push(result.user.id);
-    expect(result.user.role).toBe("USER");
-    expect(result.redirectTo).toBe("/");
-    expect((await prisma.user.findUniqueOrThrow({ where: { id: result.user.id } })).role).toBe(
-      "USER",
-    );
+    const result = await response.json();
+    expect(result.status).toBe("verification_required");
+    expect(result.redirectTo).toBe("/otp");
+    const created = await prisma.user.findUniqueOrThrow({ where: { email } });
+    ownedUsers.push(created.id);
+    expect(created.role).toBe("USER");
   });
 
   it("returns role-specific destinations from the actual login handler", async () => {
@@ -262,9 +264,14 @@ describe("Authenticated feature access", () => {
       process.env.SESSION_SECRET = "short";
       delete process.env.AUTH_SECRET;
       const response = await register(
-        request("POST", undefined, { email, name: "Rollback Guardian", password: "Fixture1234" }),
+        request("POST", undefined, {
+          email,
+          name: "Rollback Guardian",
+          phone: "+6281234567892",
+          password: "Fixture1234",
+        }),
       );
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(503);
       expect(await prisma.user.findUnique({ where: { email } })).toBeNull();
     } finally {
       if (originalSecret === undefined) delete process.env.SESSION_SECRET;

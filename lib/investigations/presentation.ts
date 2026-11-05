@@ -1,5 +1,5 @@
-import type { Investigation } from "@/lib/validations/investigation";
-import { investigationResultSchema } from "@/lib/validations/investigation";
+import { getUrlModelLabel, type UrlModelEvidence } from "@/lib/validations/guardian-ml";
+import { type Investigation, investigationResultSchema } from "@/lib/validations/investigation";
 import type { ThreatAnalysisResult } from "@/types/analysis";
 
 export const INVESTIGATION_STATUS_LABELS = {
@@ -19,6 +19,8 @@ export function getInvestigationResult(record: Investigation): ThreatAnalysisRes
     record.analysisSource === "LEGACY_UNVERIFIED" ||
     record.riskLevel === null ||
     record.riskScore === null ||
+    (record.technicalEvidence.urlModel &&
+      record.technicalEvidence.urlModel.input_type !== record.type) ||
     !record.summary ||
     !record.scamCategory
   )
@@ -59,7 +61,10 @@ export function getInvestigationMessage(record: Investigation) {
   return "Layanan analisis belum tersedia. Risiko input belum dapat ditentukan.";
 }
 
-export function getRiskPresentation(level: ThreatAnalysisResult["riskLevel"]) {
+export function getRiskPresentation(
+  level: ThreatAnalysisResult["riskLevel"],
+  model?: UrlModelEvidence,
+) {
   const high = ["CRITICAL", "HIGH", "DANGEROUS", "PHISHING", "MALWARE"].includes(level);
   const low = ["SAFE", "LOW"].includes(level);
   const labels = {
@@ -76,7 +81,7 @@ export function getRiskPresentation(level: ThreatAnalysisResult["riskLevel"]) {
   return {
     high,
     low,
-    label: labels[level],
+    label: model ? getUrlModelLabel(model.risk_band) : labels[level],
     color: high ? "text-rose-700" : low ? "text-emerald-700" : "text-amber-700",
     background: high ? "bg-rose-50" : low ? "bg-emerald-50" : "bg-amber-50",
   };

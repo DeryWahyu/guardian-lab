@@ -1,9 +1,27 @@
 # Stage 1: Dependencies
 FROM oven/bun:1-alpine AS deps
 WORKDIR /app
+ENV HUSKY=0
 
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
+
+# Next/Turbopack needs native Node resolution for hashed external-package links.
+FROM node:22-alpine AS development
+WORKDIR /app
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HUSKY=0
+COPY --from=deps /usr/local/bin/bun /usr/local/bin/bun
+RUN ln -s bun /usr/local/bin/bunx && \
+    apk add --no-cache openjdk17-jre-headless openssl && chown node:node /app
+COPY --from=deps --chown=node:node /app/node_modules ./node_modules
+USER node
+COPY --chown=node:node . .
+RUN bun run apk:setup && \
+    DATABASE_URL=mysql://guardian:guardian_dev@db:3306/guardian_lab bunx prisma generate
+EXPOSE 3000
+CMD ["sh", "docker/app/dev-entrypoint.sh"]
 
 # Stage 2: Builder
 FROM oven/bun:1-alpine AS builder

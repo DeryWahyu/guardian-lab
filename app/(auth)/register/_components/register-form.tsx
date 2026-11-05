@@ -1,240 +1,187 @@
 "use client";
 
-import { Eye, EyeOff, Loader2, UserPlus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
-import { API_ROUTES, AUTH_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
-import {
-  authSuccessSchema,
-  getAuthError,
-  getSafeRedirectUrl,
-  registerFormSchema,
-} from "@/lib/validations/auth";
+import { type FormEvent, useEffect, useRef, useState } from "react";
+import { AUTH_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
+import { getSafeRedirectUrl, registerFormSchema } from "@/lib/validations/auth";
+import { AuthField, AuthPasswordField } from "../../_components/auth-field";
+import { collectFormErrors, focusFormField } from "../../_components/auth-form-utils";
 import { AuthHeader } from "../../_components/auth-header";
-import { GuardianSecurityBadge } from "../../_components/guardian-security-badge";
+import { useAuthSubmit } from "../../_hooks/use-auth-submit";
+import styles from "../../auth.module.css";
 
 export function RegisterForm() {
-  const searchParams = useSearchParams();
-  const redirectTarget = getSafeRedirectUrl(searchParams.get("redirect"), PUBLIC_ROUTES.home);
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const params = useSearchParams();
+  const redirectTarget = getSafeRedirectUrl(params.get("redirect"), PUBLIC_ROUTES.home);
+  const [values, setValues] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isPending, startTransition] = useTransition();
+  const form = useRef<HTMLFormElement>(null);
+  const focusConflict = useRef<"email" | "phone" | null>(null);
+  const request = useAuthSubmit({
+    kind: "register",
+    redirectTarget,
+    onConflict: (field) => {
+      setErrors({
+        [field]: field === "email" ? "Email sudah terdaftar." : "Nomor WhatsApp sudah terdaftar.",
+      });
+      focusConflict.current = field;
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
+  useEffect(() => {
+    if (!request.isPending && focusConflict.current && errors[focusConflict.current]) {
+      focusFormField(form.current, focusConflict.current);
+      focusConflict.current = null;
+    }
+  }, [request.isPending, errors]);
 
-    const result = registerFormSchema.safeParse({
-      name,
-      email,
-      password,
-      confirmPassword,
+  function change(field: keyof typeof values, value: string) {
+    setValues((previous) => ({ ...previous, [field]: value }));
+    setErrors((previous) => {
+      const next = { ...previous };
+      delete next[field];
+      return next;
     });
-
+    request.clearError();
+  }
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const result = registerFormSchema.safeParse(values);
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
-      for (const issue of result.error.issues) {
-        const fieldName = String(issue.path[0]);
-        if (!fieldErrors[fieldName]) {
-          fieldErrors[fieldName] = issue.message;
-        }
-      }
-      setErrors(fieldErrors);
+      const next = collectFormErrors(result.error.issues);
+      setErrors(next);
+      focusFormField(form.current, Object.keys(next)[0]);
       return;
     }
-
-    startTransition(async () => {
-      try {
-        const response = await fetch(API_ROUTES.authRegister, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
-        });
-
-        const data: unknown = await response.json();
-
-        if (!response.ok) {
-          toast.error(getAuthError(data, "Pendaftaran gagal. Periksa data Anda."));
-          if (response.status === 409) {
-            setErrors({
-              email: "Email sudah terdaftar. Silakan gunakan email lain atau masuk.",
-            });
-          }
-          return;
-        }
-
-        const parsed = authSuccessSchema.safeParse(data);
-        if (!parsed.success) {
-          toast.error("Respons pendaftaran tidak valid. Silakan coba kembali.");
-          return;
-        }
-
-        toast.success("Akun berhasil dibuat! Selamat datang di Guardian Lab.");
-        window.location.href = getSafeRedirectUrl(parsed.data.redirectTo, PUBLIC_ROUTES.home);
-      } catch (_error) {
-        toast.error("Terjadi gangguan jaringan saat mendaftar. Silakan coba kembali.");
-      }
+    setErrors({});
+    void request.submit({
+      name: result.data.name,
+      email: result.data.email,
+      phone: result.data.phone,
+      password: result.data.password,
     });
-  };
-
+  }
   return (
-    <div className="mx-auto w-full max-w-md rounded-3xl border border-slate-200/70 bg-white/90 p-8 shadow-xl shadow-slate-200/40 backdrop-blur-md sm:p-10">
+    <>
       <AuthHeader
-        badgeText="Langkah Kecil Dimulai"
-        title="Daftar Akun,"
-        highlightText="jadilah Guardian Tangguh."
-        subtitle="Mulai pelacakan ancaman siber, pelajari modus APK, dan dapatkan EXP."
+        title="Buat akun Guardian."
+        subtitle="Periksa ancaman digital dan simpan riwayat pemeriksaanmu."
       />
-
-      <GuardianSecurityBadge />
-
-      <form onSubmit={handleSubmit} className="space-y-3.5">
-        <div>
-          <label htmlFor="name" className="mb-1 block text-xs font-semibold text-slate-700">
-            Nama Lengkap <span className="font-semibold text-rose-600">*</span>
-          </label>
-          <input
-            id="name"
-            aria-invalid={Boolean(errors.name)}
-            aria-describedby={errors.name ? "name-error" : undefined}
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Contoh: Budi Pratama"
-            disabled={isPending}
-            className={`focus:border-brand-600 focus:ring-brand-600/20 h-11 w-full rounded-xl border bg-slate-50/60 px-3.5 text-sm text-slate-900 transition-colors focus:ring-2 focus:outline-none aria-invalid:border-rose-500 aria-invalid:focus:border-rose-500 aria-invalid:focus:ring-rose-500/20 ${
-              errors.name ? "border-rose-500 ring-2 ring-rose-200" : "border-slate-200"
-            }`}
-          />
-          {errors.name && (
-            <p id="name-error" className="mt-1 text-xs font-medium text-rose-600">
-              {errors.name}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="email" className="mb-1 block text-xs font-semibold text-slate-700">
-            Email Akun <span className="font-semibold text-rose-600">*</span>
-          </label>
-          <input
-            id="email"
-            aria-invalid={Boolean(errors.email)}
-            aria-describedby={errors.email ? "email-error" : undefined}
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="nama@email.com"
-            disabled={isPending}
-            className={`focus:border-brand-600 focus:ring-brand-600/20 h-11 w-full rounded-xl border bg-slate-50/60 px-3.5 text-sm text-slate-900 transition-colors focus:ring-2 focus:outline-none aria-invalid:border-rose-500 aria-invalid:focus:border-rose-500 aria-invalid:focus:ring-rose-500/20 ${
-              errors.email ? "border-rose-500 ring-2 ring-rose-200" : "border-slate-200"
-            }`}
-          />
-          {errors.email && (
-            <p id="email-error" className="mt-1 text-xs font-medium text-rose-600">
-              {errors.email}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="password" className="mb-1 block text-xs font-semibold text-slate-700">
-            Password <span className="font-semibold text-rose-600">*</span>
-          </label>
-          <div className="relative">
-            <input
-              id="password"
-              aria-invalid={Boolean(errors.password)}
-              aria-describedby={errors.password ? "password-error" : undefined}
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimal 8 karakter huruf & angka"
-              disabled={isPending}
-              className={`focus:border-brand-600 focus:ring-brand-600/20 h-11 w-full rounded-xl border bg-slate-50/60 px-3.5 pr-10 text-sm text-slate-900 transition-colors focus:ring-2 focus:outline-none aria-invalid:border-rose-500 aria-invalid:focus:border-rose-500 aria-invalid:focus:ring-rose-500/20 ${
-                errors.password ? "border-rose-500 ring-2 ring-rose-200" : "border-slate-200"
-              }`}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer p-1 text-slate-400 hover:text-slate-600"
-              aria-pressed={showPassword}
-              aria-label={showPassword ? "Sembunyikan password" : "Lihat password"}
-            >
-              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-            </button>
-          </div>
-          {errors.password && (
-            <p id="password-error" className="mt-1 text-xs font-medium text-rose-600">
-              {errors.password}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="mb-1 block text-xs font-semibold text-slate-700"
-          >
-            Konfirmasi Password <span className="font-semibold text-rose-600">*</span>
-          </label>
-          <input
-            id="confirmPassword"
-            aria-invalid={Boolean(errors.confirmPassword)}
-            aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
-            type={showPassword ? "text" : "password"}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Ulangi password di atas"
-            disabled={isPending}
-            className={`focus:border-brand-600 focus:ring-brand-600/20 h-11 w-full rounded-xl border bg-slate-50/60 px-3.5 text-sm text-slate-900 transition-colors focus:ring-2 focus:outline-none aria-invalid:border-rose-500 aria-invalid:focus:border-rose-500 aria-invalid:focus:ring-rose-500/20 ${
-              errors.confirmPassword ? "border-rose-500 ring-2 ring-rose-200" : "border-slate-200"
-            }`}
-          />
-          {errors.confirmPassword && (
-            <p id="confirmPassword-error" className="mt-1 text-xs font-medium text-rose-600">
-              {errors.confirmPassword}
-            </p>
-          )}
-        </div>
-
+      <form
+        ref={form}
+        noValidate
+        onSubmit={submit}
+        aria-label="Daftar akun Guardian Lab"
+        aria-busy={request.isPending}
+        className={cn(styles.form, styles.registration)}
+      >
+        <AuthField
+          id="name"
+          name="name"
+          label="Nama"
+          type="text"
+          autoComplete="name"
+          maxLength={50}
+          required
+          value={values.name}
+          onChange={(event) => change("name", event.target.value)}
+          error={errors.name}
+          placeholder="Nama kamu"
+          disabled={request.isPending}
+        />
+        <AuthField
+          id="email"
+          name="email"
+          label="Email"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          spellCheck={false}
+          maxLength={191}
+          required
+          value={values.email}
+          onChange={(event) => change("email", event.target.value)}
+          error={errors.email}
+          placeholder="nama@email.com"
+          disabled={request.isPending}
+        />
+        <AuthField
+          id="phone"
+          name="phone"
+          label="No. WhatsApp"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          maxLength={32}
+          required
+          value={values.phone}
+          onChange={(event) => change("phone", event.target.value)}
+          error={errors.phone}
+          placeholder="08… atau +62…"
+          disabled={request.isPending}
+        />
+        <AuthPasswordField
+          id="password"
+          name="password"
+          label="Password"
+          autoComplete="new-password"
+          aria-description="Minimal 8 karakter, dengan huruf dan angka."
+          required
+          value={values.password}
+          onChange={(event) => change("password", event.target.value)}
+          error={errors.password}
+          placeholder="8+ karakter, huruf & angka"
+          disabled={request.isPending}
+        />
+        <AuthPasswordField
+          id="confirmPassword"
+          name="confirmPassword"
+          label="Ulangi password"
+          autoComplete="new-password"
+          required
+          value={values.confirmPassword}
+          onChange={(event) => change("confirmPassword", event.target.value)}
+          error={errors.confirmPassword}
+          placeholder="Ketik ulang password"
+          disabled={request.isPending}
+        />
+        {request.serverError && (
+          <p role="alert" className={styles.serverError}>
+            {request.serverError}
+          </p>
+        )}
         <button
           type="submit"
-          aria-busy={isPending}
-          disabled={isPending}
-          className="bg-brand-600 shadow-brand-200 hover:bg-brand-700 mt-3 flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-full text-sm font-semibold text-white shadow-md transition-all active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50"
+          disabled={request.isPending}
+          aria-busy={request.isPending}
+          className={styles.submit}
         >
-          {isPending ? (
+          {request.isPending ? (
             <>
-              <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
-              <span>Mendaftarkan Akun...</span>
+              <Loader2 aria-hidden="true" className="animate-spin motion-reduce:animate-none" />{" "}
+              Membuat akun…
             </>
           ) : (
-            <>
-              <UserPlus className="size-4" />
-              <span>Daftar Akun Sekarang</span>
-            </>
+            "Buat akun"
           )}
         </button>
       </form>
-
-      <div className="mt-6 border-t border-slate-100 pt-5 text-center text-xs text-slate-600">
-        Sudah terdaftar sebagai Guardian?{" "}
-        <Link
-          href={`${AUTH_ROUTES.login}?redirect=${encodeURIComponent(redirectTarget)}`}
-          className="text-brand-600 hover:text-brand-700 cursor-pointer font-bold hover:underline"
-        >
-          Masuk di Sini
+      <p className={styles.prompt}>
+        Sudah punya akun?{" "}
+        <Link href={AUTH_ROUTES.loginWithRedirect(redirectTarget)} className={styles.link}>
+          Masuk
         </Link>
-      </div>
-    </div>
+      </p>
+    </>
   );
 }

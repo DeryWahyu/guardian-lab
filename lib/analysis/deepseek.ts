@@ -1,5 +1,5 @@
 /**
- * Guardian Lab — DeepSeek AI Analysis Engine
+ * Guardian Lab: DeepSeek AI Analysis Engine
  * Integrates with DeepSeek API with PII scrubbing and resilient offline heuristic fallback.
  */
 

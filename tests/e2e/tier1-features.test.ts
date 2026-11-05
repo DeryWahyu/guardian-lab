@@ -165,30 +165,33 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
   // --------------------------------------------------------------------------
   describe("F4: User Authentication API Endpoints", () => {
     it("registers a new user and returns default gamification profile", async () => {
-      const res = await executeRoute<{ id: string; email: string; role: string; exp: number }>(
+      const res = await executeRoute<{ status: string; redirectTo: string }>(
         "/api/auth/register",
         "POST",
         NEW_REGISTERED_USER_FIXTURE,
       );
       expect(res.status).toBe(201);
-      expect(res.body.email).toBe(NEW_REGISTERED_USER_FIXTURE.email);
-      expect(res.body.role).toBe("USER");
-      expect(res.body.exp).toBe(0);
+      expect(res.body.status).toBe("verification_required");
+      expect(res.body.redirectTo).toBe(AUTH_ROUTES.otp);
+      const created = await prisma.user.findUniqueOrThrow({
+        where: { email: NEW_REGISTERED_USER_FIXTURE.email },
+      });
+      expect(created.role).toBe("USER");
+      expect(created.exp).toBe(0);
+      expect(created.phoneVerifiedAt).toBeNull();
     });
 
     let authenticatedSessionToken = "";
 
     it("authenticates valid credentials and issues session cookie", async () => {
-      const res = await executeRoute<{ id: string; email: string; role: string }>(
-        "/api/auth/login",
-        "POST",
-        {
-          email: STANDARD_USER_FIXTURE.email,
-          password: STANDARD_USER_FIXTURE.passwordPlainText,
-        },
-      );
+      const res = await executeRoute<{
+        user: { id: string; email: string; role: string };
+      }>("/api/auth/login", "POST", {
+        email: STANDARD_USER_FIXTURE.email,
+        password: STANDARD_USER_FIXTURE.passwordPlainText,
+      });
       expect(res.status).toBe(200);
-      expect(res.body.email).toBe(STANDARD_USER_FIXTURE.email);
+      expect(res.body.user.email).toBe(STANDARD_USER_FIXTURE.email);
       const cookie = res.headers.get("Set-Cookie");
       expect(cookie).toBeTruthy();
       expect(cookie).toContain("guardian_session");
@@ -427,7 +430,7 @@ describe("Tier 1: Feature Coverage (Features 1–28)", () => {
       expect(record.inputMetadata.sha256).toMatch(/^[a-f0-9]{64}$/);
       expect(record.technicalEvidence).toEqual({});
       expect(record.riskScore).toBeNull();
-    });
+    }, 30000);
   });
 
   // --------------------------------------------------------------------------

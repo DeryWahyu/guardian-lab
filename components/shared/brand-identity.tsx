@@ -43,7 +43,7 @@ export function BrandIdentity({
             wordmarkClassName,
           )}
         >
-          Guardian<span className="text-brand-600">Lab</span>
+          Guardian<span className="text-brand-cyan">Lab</span>
         </span>
         {subtitle && (
           <span className="text-[10px] font-medium tracking-wide text-slate-500">{subtitle}</span>

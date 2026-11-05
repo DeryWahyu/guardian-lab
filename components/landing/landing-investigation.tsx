@@ -1,45 +1,28 @@
 "use client";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
-import { InvestigationView } from "@/components/shared/investigation-view";
+
+import { Suspense, useState } from "react";
 import type { UserSession } from "@/lib/auth/session";
 import { PUBLIC_ROUTES } from "@/lib/routes";
 import type { Investigation } from "@/lib/validations/investigation";
 import { AnalysisGateway } from "./analysis-gateway";
-import { GatewaySkeleton } from "./gateway-skeleton";
 import { HeroSection } from "./hero";
-import { ResultPresenter } from "./results/result-presenter";
+import { LandingResults } from "./landing-results";
 
 type Props = { initialUser?: UserSession | null };
-function LandingInvestigationInner({ initialUser }: Props) {
-  const params = useSearchParams();
-  const recordId = params.get("investigation");
+
+export function LandingInvestigation({ initialUser }: Props) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!recordId && !isAnalyzing && !analysisError) return;
-    const timer = setTimeout(
-      () =>
-        resultsRef.current?.scrollIntoView({
-          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-            ? "auto"
-            : "smooth",
-          block: "start",
-        }),
-      100,
-    );
-    return () => clearTimeout(timer);
-  }, [recordId, isAnalyzing, analysisError]);
+
   function clearResult() {
     setAnalysisError(null);
-    if (!params.has("investigation")) return;
-    const next = new URLSearchParams(params.toString());
+    const next = new URLSearchParams(window.location.search);
+    if (!next.has("investigation")) return;
     next.delete("investigation");
     window.history.replaceState(
       null,
       "",
-      next.size ? `${PUBLIC_ROUTES.home}?${next}` : PUBLIC_ROUTES.home,
+      `${PUBLIC_ROUTES.home}${next.size ? `?${next}` : ""}${window.location.hash}`,
     );
   }
   function start() {
@@ -49,7 +32,7 @@ function LandingInvestigationInner({ initialUser }: Props) {
   function success(record: Investigation) {
     setIsAnalyzing(false);
     setAnalysisError(null);
-    const next = new URLSearchParams(params.toString());
+    const next = new URLSearchParams(window.location.search);
     next.delete("target");
     next.delete("file");
     next.delete("evidence");
@@ -72,34 +55,9 @@ function LandingInvestigationInner({ initialUser }: Props) {
           onInputChange={clearResult}
         />
       </HeroSection>
-      {(isAnalyzing || recordId || analysisError) && (
-        <div
-          ref={resultsRef}
-          className="mx-auto my-10 max-w-7xl scroll-mt-24 px-4 sm:my-14 sm:px-6 lg:px-8"
-        >
-          {isAnalyzing || analysisError ? (
-            <ResultPresenter result={null} isLoading={isAnalyzing} error={analysisError} />
-          ) : recordId ? (
-            <InvestigationView
-              id={recordId}
-              scope={initialUser ? `${initialUser.id}:${initialUser.role}` : "guest"}
-            />
-          ) : null}
-        </div>
-      )}
+      <Suspense fallback={null}>
+        <LandingResults initialUser={initialUser} isAnalyzing={isAnalyzing} error={analysisError} />
+      </Suspense>
     </>
-  );
-}
-export function LandingInvestigation(props: Props) {
-  return (
-    <Suspense
-      fallback={
-        <HeroSection>
-          <GatewaySkeleton />
-        </HeroSection>
-      }
-    >
-      <LandingInvestigationInner {...props} />
-    </Suspense>
   );
 }

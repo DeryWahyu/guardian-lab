@@ -11,7 +11,9 @@ export function ConfirmDialog({
   error,
   onConfirm,
   confirmLabel,
+  pendingLabel = "Menyimpan keputusan…",
   tone = "danger",
+  className,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -21,7 +23,9 @@ export function ConfirmDialog({
   error?: string | null;
   onConfirm: () => void;
   confirmLabel: string;
+  pendingLabel?: string;
   tone?: "brand" | "danger";
+  className?: string;
 }) {
   return (
     <AlertDialog.Root
@@ -32,7 +36,12 @@ export function ConfirmDialog({
     >
       <AlertDialog.Portal>
         <AlertDialog.Backdrop className="fixed inset-0 z-50 bg-slate-950/50" />
-        <AlertDialog.Popup className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-1/2 space-y-4 rounded-2xl bg-white p-6 shadow-xl">
+        <AlertDialog.Popup
+          className={cn(
+            "fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-1/2 space-y-4 rounded-2xl bg-white p-6 shadow-xl",
+            className,
+          )}
+        >
           <AlertDialog.Title className="text-lg font-bold text-slate-900">
             {title}
           </AlertDialog.Title>
@@ -62,7 +71,7 @@ export function ConfirmDialog({
                   : "bg-brand-600 hover:bg-brand-700 focus-visible:outline-brand-600",
               )}
             >
-              {pending ? "Menyimpan keputusan…" : confirmLabel}
+              {pending ? pendingLabel : confirmLabel}
             </button>
           </div>
         </AlertDialog.Popup>

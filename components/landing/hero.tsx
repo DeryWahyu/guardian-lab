@@ -1,23 +1,52 @@
 import type { ReactNode } from "react";
+import { LANDING_SECTIONS } from "@/lib/routes";
+import { cn } from "@/lib/utils";
+import { HeroBackdrop } from "./hero-backdrop";
 import styles from "./hero.module.css";
-import { HeroMascot } from "./hero-mascot";
+import shared from "./landing.module.css";
 
 export function HeroSection({ children }: { children: ReactNode }) {
   return (
-    <section aria-labelledby="gateway-title" className={styles.hero}>
-      <div className={styles.stage}>
-        <div className={styles.scene}>
+    <section
+      id={LANDING_SECTIONS.home}
+      tabIndex={-1}
+      aria-labelledby="landing-title"
+      data-hero-stage
+      className={styles.hero}
+    >
+      <HeroBackdrop />
+      <div className={cn(shared.container, styles.stage)}>
+        <div className={styles.composition}>
+          <p className={cn(shared.display, styles.wordmark)} aria-hidden="true">
+            GUARDIAN LAB
+          </p>
           <div className={styles.intro}>
-            <h1 id="gateway-title" className={styles.title}>
-              <span className={styles.titleLine}>Sebelum klik,</span>
-              <span className={`${styles.titleLine} ${styles.accent}`}>cek dulu.</span>
+            <h1 id="landing-title" className={cn(shared.display, styles.title)}>
+              Sebelum klik,
+              <br />
+              cek dulu.
             </h1>
-            <p className={styles.description}>
-              Tautan, kode QR, atau APK yang meragukan? Mulai pemeriksaan di sini.
+            <p>Periksa tautan yang bikin ragu. Baca kode QR tanpa membuka situsnya di perangkatmu.</p>
+          </div>
+          <div className={styles.supportCopy}>
+            <p className={styles.supportEyebrow}>Langkah lebih bijak</p>
+            <h2 className={cn(shared.display, styles.supportTitle)}>
+              Kenali polanya.
+              <br />
+              <span>Pahami risikonya.</span>
+            </h2>
+            <p className={styles.supportDescription}>
+              Temukan indikasi mencurigakan dan baca alasannya sebelum membuka tautan.
             </p>
           </div>
-          <HeroMascot />
-          <div className={styles.formSlot}>{children}</div>
+          <section
+            id="periksa"
+            tabIndex={-1}
+            aria-label="Meja pemeriksaan"
+            className={styles.formSlot}
+          >
+            {children}
+          </section>
         </div>
       </div>
     </section>

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
-import { randomUUID } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
 import { POST as createQuiz } from "@/app/api/admin/quizzes/route";
 import { POST as login } from "@/app/api/auth/login/route";
 import { POST as register } from "@/app/api/auth/register/route";
@@ -18,6 +18,8 @@ beforeAll(async () => {
       email: `audit-${randomUUID()}@example.test`,
       passwordHash: "unused",
       role: "ADMIN",
+      phone: `+62812${randomInt(10000000, 99999999)}`,
+      phoneVerifiedAt: new Date(),
     },
   });
   adminId = admin.id;
@@ -75,7 +77,12 @@ describe("System audit regressions", () => {
     async (password) => {
       const email = `long-password-${randomUUID()}@example.test`;
       const result = await register(
-        request(API_ROUTES.authRegister, { name: "Audit member", email, password }),
+        request(API_ROUTES.authRegister, {
+          name: "Audit member",
+          email,
+          phone: "081234567890",
+          password,
+        }),
       );
       expect(result.status).toBe(400);
       expect(await prisma.user.findUnique({ where: { email } })).toBeNull();

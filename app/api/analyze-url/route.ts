@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { authorizeRequest } from "@/lib/auth/access";
 import { receiveUrlInvestigation } from "@/lib/investigations/receive-url";
 import { InputError, readInput } from "@/lib/investigations/request-input";
+import { serializeInvestigation } from "@/lib/investigations/serialize";
 import { urlSubmissionSchema } from "@/lib/validations/analysis-input";
 
 export async function POST(request: Request) {
@@ -16,8 +17,8 @@ export async function POST(request: Request) {
       url: parsed.data.url,
       type: "URL",
     });
-    return NextResponse.json(record, {
-      status: 201,
+    return NextResponse.json(serializeInvestigation(record), {
+      status: record.status === "FAILED" ? 422 : 201,
       headers: { "Cache-Control": "private, no-store" },
     });
   } catch (error) {

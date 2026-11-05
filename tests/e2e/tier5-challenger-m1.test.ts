@@ -90,11 +90,17 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
         body: JSON.stringify({
           name: "Case Test User",
           email: emailLower,
+          phone: "+6281234567894",
           password: "Password123",
         }),
       });
       const res1 = await registerPOST(req1);
       expect(res1.status).toBe(201);
+
+      await prisma.user.update({
+        where: { email: emailLower },
+        data: { phoneVerifiedAt: new Date() },
+      });
 
       // Attempt duplicate registration with uppercase
       const req2 = new Request("http://localhost:3000/api/auth/register", {
@@ -103,6 +109,7 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
         body: JSON.stringify({
           name: "Case Duplicate User",
           email: emailUpper,
+          phone: "+6281234567894",
           password: "Password123",
         }),
       });
@@ -482,6 +489,8 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
         data: {
           name: "Streak 0 User",
           email,
+          phone: "+6281234567895",
+          phoneVerifiedAt: new Date(),
           passwordHash,
           streakDays: 7,
           lastLearningAt: new Date(),
@@ -498,7 +507,7 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
       const data = await res.json();
 
       expect(res.status).toBe(200);
-      expect(data.streakDays).toBe(7); // Unchanged
+      expect(data.user.streakDays).toBe(7); // Unchanged
 
       await prisma.session.deleteMany({ where: { userId: user.id } });
       await prisma.user.delete({ where: { id: user.id } });
@@ -516,6 +525,8 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
         data: {
           name: "Streak 1 User",
           email,
+          phone: "+6281234567896",
+          phoneVerifiedAt: new Date(),
           passwordHash,
           streakDays: 4,
           lastLearningAt: yesterday,
@@ -532,7 +543,7 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
       const data = await res.json();
 
       expect(res.status).toBe(200);
-      expect(data.streakDays).toBe(4);
+      expect(data.user.streakDays).toBe(4);
       expect((await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).streakDays).toBe(4);
 
       await prisma.session.deleteMany({ where: { userId: user.id } });
@@ -552,6 +563,8 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
         data: {
           name: "Streak Reset User",
           email,
+          phone: "+6281234567897",
+          phoneVerifiedAt: new Date(),
           passwordHash,
           streakDays: 25,
           lastLearningAt: threeDaysAgo,
@@ -568,7 +581,7 @@ describe("Tier 5: Milestone 1 Adversarial & Stress Test Suite", () => {
       const data = await res.json();
 
       expect(res.status).toBe(200);
-      expect(data.streakDays).toBe(0);
+      expect(data.user.streakDays).toBe(0);
       expect((await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).streakDays).toBe(25);
 
       await prisma.session.deleteMany({ where: { userId: user.id } });

@@ -1,5 +1,5 @@
 /**
- * Guardian Lab — Lexical Threat Scoring Engine
+ * Guardian Lab: Lexical Threat Scoring Engine
  * Analyzes URL domain, path, Shannon entropy, typosquatting against Indonesian targets,
  * and high-risk TLDs.
  */

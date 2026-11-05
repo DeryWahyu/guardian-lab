@@ -1,33 +1,23 @@
 import styles from "./gateway.module.css";
+import { HeroScene } from "./hero-scene";
 
 export function GatewaySkeleton() {
   return (
     <section
       aria-label="Memuat form pemeriksaan"
       aria-busy="true"
-      className={`${styles.card} animate-pulse motion-reduce:animate-none`}
+      className={styles.card}
     >
       <div aria-hidden="true">
-        <div className={styles.tabs}>
-          {[0, 1, 2].map((item) => (
-            <span key={item} className="m-2 rounded-lg bg-slate-200/60" />
-          ))}
-        </div>
-        <div className={styles.urlLabel}>
-          <span className="block h-4 w-48 max-w-full rounded bg-slate-200/60" />
-        </div>
+        <div className="mb-2.5 ml-4.5 h-4.5 w-28 animate-pulse rounded bg-slate-200/70 motion-reduce:animate-none" />
         <div className={styles.inputBox}>
-          <span className="h-3 w-3/5 rounded bg-slate-100" />
+          <HeroScene />
+          <span className="h-3 min-w-0 flex-1 animate-pulse rounded bg-slate-200/60 motion-reduce:animate-none" />
+          <span className="ml-auto h-8 w-16 shrink-0 animate-pulse rounded-full bg-slate-100 motion-reduce:animate-none" />
+          <span className={`${styles.submit} ${styles.skeletonSubmit}`} />
         </div>
-        <div className={styles.fieldHelp}>
-          <span className="block h-4 w-4/5 rounded bg-slate-100" />
-        </div>
-        <div className={styles.submit} style={{ background: "#e7eee6" }} />
-        <div className={styles.modelNotice}>
-          <span className="block h-4 w-3/4 rounded bg-slate-100" />
-        </div>
-        <div className={styles.privacy}>
-          <span className="block h-4 w-3/5 rounded bg-slate-100" />
+        <div className={styles.fieldDetails}>
+          <div className="mt-3 ml-4.5 h-3 w-3/5 rounded bg-slate-100" />
         </div>
       </div>
     </section>

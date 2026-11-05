@@ -1,16 +1,36 @@
-export function AuthCardSkeleton({ title = "Memuat..." }: { title?: string }) {
+import { cn } from "@/lib/utils";
+import styles from "../auth.module.css";
+
+export function AuthCardSkeleton({
+  title = "Menyiapkan halaman…",
+  fields = 2,
+}: {
+  title?: string;
+  fields?: number;
+}) {
   return (
-    <div className="mx-auto w-full max-w-md animate-pulse rounded-3xl border border-slate-200/60 bg-white/85 p-8 shadow-xl shadow-slate-200/40">
-      <div className="mx-auto mb-4 h-4 w-28 rounded-full bg-slate-200" />
-      <div className="mx-auto mb-2 h-7 w-64 rounded-lg bg-slate-200" />
-      <div className="mx-auto mb-6 h-4 w-48 rounded-lg bg-slate-200" />
-      <div className="mb-6 h-16 w-full rounded-2xl bg-slate-100" />
-      <div className="space-y-4">
-        <div className="h-10 w-full rounded-xl bg-slate-100" />
-        <div className="h-10 w-full rounded-xl bg-slate-100" />
-        <div className="bg-brand-200 h-11 w-full rounded-full" />
+    <output
+      aria-label={title}
+      aria-busy="true"
+      className="animate-pulse motion-reduce:animate-none"
+    >
+      <div aria-hidden="true">
+        <div className={styles.skeletonHeading} data-lines={fields === 2 ? 2 : 1} />
+        <div className={styles.skeletonSubtitle} />
+        <div className={cn(styles.form, fields === 5 && styles.registration)}>
+          {Array.from({ length: fields }, (_, index) => `field-${index + 1}`).map((field) => (
+            <div key={field} className={styles.field}>
+              <div className={styles.skeletonLabel} />
+              <div className={styles.skeletonInput} />
+            </div>
+          ))}
+          {fields === 0 && <div className={styles.skeletonNote} />}
+          {fields === 2 && <div className={styles.skeletonActions} />}
+          <div className={styles.skeletonSubmit} />
+        </div>
+        <div className={styles.skeletonPrompt} />
       </div>
-      <p className="mt-4 text-center text-xs text-slate-400">{title}</p>
-    </div>
+      <span className="sr-only">{title}</span>
+    </output>
   );
 }

@@ -1,5 +1,5 @@
 /**
- * Guardian Lab — Milestone 1 Iteration 2 Adversarial Concurrency & Token Tampering Stress Harness
+ * Guardian Lab: Milestone 1 Iteration 2 Adversarial Concurrency & Token Tampering Stress Harness
  *
  * Verifies:
  * 1. Database integrity under concurrency (simultaneous registrations, duplicate email checks, case-insensitive collision).
@@ -8,6 +8,7 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { randomInt } from "node:crypto";
 import { jwtVerify, SignJWT } from "jose";
 import { POST as loginPOST } from "@/app/api/auth/login/route";
 import { GET as authMeGET } from "@/app/api/auth/me/route";
@@ -20,6 +21,10 @@ const UNIQUE_ID = Date.now().toString(36);
 
 function makeEmail(suffix: string): string {
   return `${TEST_PREFIX}${UNIQUE_ID}_${suffix}@guardianlab.test`;
+}
+
+function makePhone(): string {
+  return `+62812${randomInt(10_000_000, 99_999_999)}`;
 }
 
 describe("Milestone 1 Iteration 2 Adversarial Concurrency & Token Stress Harness", () => {
@@ -48,6 +53,7 @@ describe("Milestone 1 Iteration 2 Adversarial Concurrency & Token Stress Harness
     it("preserves MySQL integrity during 10 simultaneous registrations with identical email", async () => {
       const email = makeEmail("simultaneous_identical");
       const password = "Password123!";
+      const phone = makePhone();
 
       // Launch 10 simultaneous registration requests
       const promises = Array.from({ length: 10 }).map((_, index) => {
@@ -57,6 +63,7 @@ describe("Milestone 1 Iteration 2 Adversarial Concurrency & Token Stress Harness
           body: JSON.stringify({
             name: `Concurrent User ${index}`,
             email,
+            phone,
             password,
           }),
         });
@@ -88,6 +95,7 @@ describe("Milestone 1 Iteration 2 Adversarial Concurrency & Token Stress Harness
     it("enforces case-insensitive duplicate registration under concurrency", async () => {
       const baseEmail = makeEmail("simultaneous_casing");
       const password = "Password123!";
+      const phone = makePhone();
 
       const variations = [
         baseEmail.toLowerCase(),
@@ -103,6 +111,7 @@ describe("Milestone 1 Iteration 2 Adversarial Concurrency & Token Stress Harness
           body: JSON.stringify({
             name: `Case User ${index}`,
             email: emailVar,
+            phone,
             password,
           }),
         });
@@ -131,6 +140,7 @@ describe("Milestone 1 Iteration 2 Adversarial Concurrency & Token Stress Harness
     it("handles sequential duplicate registrations with case variation returning HTTP 409", async () => {
       const email = makeEmail("seq_case");
       const password = "Password123!";
+      const phone = makePhone();
 
       // Register with uppercase
       const res1 = await registerPOST(
@@ -140,6 +150,7 @@ describe("Milestone 1 Iteration 2 Adversarial Concurrency & Token Stress Harness
           body: JSON.stringify({
             name: "Initial User",
             email: email.toUpperCase(),
+            phone,
             password,
           }),
         }),
@@ -154,6 +165,7 @@ describe("Milestone 1 Iteration 2 Adversarial Concurrency & Token Stress Harness
           body: JSON.stringify({
             name: "Duplicate User",
             email: email.toLowerCase(),
+            phone,
             password,
           }),
         }),

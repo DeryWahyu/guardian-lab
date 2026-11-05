@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Guardian Lab — Anti-Phishing Sandbox & APK X-Ray Analysis",
+  title: "Guardian Lab | Anti-Phishing Sandbox & APK X-Ray Analysis",
   description:
     "Platform Sandbox Anti-Phishing & Bedah APK yang mengintegrasikan tiga pilar: Recognize, Protect, dan Act.",
 };
@@ -24,7 +24,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="id" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         {children}
-        <Toaster position="top-right" richColors closeButton />
+        <Toaster
+          position="bottom-right"
+          theme="light"
+          className="guardian-toaster"
+          offset={20}
+          mobileOffset={16}
+          closeButton
+          containerAriaLabel="Notifikasi"
+          toastOptions={{ closeButtonAriaLabel: "Tutup notifikasi" }}
+        />
       </body>
     </html>
   );

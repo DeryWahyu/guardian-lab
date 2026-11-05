@@ -4,26 +4,44 @@ import { Dialog } from "@base-ui/react/dialog";
 import { Lock, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { BrandMark } from "@/components/shared/brand-identity";
-import { AUTH_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { AUTH_ROUTES, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 
 export interface AuthGateModalProps {
+  className?: string;
   isOpen: boolean;
   onClose: () => void;
   pendingType: "url" | "qr" | "apk";
   pendingTarget?: string;
+  returnTo?: string;
+  onOpenChangeComplete?: (open: boolean) => void;
+  returnFocus?: () => HTMLElement | null | false;
 }
 
-export function AuthGateModal({ isOpen, onClose, pendingType, pendingTarget }: AuthGateModalProps) {
-  const returnUrl = pendingTarget
-    ? `${PUBLIC_ROUTES.homeWithTab(pendingType)}&target=${encodeURIComponent(pendingTarget)}`
-    : PUBLIC_ROUTES.homeWithTab(pendingType);
+export function AuthGateModal({
+  className,
+  isOpen,
+  onClose,
+  pendingType,
+  pendingTarget,
+  returnTo,
+  onOpenChangeComplete,
+  returnFocus,
+}: AuthGateModalProps) {
+  const returnUrl =
+    returnTo ??
+    (pendingType === "apk"
+      ? PROTECTED_ROUTES.apk
+      : pendingTarget
+        ? `${PUBLIC_ROUTES.homeWithTab(pendingType)}&target=${encodeURIComponent(pendingTarget)}`
+        : PUBLIC_ROUTES.homeWithTab(pendingType));
 
-  const loginRedirect = `${AUTH_ROUTES.login}?redirect=${encodeURIComponent(returnUrl)}`;
-  const registerRedirect = `${AUTH_ROUTES.register}?redirect=${encodeURIComponent(returnUrl)}`;
+  const loginRedirect = AUTH_ROUTES.loginWithRedirect(returnUrl);
+  const registerRedirect = AUTH_ROUTES.registerWithRedirect(returnUrl);
 
   const typeLabel =
     pendingType === "apk"
-      ? "Bongkar Malware APK"
+      ? "Pemeriksaan APK"
       : pendingType === "qr"
         ? "Pemeriksaan Kode QR"
         : "Deteksi Tautan Phishing";
@@ -31,13 +49,20 @@ export function AuthGateModal({ isOpen, onClose, pendingType, pendingTarget }: A
   return (
     <Dialog.Root
       open={isOpen}
+      onOpenChangeComplete={onOpenChangeComplete}
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
     >
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm" />
-        <Dialog.Popup className="bg-background fixed top-1/2 left-1/2 z-50 flex max-h-[90dvh] w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4 overflow-y-auto rounded-3xl border border-slate-200/90 p-6 text-center shadow-2xl shadow-slate-900/20 sm:p-8">
+        <Dialog.Popup
+          finalFocus={returnFocus}
+          className={cn(
+            "bg-background fixed top-1/2 left-1/2 z-50 flex max-h-[90dvh] w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4 overflow-y-auto rounded-3xl border border-slate-200/90 p-6 text-center shadow-2xl shadow-slate-900/20 sm:p-8",
+            className,
+          )}
+        >
           {/* Close Button */}
           <Dialog.Close
             type="button"
@@ -58,11 +83,11 @@ export function AuthGateModal({ isOpen, onClose, pendingType, pendingTarget }: A
           {/* Title & Description */}
           <div className="space-y-1.5">
             <Dialog.Title className="text-xl font-extrabold tracking-tight text-slate-900">
-              Simpan Temuan Forensik ke Akunmu
+              Masuk untuk melanjutkan pemeriksaan
             </Dialog.Title>
             <Dialog.Description className="mx-auto max-w-xs text-xs leading-relaxed text-slate-600 sm:text-sm">
-              Untuk melindungi riwayat investigasi dan membuka hasil deteksi AI secara lengkap,
-              silakan masuk ke akun Guardian terlebih dahulu.
+              Masuk untuk mengirim pemeriksaan dan menyimpan investigasi ke akunmu.
+              {pendingType !== "url" && " Berkas perlu dipilih ulang setelah login."}
             </Dialog.Description>
           </div>
 

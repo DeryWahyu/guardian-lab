@@ -2,11 +2,11 @@
 
 import { Check, Copy, Download, Share2 } from "lucide-react";
 import type { RefObject } from "react";
+import workspace from "@/components/workspace/workspace.module.css";
 import type { ShareCardData } from "@/lib/share-card/content";
 import { useShareCardActions } from "./use-share-card-actions";
 
-const button =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50";
+const button = workspace.secondary;
 
 export function ShareCardActions({
   cardRef,
@@ -24,7 +24,7 @@ export function ShareCardActions({
           type="button"
           onClick={actions.download}
           disabled={actions.status !== "ready" || busy}
-          className={button}
+          className={workspace.primary}
         >
           <Download className="size-4" aria-hidden="true" />
           {actions.status === "preparing" ? "Menyiapkan PNG…" : "Unduh PNG"}

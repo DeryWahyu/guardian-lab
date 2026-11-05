@@ -4,6 +4,7 @@ import { decodeQrImage } from "@/lib/analysis/qr";
 import { authorizeRequest } from "@/lib/auth/access";
 import { receiveUrlInvestigation } from "@/lib/investigations/receive-url";
 import { InputError, readInput } from "@/lib/investigations/request-input";
+import { serializeInvestigation } from "@/lib/investigations/serialize";
 import { receiveFailedInvestigation } from "@/lib/investigations/service";
 import {
   MAX_QR_BYTES,
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
         error,
       );
       return NextResponse.json(
-        { ...record, error, is_url: false },
+        { ...serializeInvestigation(record), error, is_url: false },
         { status: 422, headers: { "Cache-Control": "private, no-store" } },
       );
     }
@@ -86,8 +87,11 @@ export async function POST(request: Request) {
       },
     });
     return NextResponse.json(
-      { ...record, extracted_text: record.target, is_url: true },
-      { status: 201, headers: { "Cache-Control": "private, no-store" } },
+      { ...serializeInvestigation(record), extracted_text: record.target, is_url: true },
+      {
+        status: record.status === "FAILED" ? 422 : 201,
+        headers: { "Cache-Control": "private, no-store" },
+      },
     );
   } catch (error) {
     return NextResponse.json(

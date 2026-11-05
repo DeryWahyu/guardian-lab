@@ -1,5 +1,5 @@
 /**
- * Guardian Lab — URL Defanger Utility
+ * Guardian Lab: URL Defanger Utility
  * Converts active URLs into safe, non-clickable representations:
  * - Replaces `http://` with `hxxp://` and `https://` with `hxxps://`
  * - Replaces dots in the domain name with `[.]`

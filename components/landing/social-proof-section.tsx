@@ -1,73 +1,86 @@
-"use client";
+import { ArrowUpRight, BookOpen, UsersRound } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { useApiResource } from "@/lib/hooks/use-api-resource";
-import { API_ROUTES, PROTECTED_ROUTES } from "@/lib/routes";
-import { platformOverviewSchema } from "@/lib/validations/platform";
-import { LearningLeaderboard } from "./learning-leaderboard";
+import { LANDING_SECTIONS, PROTECTED_ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
+import academyReader from "@/public/landing/guardian-academy-reader.webp";
+import communityHelper from "@/public/landing/guardian-community-helper.webp";
+import styles from "./community.module.css";
+import shared from "./landing.module.css";
+import { LandingFaq } from "./landing-faq";
+import { SceneReveal } from "./landing-motion";
+import { PlatformStats } from "./platform-stats";
+
+const paths = [
+  {
+    id: "academy",
+    label: "Academy",
+    icon: BookOpen,
+    title: "Kenali polanya, latih instingmu.",
+    description:
+      "Pelajari tanda phishing dan uji pemahamanmu lewat kuis singkat. Mulai dari satu pelajaran.",
+    action: "Mulai belajar",
+    href: PROTECTED_ROUTES.academy,
+    image: academyReader,
+  },
+  {
+    id: "community",
+    label: "Komunitas",
+    icon: UsersRound,
+    title: "Baca buktinya, jaga sesama.",
+    description:
+      "Jelajahi kasus yang diajukan pemilik investigasi dan disetujui admin. Pelajari cara memilih langkah berikutnya.",
+    action: "Jelajahi kasus",
+    href: PROTECTED_ROUTES.community,
+    image: communityHelper,
+  },
+];
+
 export function SocialProofSection() {
-  const resource = useApiResource(API_ROUTES.platformOverview, platformOverviewSchema, {
-    scope: "public-overview",
-  });
-  const data = resource.data;
   return (
-    <section className="py-14 sm:py-20">
-      <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl space-y-3">
-          <h2 className="text-3xl font-semibold text-slate-900">Belajar dan memeriksa bersama</h2>
-          <p className="text-sm leading-relaxed text-slate-600">
-            Statistik URL, APK, dan kasus berasal dari aktivitas platform.
-          </p>
-        </div>
-        {resource.loading ? (
-          <section
-            aria-label="Memuat statistik"
-            className="h-40 animate-pulse rounded-2xl bg-slate-200 motion-reduce:animate-none"
-          />
-        ) : resource.problem || !data ? (
-          <div role="alert" className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5">
-            <p>Statistik belum dapat dimuat.</p>
-            <button
-              type="button"
-              onClick={resource.retry}
-              className="rounded-xl border border-slate-300 px-4 py-2 text-sm"
-            >
-              Coba lagi
-            </button>
-          </div>
-        ) : (
-          <dl className="grid gap-4 sm:grid-cols-3">
-            {[
-              { label: "Tautan URL/QR diajukan", count: data.links },
-              { label: "APK diunggah untuk diperiksa", count: data.apks },
-              { label: "Kasus komunitas disetujui", count: data.cases },
-            ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-slate-200 bg-white p-5">
-                <dt className="text-sm text-slate-500">{item.label}</dt>
-                <dd className="mt-2 text-3xl font-semibold text-slate-900 tabular-nums">
-                  {item.count.toLocaleString("id-ID")}
-                </dd>
+    <section
+      id={LANDING_SECTIONS.community}
+      tabIndex={-1}
+      aria-labelledby="community-title"
+      className={cn(shared.sectionSpacing, styles.section)}
+    >
+      <div className={cn(shared.container, shared.sectionContainer)}>
+        <h2 id="community-title" className={cn(shared.display, shared.sectionTitle)}>
+          Belajar bareng, jaga sesama.
+        </h2>
+        <p className={shared.sectionIntro}>
+          Bangun kebiasaan digital yang lebih waspada. Ada pelajaran dan pengalaman untuk
+          dipelajari.
+        </p>
+        <div className={styles.learning}>
+          {paths.map(({ id, label, icon: Icon, title, description, action, href, image }) => (
+            <article key={id} className={cn(styles.learningCard, styles[id])}>
+              <div className={styles.cardSurface} aria-hidden="true" />
+              <div className={styles.cardCopy}>
+                <span className={styles.cardLabel}>
+                  <Icon aria-hidden="true" />
+                  {label}
+                </span>
+                <h3 className={cn(shared.display, styles.cardTitle)}>{title}</h3>
+                <p>{description}</p>
+                <Link href={href} className={shared.textLink}>
+                  {action} <ArrowUpRight aria-hidden="true" />
+                </Link>
               </div>
-            ))}
-          </dl>
-        )}
-        <div className="grid gap-6 lg:grid-cols-2">
-          <LearningLeaderboard />
-          <div className="flex flex-col justify-between gap-5 rounded-2xl border border-slate-200 bg-white p-6">
-            <div className="space-y-3">
-              <h3 className="text-xl font-semibold">Pelajari kasus yang sudah ditinjau</h3>
-              <p className="max-w-xl text-sm leading-relaxed text-slate-600">
-                Kasus komunitas berasal dari hasil investigasi yang diajukan pemilik dan disetujui
-                admin. Baca bukti, lalu uji pemahamanmu melalui latihan kasus.
-              </p>
-            </div>
-            <Link
-              href={PROTECTED_ROUTES.community}
-              className="text-brand-700 inline-flex min-h-11 items-center font-semibold underline"
-            >
-              Jelajahi kasus komunitas
-            </Link>
-          </div>
+              <SceneReveal className={styles.companion}>
+                <Image
+                  src={image}
+                  alt=""
+                  sizes="(min-width: 900px) 175px, (min-width: 640px) 190px, 125px"
+                  loading="lazy"
+                  draggable={false}
+                />
+              </SceneReveal>
+            </article>
+          ))}
         </div>
+        <PlatformStats />
+        <LandingFaq />
       </div>
     </section>
   );

@@ -1,11 +1,24 @@
+export const LANDING_SECTIONS = {
+  home: "landing-beranda",
+  features: "landing-fitur",
+  journey: "landing-cara-kerja",
+  community: "landing-komunitas",
+  start: "landing-mulai",
+} as const;
+
 export const PUBLIC_ROUTES = {
   home: "/",
+  about: "/tentang",
+  privacy: "/kebijakan-privasi",
+  terms: "/ketentuan-penggunaan",
   sandboxWeb: "/sandbox/web",
   sandboxAndroid: "/sandbox/android",
   act: "/act",
 
   // Parameter Builders
+  // APK values remain for legacy links; current APK navigation uses PROTECTED_ROUTES.apk.
   homeWithTab: (tab: "url" | "qr" | "apk") => `/?tab=${tab}`,
+  homeWithGateway: (tab?: "url" | "qr" | "apk") => `/${tab ? `?tab=${tab}` : ""}#periksa`,
   investigation: (id: string, mode?: "human" | "geek") =>
     `/?investigation=${encodeURIComponent(id)}${mode ? `&mode=${mode}` : ""}`,
   homeWithMode: (mode: "human" | "geek", tab?: "url" | "qr" | "apk") =>
@@ -18,10 +31,21 @@ export const PUBLIC_ROUTES = {
 export const AUTH_ROUTES = {
   login: "/login",
   register: "/register",
+  forgotPassword: "/forgot-password",
+  otp: "/otp",
+  changePhone: "/change-phone",
+  resetPassword: "/reset-password",
   loginWithRedirect: (target: string) => `/login?redirect=${encodeURIComponent(target)}`,
+  registerWithRedirect: (target: string) => `/register?redirect=${encodeURIComponent(target)}`,
+  forgotPasswordWithRedirect: (target: string) =>
+    `/forgot-password?redirect=${encodeURIComponent(target)}`,
 } as const;
 
 export const PROTECTED_ROUTES = {
+  apk: "/apk",
+  apkWithMode: (mode: "human" | "geek") => (mode === "geek" ? "/apk?mode=geek" : "/apk"),
+  apkWithInvestigation: (id: string, mode?: "human" | "geek") =>
+    `/apk?investigation=${encodeURIComponent(id)}${mode === "geek" ? "&mode=geek" : ""}`,
   history: "/history",
   historyDetail: (id: string, mode?: "human" | "geek") =>
     `/history/${encodeURIComponent(id)}${mode === "geek" ? "?mode=geek" : ""}`,
@@ -57,6 +81,12 @@ export const API_ROUTES = {
   authLogin: "/api/auth/login",
   authLogout: "/api/auth/logout",
   authMe: "/api/auth/me",
+  authOtpSend: "/api/auth/otp/send",
+  authOtpVerify: "/api/auth/otp/verify",
+  authOtpStatus: "/api/auth/otp/status",
+  authOtpChangePhone: "/api/auth/otp/change-phone",
+  authForgotPassword: "/api/auth/password/forgot",
+  authResetPassword: "/api/auth/password/reset",
   history: "/api/history",
   historyDetail: (id: string) => `/api/history/${encodeURIComponent(id)}`,
   academyProgress: "/api/academy/progress",

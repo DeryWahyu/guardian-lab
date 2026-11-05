@@ -3,7 +3,22 @@ import { getInvestigationMessage, getInvestigationResult } from "@/lib/investiga
 import { refangUrl } from "@/lib/security/defang";
 import { sanitizeShareText } from "@/lib/share-card/content";
 import { communityCaseSchema, communityReportSchema } from "@/lib/validations/community";
+import type { UrlModelEvidence } from "@/lib/validations/guardian-ml";
 import type { Investigation } from "@/lib/validations/investigation";
+
+function publicModelEvidence(model?: UrlModelEvidence) {
+  if (!model) return {};
+  return {
+    urlModel: {
+      ...model,
+      human: {
+        ...model.human,
+        title: sanitizeShareText(model.human.title),
+        explanation: sanitizeShareText(model.human.explanation),
+      },
+    },
+  };
+}
 
 export function buildCommunityReport(record: Investigation) {
   const result = getInvestigationResult(record);
@@ -27,6 +42,7 @@ export function buildCommunityReport(record: Investigation) {
     summary: sanitizeShareText(result.humanFriendlySummary),
     deceptionTricks: [...new Set(result.deceptionTricks.map(sanitizeShareText).filter(Boolean))],
     technicalEvidence: {
+      ...publicModelEvidence(evidence.urlModel),
       ...(typeof evidence.entropy === "number" ? { entropy: evidence.entropy } : {}),
       ...(evidence.permissions
         ? {
@@ -61,6 +77,7 @@ export function readCommunityReport(value: unknown) {
     deceptionTricks: report.deceptionTricks.map(sanitizeShareText),
     technicalEvidence: {
       ...report.technicalEvidence,
+      ...publicModelEvidence(report.technicalEvidence.urlModel),
       permissions: report.technicalEvidence.permissions?.filter((p) =>
         /^android\.permission\.[A-Z0-9_]+$/.test(p),
       ),

@@ -17,6 +17,7 @@
   --color-brand-900: #042f2e;
   --color-brand-950: #021716;
   --color-brand-navy: #0f172a;
+  --color-brand-cyan: #0891b2;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -149,4 +150,56 @@
   html {
     @apply font-sans;
   }
+}
+
+.guardian-toaster[data-sonner-toaster] {
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+.guardian-toaster[data-sonner-toaster] [data-sonner-toast][data-styled="true"] {
+  padding: 14px 40px 14px 16px;
+  gap: 10px;
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid var(--toast-accent, #94a3b8);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 6%);
+}
+
+.guardian-toaster [data-sonner-toast][data-type="success"] {
+  --toast-accent: #0f766e;
+}
+
+.guardian-toaster [data-sonner-toast][data-type="error"] {
+  --toast-accent: #b91c1c;
+}
+
+.guardian-toaster [data-sonner-toast][data-type="info"] {
+  --toast-accent: #0891b2;
+}
+
+.guardian-toaster [data-sonner-toast][data-type="warning"] {
+  --toast-accent: #d97706;
+}
+
+.guardian-toaster[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  color: #64748b;
+}
+
+.guardian-toaster[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-close-button] {
+  top: 12px;
+  right: 10px;
+  left: auto;
+  transform: none;
+  border: 0;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #64748b;
+}
+
+.guardian-toaster[data-sonner-toaster] [data-sonner-toast][data-styled="true"]:focus-visible,
+.guardian-toaster[data-sonner-toaster] [data-sonner-toast] [data-close-button]:focus-visible {
+  outline: 2px solid #64748b;
+  outline-offset: 2px;
 }

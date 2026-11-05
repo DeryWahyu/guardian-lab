@@ -34,6 +34,8 @@ beforeAll(async () => {
         email: `quarantine-${randomUUID()}@example.test`,
         name: "Quarantine fixture",
         passwordHash: "unused",
+        phone: `+628130000000${i}`,
+        phoneVerifiedAt: new Date(),
       },
     });
     users.push(user.id);

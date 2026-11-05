@@ -33,6 +33,7 @@ describe("Auth Validation Schemas", () => {
       const res = registerSchema.safeParse({
         name: "Guardian Recruit",
         email: "recruit@guardianlab.id",
+        phone: "081234567890",
         password: "RecruitPassword123!",
       });
       expect(res.success).toBe(true);
@@ -42,6 +43,7 @@ describe("Auth Validation Schemas", () => {
       const res = registerSchema.safeParse({
         name: "Guardian Recruit",
         email: "recruit@guardianlab.id",
+        phone: "081234567890",
         password: "RecruitPassword123!",
         confirmPassword: "RecruitPassword123!",
       });
@@ -52,6 +54,7 @@ describe("Auth Validation Schemas", () => {
       const res = registerSchema.safeParse({
         name: "Guardian Recruit",
         email: "recruit@guardianlab.id",
+        phone: "081234567890",
         password: "RecruitPassword123!",
         confirmPassword: "DifferentPassword123!",
       });
@@ -62,6 +65,7 @@ describe("Auth Validation Schemas", () => {
       const res = registerSchema.safeParse({
         name: "Test User",
         email: "test@guardianlab.id",
+        phone: "081234567890",
         password: "short",
       });
       expect(res.success).toBe(false);
@@ -71,6 +75,7 @@ describe("Auth Validation Schemas", () => {
       const res = registerSchema.safeParse({
         name: "Test User",
         email: "test@guardianlab.id",
+        phone: "081234567890",
         password: "OnlyLettersHere",
       });
       expect(res.success).toBe(false);
@@ -82,9 +87,21 @@ describe("Auth Validation Schemas", () => {
       const res = registerFormSchema.safeParse({
         name: "Guardian Recruit",
         email: "recruit@guardianlab.id",
+        phone: "081234567890",
         password: "RecruitPassword123!",
       });
       expect(res.success).toBe(false);
+    });
+
+    it("validates when confirmPassword is provided and matches", () => {
+      const res = registerFormSchema.safeParse({
+        name: "Guardian Recruit",
+        email: "recruit@guardianlab.id",
+        phone: "081234567890",
+        password: "RecruitPassword123!",
+        confirmPassword: "RecruitPassword123!",
+      });
+      expect(res.success).toBe(true);
     });
   });
 

@@ -1,5 +1,6 @@
 import { getInvestigationResult, getRiskPresentation } from "@/lib/investigations/presentation";
 import { defangTarget, sanitizeInvestigationText } from "@/lib/investigations/privacy";
+import { URL_MODEL_NOTICE } from "@/lib/validations/guardian-ml";
 import type { Investigation } from "@/lib/validations/investigation";
 
 function sanitizeIndicator(input: string) {
@@ -47,7 +48,8 @@ function shorten(value: string, limit: number) {
 export function buildShareCard(record: Investigation) {
   const result = getInvestigationResult(record);
   if (!result) return null;
-  const risk = getRiskPresentation(result.riskLevel);
+  const model = result.technicalEvidence.urlModel;
+  const risk = getRiskPresentation(result.riskLevel, model);
   const cleanTarget = sanitizeShareText(record.target);
   // Preserve the complete authority: clipping a hostname can hide its actual suffix.
   const authority = cleanTarget.match(/^[^/]+\/\/[^/?#]+/)?.[0] ?? "";
@@ -83,8 +85,10 @@ export function buildShareCard(record: Investigation) {
     version,
     riskLevel: result.riskLevel,
     riskScore: result.riskScore,
+    scoreLabel: model ? "Skor indikator model" : "Skor risiko tersimpan",
+    notice: model ? URL_MODEL_NOTICE : null,
     risk,
-    title: risk.low ? "Ringkasan pemeriksaan" : "Waspadai temuan ini",
+    title: model ? "Indikator pola URL" : risk.low ? "Ringkasan pemeriksaan" : "Waspadai temuan ini",
     date: `${record.finishedAt ? "Hasil" : "Diperbarui"}: ${date} UTC`,
     truncated,
     filename: `guardian-${record.type.toLowerCase()}-${record.id}.png`,
@@ -92,9 +96,9 @@ export function buildShareCard(record: Investigation) {
   return {
     ...data,
     text: [
-      `Guardian Lab — ${data.title}`,
+      `Guardian Lab: ${data.title}`,
       risk.label,
-      `Skor risiko: ${data.riskScore}/100`,
+      `${model ? data.scoreLabel : "Skor risiko"}: ${data.riskScore}/100`,
       `${data.type === "APK" ? "Berkas" : "Target dinonaktifkan"}: ${target}`,
       `Kategori: ${category}`,
       "",
@@ -102,6 +106,7 @@ export function buildShareCard(record: Investigation) {
       ...findings.map((finding) => `• ${finding}`),
       "",
       ...(truncated ? ["Ringkasan dipersingkat dari hasil tersimpan."] : []),
+      ...(data.notice ? [data.notice, "Model riset nonkomersial, masih dikembangkan."] : []),
       "Hasil pemeriksaan menggambarkan saat analisis, bukan jaminan keamanan.",
       `Sumber: ${source} · Model: ${version}`,
       data.date,

@@ -23,16 +23,24 @@ function question(
 }
 export function buildChallenge(caseId: string, updatedAt: Date, report: CommunityReport) {
   const evidence = report.technicalEvidence;
-  const risk = ["SAFE", "LOW"].includes(report.riskLevel)
-    ? "Risiko rendah menurut hasil tersimpan"
+  const model = evidence.urlModel;
+  const riskChoices = model
+    ? [
+        "Indikator model rendah menurut hasil tersimpan",
+        "Indikator model sedang menurut hasil tersimpan",
+        "Indikator model tinggi menurut hasil tersimpan",
+      ]
+    : [
+        "Risiko rendah menurut hasil tersimpan",
+        "Perlu diwaspadai menurut hasil tersimpan",
+        "Risiko tinggi menurut hasil tersimpan",
+      ];
+  const riskIndex = ["SAFE", "LOW"].includes(report.riskLevel)
+    ? 0
     : ["WARNING", "MEDIUM"].includes(report.riskLevel)
-      ? "Perlu diwaspadai menurut hasil tersimpan"
-      : "Risiko tinggi menurut hasil tersimpan";
-  const riskChoices = [
-    "Risiko rendah menurut hasil tersimpan",
-    "Perlu diwaspadai menurut hasil tersimpan",
-    "Risiko tinggi menurut hasil tersimpan",
-  ];
+      ? 1
+      : 2;
+  const risk = riskChoices[riskIndex];
   const fact = evidence.permissions?.[0]
     ? `Izin ${evidence.permissions[0]} tercatat pada bukti.`
     : evidence.c2Endpoints?.[0]
@@ -42,9 +50,13 @@ export function buildChallenge(caseId: string, updatedAt: Date, report: Communit
     question(
       caseId,
       "risk",
-      "Kategori risiko apa yang dinyatakan hasil investigasi kasus ini?",
+      model
+        ? "Kategori indikator model apa yang tercatat pada snapshot URL ini?"
+        : "Kategori risiko apa yang dinyatakan hasil investigasi kasus ini?",
       [risk, ...riskChoices.filter((c) => c !== risk)],
-      "Gunakan kesimpulan hasil tersimpan, lalu baca alasan dan keterbatasannya. Nilai ini tidak membuktikan kondisi semua perangkat atau tautan lain.",
+      model
+        ? "Jawaban mengikuti indikator model riset yang tersimpan. Indikator tetap perlu verifikasi dan bukan label phishing yang sudah dikonfirmasi."
+        : "Gunakan kesimpulan hasil tersimpan, lalu baca alasan dan keterbatasannya. Nilai ini tidak membuktikan kondisi semua perangkat atau tautan lain.",
     ),
     question(
       caseId,

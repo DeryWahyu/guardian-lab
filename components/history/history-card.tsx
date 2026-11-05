@@ -1,5 +1,6 @@
 import { FileCode2, FileSearch, Globe, QrCode } from "lucide-react";
 import Link from "next/link";
+import workspace from "@/components/workspace/workspace.module.css";
 import {
   getInvestigationLabel,
   getInvestigationMessage,
@@ -12,9 +13,10 @@ export type HistoryRecordItem = Investigation;
 
 export function HistoryCard({ record }: { record: Investigation }) {
   const result = getInvestigationResult(record);
+  const model = result?.technicalEvidence.urlModel;
   const Icon = record.type === "APK" ? FileCode2 : record.type === "QR" ? QrCode : Globe;
   return (
-    <article className="flex flex-col justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-5">
+    <article className={workspace.historyRow}>
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="inline-flex items-center gap-2 text-xs font-bold text-slate-600">
@@ -22,7 +24,9 @@ export function HistoryCard({ record }: { record: Investigation }) {
           </span>
           <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">
             <FileSearch className="size-3.5" />
-            {result ? `Skor: ${result.riskScore}/100` : getInvestigationLabel(record)}
+            {result
+              ? `${model ? "Indikator" : "Skor"}: ${result.riskScore}/100`
+              : getInvestigationLabel(record)}
           </span>
         </div>
         <h3 className="text-sm font-bold text-slate-900">
@@ -34,8 +38,9 @@ export function HistoryCard({ record }: { record: Investigation }) {
         <p className="line-clamp-2 text-xs text-slate-600">
           {result?.humanFriendlySummary ?? getInvestigationMessage(record)}
         </p>
+        {model && <p className="text-xs text-amber-800">Indikator riset, perlu verifikasi.</p>}
       </div>
-      <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-3 text-xs text-slate-500">
+      <div className={workspace.historyRowActions}>
         <time dateTime={record.createdAt}>
           {new Date(record.createdAt).toLocaleDateString("id-ID")}
         </time>

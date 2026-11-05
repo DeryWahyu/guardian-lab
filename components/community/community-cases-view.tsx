@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { ResultSkeleton } from "@/components/landing/results/result-skeleton";
 import { InvestigationProblem } from "@/components/shared/investigation-problem";
+import { WorkspaceEmpty } from "@/components/workspace/workspace-state";
+import workspace from "@/components/workspace/workspace.module.css";
 import { ADMIN_ROUTES, PROTECTED_ROUTES } from "@/lib/routes";
 import { CommunityCard } from "./community-card";
 import { useCommunityList } from "./use-community-list";
@@ -26,14 +28,11 @@ export function CommunityCasesView({ scope, admin = false }: { scope: string; ad
   return (
     <div className="space-y-5">
       {!admin && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-5">
+        <div className={workspace.notice}>
           <p className="max-w-xl text-sm text-slate-600">
             Kasus berasal dari hasil pemeriksaan yang diajukan pengguna dan ditinjau admin.
             Identitas pengaju tidak ditampilkan.
           </p>
-          <Link href={PROTECTED_ROUTES.history} className={control}>
-            Ajukan dari riwayat
-          </Link>
         </div>
       )}
       <div className="flex flex-wrap items-end gap-3">
@@ -115,10 +114,14 @@ export function CommunityCasesView({ scope, admin = false }: { scope: string; ad
             {list.data.items.length ? (
               <div className="grid gap-4 md:grid-cols-2">
                 {list.data.items.map((item) => (
-                  <CommunityCard key={item.id} item={item} />
+                  <CommunityCard
+                    key={item.id}
+                    item={item}
+                    presentation={admin ? "default" : "workspace"}
+                  />
                 ))}
               </div>
-            ) : (
+            ) : admin ? (
               <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-8 text-center">
                 <h2 className="font-bold text-slate-900">
                   {query.page > list.data.pagination.totalPages
@@ -135,6 +138,47 @@ export function CommunityCasesView({ scope, admin = false }: { scope: string; ad
                       : "Kasus akan tampil setelah disetujui admin."}
                 </p>
               </div>
+            ) : (
+              <WorkspaceEmpty
+                pose="community"
+                title={
+                  query.page > list.data.pagination.totalPages
+                    ? "Halaman di luar daftar"
+                    : query.q || query.type
+                      ? "Tidak ada kasus yang cocok"
+                      : query.view === "mine"
+                        ? "Belum ada pengajuanmu."
+                        : "Belum ada kasus pada daftar ini"
+                }
+                description={
+                  query.page > list.data.pagination.totalPages
+                    ? "Buka halaman pertama untuk melihat kasus yang tersedia."
+                    : query.q || query.type
+                      ? "Ubah pencarian atau jenis investigasi untuk menemukan kasus lain."
+                      : query.view === "mine"
+                        ? "Pilih hasil investigasi lengkap dari riwayat, lalu tinjau snapshot sebelum mengajukannya."
+                        : "Kasus akan tampil setelah disetujui admin. Kamu dapat belajar melalui Academy sementara itu."
+                }
+              >
+                <Link
+                  href={
+                    query.page > list.data.pagination.totalPages || query.q || query.type
+                      ? query.view === "mine"
+                        ? PROTECTED_ROUTES.communityMine
+                        : PROTECTED_ROUTES.community
+                      : query.view === "mine"
+                        ? PROTECTED_ROUTES.history
+                        : PROTECTED_ROUTES.academy
+                  }
+                  className={workspace.primary}
+                >
+                  {query.page > list.data.pagination.totalPages || query.q || query.type
+                    ? "Lihat semua kasus"
+                    : query.view === "mine"
+                      ? "Buka riwayat"
+                      : "Belajar di Academy"}
+                </Link>
+              </WorkspaceEmpty>
             )}
             <nav
               aria-label="Halaman kasus"

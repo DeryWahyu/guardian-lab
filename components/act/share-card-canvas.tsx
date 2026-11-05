@@ -34,7 +34,7 @@ export function ShareCardCanvas({
         </div>
         <h2 className="text-[26px] leading-tight font-bold text-slate-900">{card.title}</h2>
         <p className="text-[13px]">
-          Skor risiko tersimpan: <strong>{card.riskScore}/100</strong>
+          {card.scoreLabel}: <strong>{card.riskScore}/100</strong>
         </p>
       </div>
       <div>
@@ -57,6 +57,9 @@ export function ShareCardCanvas({
         )}
       </div>
       <footer className="space-y-2 border-t border-slate-200 pt-4 text-[11px] leading-relaxed [overflow-wrap:anywhere] text-slate-500">
+        {card.notice && (
+          <p>{card.notice} Model riset nonkomersial, masih dikembangkan.</p>
+        )}
         {card.truncated && <p>Ringkasan dipersingkat dari hasil tersimpan.</p>}
         <p>Hasil pemeriksaan menggambarkan saat analisis, bukan jaminan keamanan.</p>
         <p>

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { ResultSkeleton } from "@/components/landing/results/result-skeleton";
 import { InvestigationProblem } from "@/components/shared/investigation-problem";
+import { WorkspaceStage } from "@/components/workspace/workspace-stage";
 import { useApiResource } from "@/lib/hooks/use-api-resource";
 import { ADMIN_ROUTES, API_ROUTES, PROTECTED_ROUTES } from "@/lib/routes";
 import { communityCaseSchema } from "@/lib/validations/community";
@@ -27,7 +28,13 @@ export function CommunityCaseDetail({
   );
   if (resource.loading) return <ResultSkeleton />;
   if (resource.problem)
-    return <InvestigationProblem problem={resource.problem} onRetry={resource.retry} />;
+    return (
+      <InvestigationProblem
+        presentation="workspace"
+        problem={resource.problem}
+        onRetry={resource.retry}
+      />
+    );
   const record = resource.data;
   if (!record)
     return (
@@ -46,11 +53,15 @@ export function CommunityCaseDetail({
       >
         Kembali ke {admin ? "antrean moderasi" : "komunitas"}
       </Link>
-      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 [overflow-wrap:anywhere]">
+      <WorkspaceStage
+        title={record.title}
+        description="Baca snapshot bukti yang telah disaring, lalu uji pemahamanmu berdasarkan temuan yang tersedia."
+        pose="evidence"
+        compact
+      >
         <p className="text-xs font-semibold text-slate-500">
           {COMMUNITY_STATUS_LABELS[record.status]}
         </p>
-        <h1 className="text-2xl font-bold text-slate-900">{record.title}</h1>
         <p className="text-xs text-slate-500">ID kasus: {record.id} · Pengaju anonim</p>
         {record.adminNotes && (
           <p className="rounded-xl bg-slate-50 p-3 text-sm">Catatan admin: {record.adminNotes}</p>
@@ -63,7 +74,7 @@ export function CommunityCaseDetail({
             Buka investigasi sumber
           </Link>
         )}
-      </div>
+      </WorkspaceStage>
       {record.report ? (
         <CommunityReportView report={record.report} />
       ) : (

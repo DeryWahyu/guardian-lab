@@ -6,6 +6,8 @@ import {
   LearningSkeleton,
   learningControl,
 } from "@/components/academy/learning-ui";
+import { WorkspaceStage } from "@/components/workspace/workspace-stage";
+import workspace from "@/components/workspace/workspace.module.css";
 import { useApiResource } from "@/lib/hooks/use-api-resource";
 import { API_ROUTES, PROTECTED_ROUTES } from "@/lib/routes";
 import { rankingPageSchema, rankingSchema } from "@/lib/validations/platform";
@@ -19,19 +21,22 @@ export function LeaderboardView({ scope }: { scope: string }) {
       <Link href={PROTECTED_ROUTES.community} className="text-brand-700 text-sm underline">
         Kembali ke komunitas
       </Link>
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold">Peringkat belajar Guardian</h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-slate-600">
-          Diurutkan menurut total EXP akun, lalu urutan pendaftaran jika nilainya sama. Alias
-          menjaga identitas anggota.
-        </p>
-      </div>
+      <WorkspaceStage
+        title="Setiap langkah belajar berarti."
+        description="Peringkat mengikuti EXP belajar yang benar-benar diperoleh. Alias Guardian menjaga identitas anggota tetap privat."
+        pose="success"
+        tone="yellow"
+      >
+        <Link href={PROTECTED_ROUTES.academy} className={workspace.primary}>
+          Lanjutkan belajar
+        </Link>
+      </WorkspaceStage>
       {resource.loading ? (
-        <LearningSkeleton />
+        <LearningSkeleton presentation="workspace" />
       ) : resource.problem || !resource.data ? (
-        <LearningProblem retry={resource.retry} />
+        <LearningProblem presentation="workspace" retry={resource.retry} />
       ) : (
-        <section className="rounded-2xl border border-slate-200 bg-white p-6">
+        <section className={workspace.panel}>
           {resource.data.items.length ? (
             <RankingList items={resource.data.items} />
           ) : (

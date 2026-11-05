@@ -4,21 +4,32 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ApkStaticPanel } from "@/components/apk/apk-static-panel";
 import { SandboxLaunchLink } from "@/components/sandbox/sandbox-launch-link";
+import workspace from "@/components/workspace/workspace.module.css";
 import { getApkStaticReport } from "@/lib/apk/presentation";
 import { getInvestigationLabel, getInvestigationMessage } from "@/lib/investigations/presentation";
 import { PROTECTED_ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 import type { Investigation } from "@/lib/validations/investigation";
 import { DualModeToggle } from "./dual-mode-toggle";
 import { InvestigationMetadata } from "./investigation-metadata";
 
-export function InvestigationStatusPanel({ record }: { record: Investigation }) {
+export function InvestigationStatusPanel({
+  record,
+  presentation = "default",
+}: {
+  record: Investigation;
+  presentation?: "default" | "workspace";
+}) {
   const mode = useSearchParams().get("mode") === "geek" ? "geek" : "human";
   const pathname = usePathname();
   const apkReport = getApkStaticReport(record);
   return (
     <section
       aria-label="Status investigasi"
-      className="mx-auto max-w-4xl space-y-5 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8"
+      className={cn(
+        "mx-auto max-w-4xl space-y-5 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8",
+        presentation === "workspace" && workspace.workspaceResult,
+      )}
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
@@ -38,6 +49,7 @@ export function InvestigationStatusPanel({ record }: { record: Investigation }) 
       <SandboxLaunchLink target={record.target} type={record.type} investigationId={record.id} />
       {apkReport && (
         <ApkStaticPanel
+          presentation={presentation}
           report={apkReport}
           mode={mode}
           sha256={

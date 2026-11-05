@@ -4,6 +4,7 @@ import { GeekViewPanel } from "@/components/landing/results/geek-view-panel";
 import { KedokCard } from "@/components/landing/results/kedok-card";
 import { ThreatScoreGauge } from "@/components/landing/results/threat-score-gauge";
 import { DualModeToggle } from "@/components/shared/dual-mode-toggle";
+import { UrlModelNotice } from "@/components/shared/url-model-notice";
 import type { CommunityReport } from "@/lib/validations/community";
 import type { ThreatAnalysisResult } from "@/types/analysis";
 
@@ -40,6 +41,7 @@ export function CommunityReportView({ report }: { report: CommunityReport }) {
         }).format(new Date(report.analyzedAt))}{" "}
         UTC
       </p>
+      <UrlModelNotice model={result.technicalEvidence.urlModel} />
       {params.get("mode") === "geek" ? (
         <GeekViewPanel
           result={result}
@@ -53,6 +55,7 @@ export function CommunityReportView({ report }: { report: CommunityReport }) {
             riskLevel={result.riskLevel}
             defangedTarget={result.target}
             scamCategory={result.scamCategory}
+            model={result.technicalEvidence.urlModel}
           />
           <KedokCard
             riskLevel={result.riskLevel}
