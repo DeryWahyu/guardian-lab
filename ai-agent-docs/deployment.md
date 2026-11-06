@@ -193,6 +193,8 @@ Stage `runner` memakai Node native, Java/JADX terverifikasi dan dependency Prism
 
 Broker menerima `SANDBOX_WEB_IMAGE` dan `SANDBOX_EGRESS_IMAGE` untuk image runtime produksi. Default tanpa kedua variabel tetap image development lokal. Ansible menetapkan referensi image yang sama untuk broker dan keeper image agar readiness sesuai dengan image yang digunakan sesi. API broker 4011 dan model 8001 tidak diproxy publik; gateway stream hanya meneruskan 4010. Pembaruan broker mengakhiri sesi aktif saat rekonsiliasi. Batas tiga sesi, resource, deadline dan karantina tetap mengikuti implementasi yang ada.
 
+`SANDBOX_MAX_SESSIONS` dapat membatasi kapasitas menjadi 1–3 sesi bersamaan, dengan default 3. Nilai di luar rentang atau bukan bilangan bulat menghentikan startup broker. Pada VPS bersama, Ansible memakai default satu sesi sesuai ruang memori; batas satu sesi per akun dan deadline 180 detik tetap berlaku.
+
 Checklist produksi berada pada [TEST_PLAN.md](../TEST_PLAN.md#deployment-produksi-dengan-ansible-pemeriksaan-tertunda). Build/runtime belum dianggap lulus hanya karena workflow sudah ditulis.
 
 Host stream harus satu site dengan aplikasi agar cookie HttpOnly SameSite dapat dipakai iframe, misalnya `app.example.com` dan `sandbox.example.com`. `SANDBOX_PUBLIC_URL` adalah origin stream HTTPS; `NEXT_PUBLIC_APP_URL` menjadi origin aplikasi yang diizinkan oleh CSP `frame-ancestors` dan validasi Origin. API 4011 hanya boleh dijangkau aplikasi melalui jaringan kontrol, bukan reverse proxy publik. Jangan publikasikan socket Docker, port VNC, proxy egress, atau ADB.
