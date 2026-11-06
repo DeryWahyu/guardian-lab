@@ -10,6 +10,9 @@ const broker = process.env.BROKER_CONTAINER;
 const managed = "guardian.sandbox.managed";
 const webImage = process.env.SANDBOX_WEB_IMAGE || "guardian-sandbox-web:1";
 const egressImage = process.env.SANDBOX_EGRESS_IMAGE || "guardian-sandbox-egress:1";
+const maxSessions = Number(process.env.SANDBOX_MAX_SESSIONS ?? "3");
+if (!Number.isInteger(maxSessions) || maxSessions < 1 || maxSessions > 3)
+  throw new Error("SANDBOX_MAX_SESSIONS must be an integer from 1 to 3.");
 
 const labels = (id, expiresAt) => ({
   [managed]: "true",
@@ -101,7 +104,7 @@ export async function create(id, targetUrl) {
   if ((cancelled.get(id) ?? 0) > Date.now()) throw new Error("Session already stopped");
   const known = sessions.get(id);
   if (known) return known;
-  if (sessions.size >= 3) throw new Error("Kapasitas sandbox penuh. Coba beberapa saat lagi.");
+  if (sessions.size >= maxSessions) throw new Error("Kapasitas sandbox penuh. Coba beberapa saat lagi.");
   const expiresAt = Date.now() + 180000;
   const session = {
     id,
