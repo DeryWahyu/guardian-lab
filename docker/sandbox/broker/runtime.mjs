@@ -8,6 +8,8 @@ export const sessions = new Map();
 const cancelled = new Map();
 const broker = process.env.BROKER_CONTAINER;
 const managed = "guardian.sandbox.managed";
+const webImage = process.env.SANDBOX_WEB_IMAGE || "guardian-sandbox-web:1";
+const egressImage = process.env.SANDBOX_EGRESS_IMAGE || "guardian-sandbox-egress:1";
 
 const labels = (id, expiresAt) => ({
   [managed]: "true",
@@ -26,8 +28,8 @@ const limits = {
 };
 export async function readiness() {
   await Promise.all([
-    docker.getImage("guardian-sandbox-web:1").inspect(),
-    docker.getImage("guardian-sandbox-egress:1").inspect(),
+    docker.getImage(webImage).inspect(),
+    docker.getImage(egressImage).inspect(),
   ]);
   return {
     web: true,
@@ -126,7 +128,7 @@ export async function create(id, targetUrl) {
     await session.network.connect({ Container: broker });
     check(session);
     const proxy = await docker.createContainer({
-      Image: "guardian-sandbox-egress:1",
+      Image: egressImage,
       Labels: labels(id, expiresAt),
       Env: [deadline],
       NetworkingConfig: {
@@ -150,7 +152,7 @@ export async function create(id, targetUrl) {
     await proxy.start();
     check(session);
     const browser = await docker.createContainer({
-      Image: "guardian-sandbox-web:1",
+      Image: webImage,
       Labels: labels(id, expiresAt),
       Env: [
         deadline,
