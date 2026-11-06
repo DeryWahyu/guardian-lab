@@ -181,7 +181,19 @@ KasmVNC menggunakan WebSocket melalui broker; IP UDP dikonfigurasi loopback agar
 
 ## Deployment publik
 
-Gunakan host sandbox khusus, image terverifikasi yang diperbarui, HTTPS untuk aplikasi dan host stream, serta reverse proxy yang meneruskan WebSocket Upgrade. Container berbagi kernel host; pembatasan ini bukan pengganti VM terpisah untuk lingkungan malware berisiko tinggi.
+Host sandbox khusus tetap direkomendasikan untuk isolasi lebih kuat. Target integrasi Ansible yang dipilih pemilik saat ini memakai VPS bersama aplikasi lain, HTTPS untuk aplikasi dan host stream, serta reverse proxy yang meneruskan WebSocket Upgrade. Container berbagi kernel host; pembatasan ini bukan pengganti VM terpisah untuk lingkungan malware berisiko tinggi.
+
+### Integrasi Ansible dan GitHub Actions
+
+[Runbook Guardian Lab pada repository infrastruktur](https://github.com/Alfian57/server-infrastructure#guardian-lab) menjadi sumber konfigurasi Compose produksi, domain, Vault, bootstrap dan pemulihan. Server memakai image GHCR tanpa build atau checkout source. Target image aktif adalah Linux amd64; development tetap memakai Compose lokal di atas.
+
+Workflow `build-and-deploy.yml` membangun aplikasi, broker, browser dan egress dari commit yang sama; `latest` dipromosikan setelah semua image tersedia. Dengan `ENABLE_VPS_DEPLOY=true`, push `main` memperbarui kelompok web melalui helper Ansible. `workflow_dispatch` secara default hanya mempublikasikan image; pilih `deploy=true` untuk pembaruan server. Credential runtime tetap berada di Vault dan bukan build arguments. `NEXT_PUBLIC_APP_URL` merupakan build argument publik dan harus cocok dengan origin runtime.
+
+Stage `runner` memakai Node native, Java/JADX terverifikasi dan dependency Prisma yang terkunci. Ansible menjalankan `sh docker/app/migrate.sh` sebagai job sementara sebelum mengganti web: hanya migrasi yang tersedia serta seed materi Academy idempoten, tanpa akun demo. Proses web biasa menjalankan `node server.js`; tidak menjalankan migrasi saat setiap restart.
+
+Broker menerima `SANDBOX_WEB_IMAGE` dan `SANDBOX_EGRESS_IMAGE` untuk image runtime produksi. Default tanpa kedua variabel tetap image development lokal. Ansible menetapkan referensi image yang sama untuk broker dan keeper image agar readiness sesuai dengan image yang digunakan sesi. API broker 4011 dan model 8001 tidak diproxy publik; gateway stream hanya meneruskan 4010. Pembaruan broker mengakhiri sesi aktif saat rekonsiliasi. Batas tiga sesi, resource, deadline dan karantina tetap mengikuti implementasi yang ada.
+
+Checklist produksi berada pada [TEST_PLAN.md](../TEST_PLAN.md#deployment-produksi-dengan-ansible-pemeriksaan-tertunda). Build/runtime belum dianggap lulus hanya karena workflow sudah ditulis.
 
 Host stream harus satu site dengan aplikasi agar cookie HttpOnly SameSite dapat dipakai iframe, misalnya `app.example.com` dan `sandbox.example.com`. `SANDBOX_PUBLIC_URL` adalah origin stream HTTPS; `NEXT_PUBLIC_APP_URL` menjadi origin aplikasi yang diizinkan oleh CSP `frame-ancestors` dan validasi Origin. API 4011 hanya boleh dijangkau aplikasi melalui jaringan kontrol, bukan reverse proxy publik. Jangan publikasikan socket Docker, port VNC, proxy egress, atau ADB.
 

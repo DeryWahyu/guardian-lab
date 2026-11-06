@@ -1,5 +1,5 @@
 # Stage 1: Dependencies
-FROM oven/bun:1-alpine AS deps
+FROM oven/bun:1.3.1-alpine AS deps
 WORKDIR /app
 ENV HUSKY=0
 
@@ -24,19 +24,18 @@ EXPOSE 3000
 CMD ["sh", "docker/app/dev-entrypoint.sh"]
 
 # Stage 2: Builder
-FROM oven/bun:1-alpine AS builder
-WORKDIR /app
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-ENV NEXT_TELEMETRY_DISABLED=1
+# Reuse the native Node runtime and verified JADX installation from development.
+FROM development AS builder
+ARG NEXT_PUBLIC_APP_URL=http://localhost:3000
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+# Prisma generation/build must never require the production database or secrets.
+ENV DATABASE_URL=mysql://guardian:build_only@127.0.0.1:3306/guardian_lab
 ENV NODE_ENV=production
 
-RUN bun run apk:setup && bunx prisma generate && bun run build
+RUN node node_modules/prisma/build/index.js generate && node node_modules/next/dist/bin/next build
 
 # Stage 3: Runner
-FROM oven/bun:1-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -45,16 +44,23 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Non-root user for security
-RUN apk add --no-cache openjdk17-jre-headless && \
-    addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+RUN apk add --no-cache openjdk17-jre-headless openssl
+COPY --from=deps /usr/local/bin/bun /usr/local/bin/bun
 
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Keep the locked Prisma CLI and generated engines for the one-off migration job.
+# No package installation or tool download takes place on the production server.
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+COPY --from=builder --chown=node:node /app/.tools/jadx ./.tools/jadx
+COPY --from=builder --chown=node:node /app/prisma ./prisma
+COPY --from=builder --chown=node:node /app/lib/prisma.ts ./lib/prisma.ts
+COPY --from=builder --chown=node:node /app/docker/app/migrate.sh ./docker/app/migrate.sh
+RUN mkdir -p .next/cache && chown -R node:node .next
 
-USER nextjs
+USER node
 
 EXPOSE 3000
 
-CMD ["bun", "server.js"]
+CMD ["node", "server.js"]
