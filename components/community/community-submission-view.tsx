@@ -107,6 +107,7 @@ function SubmissionForm({ scope, id }: { scope: string; id: string | null }) {
       )}
       {!data.existing && data.report && (
         <form
+          data-user-reveal
           className={`${workspace.panel} space-y-4`}
           onSubmit={(event) => {
             event.preventDefault();

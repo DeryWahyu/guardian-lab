@@ -1,8 +1,8 @@
-import { Heart } from "lucide-react";
 import Link from "next/link";
 import { LandingLink } from "@/components/landing/landing-link";
 import { LandingSectionLink } from "@/components/landing/landing-section-link";
 import { ADMIN_ROUTES, LANDING_SECTIONS, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 import { BrandIdentity } from "./brand-identity";
 import landingStyles from "./landing-chrome.module.css";
 
@@ -10,11 +10,12 @@ export function Footer({ variant = "default" }: { variant?: "default" | "landing
   const landing = variant === "landing";
   return (
     <footer
-      className={
+      className={cn(
+        landingStyles.footerSurface,
         landing
           ? landingStyles.footer
-          : "w-full border-t border-slate-200/80 bg-white text-slate-600 transition-colors"
-      }
+          : "w-full border-t border-slate-200/80 text-slate-600 transition-colors",
+      )}
     >
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5 lg:gap-12">
@@ -138,9 +139,7 @@ export function Footer({ variant = "default" }: { variant?: "default" | "landing
 
           {/* Column 4: Informasi publik */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold tracking-wider text-slate-900 uppercase">
-              Informasi
-            </h4>
+            <h4 className="text-xs font-bold tracking-wider text-slate-900 uppercase">Informasi</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
@@ -168,18 +167,6 @@ export function Footer({ variant = "default" }: { variant?: "default" | "landing
               </li>
             </ul>
           </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-200/60 pt-8 text-xs text-slate-500 sm:flex-row">
-          <p>
-            &copy; 2026 Guardian Lab. Dilindungi oleh semangat komunitas keamanan digital Indonesia.
-          </p>
-          <p className="flex items-center gap-1">
-            <span>Dibuat dengan</span>
-            <Heart className="fill-brand-500 text-brand-600 size-3.5" />
-            <span>untuk ekosistem siber yang lebih aman.</span>
-          </p>
         </div>
       </div>
     </footer>

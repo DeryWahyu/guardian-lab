@@ -1,9 +1,12 @@
 import { Suspense } from "react";
 import { ApkInvestigation } from "@/components/apk/apk-investigation";
+import { ApkPageSkeleton } from "@/components/apk/apk-page-skeleton";
+import styles from "@/components/apk/apk-workspace.module.css";
+import { landingTypography } from "@/components/landing/landing-font";
 import { WorkspaceShell } from "@/components/workspace/workspace-shell";
-import { WorkspaceSkeleton } from "@/components/workspace/workspace-state";
 import { requirePageUser } from "@/lib/auth/page-access";
 import { PROTECTED_ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 
 type Props = {
   searchParams: Promise<{ investigation?: string | string[]; mode?: string | string[] }>;
@@ -22,19 +25,28 @@ async function ApkContent({ searchParams }: Props) {
     : PROTECTED_ROUTES.apkWithMode(query.mode === "geek" ? "geek" : "human");
   const user = await requirePageUser(undefined, returnTo);
   return (
-    <WorkspaceShell user={user}>
+    <WorkspaceShell
+      user={user}
+      className={cn(landingTypography, styles.page)}
+      dialogClassName={landingTypography}
+    >
       <ApkInvestigation user={user} />
     </WorkspaceShell>
   );
 }
 
-function ApkPageSkeleton() {
-  return <WorkspaceSkeleton label="Memeriksa sesi APK" />;
-}
-
 export default function ApkPage(props: Props) {
   return (
-    <Suspense fallback={<ApkPageSkeleton />}>
+    <Suspense
+      fallback={
+        <WorkspaceShell
+          className={cn(landingTypography, styles.page)}
+          dialogClassName={landingTypography}
+        >
+          <ApkPageSkeleton />
+        </WorkspaceShell>
+      }
+    >
       <ApkContent {...props} />
     </Suspense>
   );

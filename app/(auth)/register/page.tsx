@@ -15,7 +15,7 @@ type Props = { searchParams: Promise<{ redirect?: string | string[] }> };
 
 export default function RegisterPage({ searchParams }: Props) {
   return (
-    <Suspense fallback={<AuthCardSkeleton title="Menyiapkan pendaftaran…" fields={5} />}>
+    <Suspense fallback={<AuthCardSkeleton title="Menyiapkan pendaftaran…" fields={5} enlarged />}>
       <RegisterContent searchParams={searchParams} />
     </Suspense>
   );

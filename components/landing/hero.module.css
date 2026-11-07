@@ -1,11 +1,17 @@
 .hero {
+  --hero-top-offset: 74px;
   position: relative;
   isolation: isolate;
-  min-height: calc(100vh - 70px);
-  min-height: calc(100dvh - 70px);
-  background:
-    radial-gradient(ellipse at 50% 42%, #ffffffd9, transparent 70%),
-    linear-gradient(115deg, #f2edff, #fafcff 48%, #f4efff);
+  min-height: calc(100vh - var(--hero-top-offset));
+  min-height: calc(100dvh - var(--hero-top-offset));
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: calc(-1 * var(--hero-top-offset)) 0 0;
+  background: var(--guardian-page-background);
+  pointer-events: none;
 }
 .backdrop {
   position: absolute;
@@ -222,8 +228,7 @@
 }
 @media (max-width: 767px) {
   .hero {
-    min-height: calc(100vh - 68px);
-    min-height: calc(100dvh - 68px);
+    --hero-top-offset: 72px;
   }
   .stage {
     padding-block: 24px;

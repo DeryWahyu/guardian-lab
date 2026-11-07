@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { type ComponentPropsWithoutRef, type ReactNode, useState } from "react";
 import styles from "../auth.module.css";
 
@@ -8,10 +8,18 @@ type AuthFieldProps = Omit<ComponentPropsWithoutRef<"input">, "id" | "className"
   id: string;
   label: string;
   error?: string;
+  startAdornment?: ReactNode;
   endAdornment?: ReactNode;
 };
 
-export function AuthField({ id, label, error, endAdornment, ...inputProps }: AuthFieldProps) {
+export function AuthField({
+  id,
+  label,
+  error,
+  startAdornment,
+  endAdornment,
+  ...inputProps
+}: AuthFieldProps) {
   const description =
     [error ? `${id}-error` : undefined, inputProps["aria-describedby"]].filter(Boolean).join(" ") ||
     undefined;
@@ -34,6 +42,11 @@ export function AuthField({ id, label, error, endAdornment, ...inputProps }: Aut
         data-invalid={Boolean(error)}
         data-disabled={Boolean(inputProps.disabled)}
       >
+        {startAdornment && (
+          <span className={styles.inputIcon} aria-hidden="true">
+            {startAdornment}
+          </span>
+        )}
         <input
           {...inputProps}
           id={id}
@@ -60,6 +73,7 @@ export function AuthPasswordField(props: PasswordFieldProps) {
     <AuthField
       {...props}
       type={visible ? "text" : "password"}
+      startAdornment={props.startAdornment ?? <LockKeyhole />}
       endAdornment={
         <button
           type="button"

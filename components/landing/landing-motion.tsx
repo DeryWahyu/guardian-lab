@@ -1,35 +1,16 @@
 "use client";
 
-import { domAnimation, LazyMotion, MotionConfig, m } from "motion/react";
-import { createContext, type ReactNode, useContext, useSyncExternalStore } from "react";
+import { domAnimation, LazyMotion, MotionConfig } from "motion/react";
+import { createContext, type ReactNode, useContext } from "react";
+import { useReducedMotionPreference } from "@/lib/hooks/use-reduced-motion-preference";
 
 const ReducedMotionContext = createContext(true);
-const reducedMotionQuery = "(prefers-reduced-motion: reduce)";
-
-function subscribeToPreference(onChange: () => void) {
-  const preference = window.matchMedia(reducedMotionQuery);
-  preference.addEventListener("change", onChange);
-  return () => preference.removeEventListener("change", onChange);
-}
-
-function getPreference() {
-  return window.matchMedia(reducedMotionQuery).matches;
-}
-
-function getServerPreference() {
-  return true;
-}
-
 export function useLandingReducedMotion() {
   return useContext(ReducedMotionContext);
 }
 
 export function LandingMotion({ children }: { children: ReactNode }) {
-  const reducedMotion = useSyncExternalStore(
-    subscribeToPreference,
-    getPreference,
-    getServerPreference,
-  );
+  const reducedMotion = useReducedMotionPreference();
   return (
     <ReducedMotionContext value={reducedMotion}>
       <LazyMotion features={domAnimation} strict>
@@ -42,17 +23,9 @@ export function LandingMotion({ children }: { children: ReactNode }) {
 }
 
 export function SceneReveal({ children, className }: { children: ReactNode; className?: string }) {
-  const reducedMotion = useLandingReducedMotion();
   return (
-    <m.div
-      className={className}
-      data-landing-reveal
-      initial={false}
-      whileInView={reducedMotion ? { opacity: 1 } : { y: [12, 0], opacity: [0.75, 1] }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.35 }}
-    >
+    <div className={className} data-landing-reveal>
       {children}
-    </m.div>
+    </div>
   );
 }

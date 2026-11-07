@@ -1,15 +1,19 @@
 import { PrismaClient } from "@prisma/client";
 import { seedAcademy } from "./seeders/academy";
 import { demoAccounts, seedDemoAccounts } from "./seeders/demo-accounts";
+import { assertLocalDemoSeed, seedDemoActivity } from "./seeders/demo-activity";
 
-if (process.env.NODE_ENV === "production")
-  throw new Error("Seeder akun demo hanya untuk pengembangan lokal.");
+assertLocalDemoSeed();
 const prisma = new PrismaClient();
 try {
   await seedDemoAccounts(prisma);
   await seedAcademy(prisma);
+  const activity = await seedDemoActivity(prisma);
   for (const account of demoAccounts) console.log(`${account.role}: ${account.email}`);
-  console.log("Akun lokal siap. Riwayat, EXP, dan konten yang sudah ada tetap tersimpan.");
+  console.table(activity);
+  console.log(
+    "Akun dan aktivitas demo lokal siap. Data lama dipertahankan; seed ulang tidak menggandakan EXP.",
+  );
 } finally {
   await prisma.$disconnect();
 }

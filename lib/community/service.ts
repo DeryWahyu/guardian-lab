@@ -1,9 +1,10 @@
 import { Prisma } from "@prisma/client";
 import type { z } from "zod";
+import { appendAudit } from "@/lib/admin/audit";
+import { cleanAdminReason, lockAdmin } from "@/lib/admin/security";
 import { InputError } from "@/lib/investigations/request-input";
 import { serializeInvestigation } from "@/lib/investigations/serialize";
 import { prisma } from "@/lib/prisma";
-import { sanitizeShareText } from "@/lib/share-card/content";
 import type { communityReviewSchema } from "@/lib/validations/community";
 import {
   buildCommunityReport,
@@ -68,6 +69,8 @@ export async function reviewCommunityCase(
   input: z.infer<typeof communityReviewSchema>,
 ) {
   return prisma.$transaction(async (tx) => {
+    await lockAdmin(tx, reviewerId);
+    const reason = cleanAdminReason(input.adminNotes);
     const record = await tx.communityReplay.findUnique({ where: { id } });
     if (!record) throw new InputError("Pengajuan tidak ditemukan.", 404);
     if (record.status !== "PENDING_REVIEW")
@@ -86,13 +89,21 @@ export async function reviewCommunityCase(
       where: { id, status: "PENDING_REVIEW", reviewedAt: null },
       data: {
         status: input.status,
-        adminNotes: sanitizeShareText(input.adminNotes),
+        adminNotes: reason,
         reviewerId,
         reviewedAt: new Date(),
       },
     });
     if (updated.count !== 1)
       throw new InputError("Status berubah saat ditinjau. Muat ulang antrean.", 409);
+    await appendAudit(tx, {
+      actorId: reviewerId,
+      action: input.status === "APPROVED" ? "CASE_APPROVED" : "CASE_REJECTED",
+      entityType: "COMMUNITY_CASE",
+      entityId: id,
+      reason,
+      details: { privacyConfirmed: input.status === "APPROVED" },
+    });
     return serializeCommunityCase(
       await tx.communityReplay.findUniqueOrThrow({ where: { id } }),
       true,

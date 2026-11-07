@@ -16,7 +16,11 @@ export function CommunityChallengeView({ id, scope }: { id: string; scope: strin
   if (!data || attempt.resource.problem)
     return <LearningProblem presentation="workspace" retry={attempt.resource.retry} />;
   return (
-    <section aria-labelledby="challenge-title" className={`${workspace.panel} space-y-5`}>
+    <section
+      aria-labelledby="challenge-title"
+      className={`${workspace.panel} space-y-5`}
+      data-user-reveal
+    >
       <div className="space-y-2">
         <h2 id="challenge-title" className="text-xl font-semibold">
           Uji pemahaman kasus

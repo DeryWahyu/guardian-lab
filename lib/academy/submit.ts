@@ -28,6 +28,7 @@ export async function submitQuiz(userId: string, input: Submission) {
     async (tx) => {
       // Lock this account before inspecting rewards or accepting an idempotent retry.
       const user = await tx.user.update({ where: { id: userId }, data: { exp: { increment: 0 } } });
+      if (user.suspendedAt) throw new InputError("Akun sedang ditangguhkan.", 403);
       const existing = await tx.quizAttempt.findUnique({
         where: { userId_submissionId: { userId, submissionId: input.submissionId } },
       });

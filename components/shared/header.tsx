@@ -1,11 +1,12 @@
 "use client";
 
-import { Loader2, LogOut, Menu, X } from "lucide-react";
+import { Loader2, LogOut, Menu, UserRound, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
 import type { UserSession } from "@/lib/auth/session";
 import { useSessionUser } from "@/lib/hooks/use-session-user";
-import { ADMIN_ROUTES, AUTH_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { ADMIN_ROUTES, AUTH_ROUTES, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import { BrandIdentity } from "./brand-identity";
 import { HeaderNavigation, type HeaderVariant } from "./header-navigation";
 import { LogoutDialog } from "./logout-dialog";
@@ -20,11 +21,16 @@ export interface HeaderProps {
 export function Header({ initialUser, variant = "default", dialogClassName }: HeaderProps) {
   return (
     <Suspense>
-      <HeaderContent initialUser={initialUser} variant={variant} dialogClassName={dialogClassName} />
+      <HeaderContent
+        initialUser={initialUser}
+        variant={variant}
+        dialogClassName={dialogClassName}
+      />
     </Suspense>
   );
 }
 function HeaderContent({ initialUser, variant, dialogClassName }: HeaderProps) {
+  const pathname = usePathname();
   const {
     user,
     isLoggingOut,
@@ -39,7 +45,7 @@ function HeaderContent({ initialUser, variant, dialogClassName }: HeaderProps) {
   const landing = variant === "landing";
 
   return (
-    <header className={landingStyles.header}>
+    <header className={landingStyles.header} data-landing-header={landing ? "" : undefined}>
       <div className={landingStyles.headerInner}>
         {/* Brand Logo */}
         <Link
@@ -47,7 +53,7 @@ function HeaderContent({ initialUser, variant, dialogClassName }: HeaderProps) {
           data-landing-home={landing ? "" : undefined}
           className="group focus-visible:ring-brand-600 inline-flex cursor-pointer items-center gap-2.5 rounded-xl p-1 focus-visible:ring-2 focus-visible:outline-none"
         >
-          <BrandIdentity subtitle={null} markClassName="size-8" wordmarkClassName="text-base" />
+          <BrandIdentity subtitle={null} markClassName="size-9" wordmarkClassName="text-[17px]" />
         </Link>
 
         <HeaderNavigation signedIn={Boolean(user)} variant={variant} />
@@ -67,14 +73,19 @@ function HeaderContent({ initialUser, variant, dialogClassName }: HeaderProps) {
               )}
 
               {/* User Avatar Pill */}
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white py-1 pr-3 pl-2 shadow-xs">
+              <Link
+                href={PROTECTED_ROUTES.profile}
+                className={landingStyles.accountLink}
+                aria-label={`Buka profil ${user.name}`}
+                aria-current={pathname === PROTECTED_ROUTES.profile ? "page" : undefined}
+              >
                 <div className="bg-brand-100 text-brand-700 flex size-6 items-center justify-center rounded-full text-xs font-bold">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <span className="max-w-[100px] truncate text-xs font-semibold text-slate-800">
                   {user.name}
                 </span>
-              </div>
+              </Link>
 
               {/* Logout Button */}
               <button
@@ -150,6 +161,14 @@ function HeaderContent({ initialUser, variant, dialogClassName }: HeaderProps) {
                     </span>
                   </div>
                 </div>
+                <Link
+                  href={PROTECTED_ROUTES.profile}
+                  className={landingStyles.mobileProfile}
+                  aria-current={pathname === PROTECTED_ROUTES.profile ? "page" : undefined}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <UserRound size={18} aria-hidden="true" /> Profil saya
+                </Link>
                 {user.role === "ADMIN" && (
                   <Link
                     href={ADMIN_ROUTES.dashboard}

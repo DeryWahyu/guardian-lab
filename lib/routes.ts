@@ -42,6 +42,7 @@ export const AUTH_ROUTES = {
 } as const;
 
 export const PROTECTED_ROUTES = {
+  profile: "/profile",
   apk: "/apk",
   apkWithMode: (mode: "human" | "geek") => (mode === "geek" ? "/apk?mode=geek" : "/apk"),
   apkWithInvestigation: (id: string, mode?: "human" | "geek") =>
@@ -64,9 +65,17 @@ export const ADMIN_ROUTES = {
   quizzes: "/admin/quizzes",
   communityReviews: "/admin/community-reviews",
   users: "/admin/users",
+  user: (id: string) => `/admin/users/${encodeURIComponent(id)}`,
+  investigations: "/admin/investigations",
+  investigation: (id: string) => `/admin/investigations/${encodeURIComponent(id)}`,
+  communityReview: (id: string) => `/admin/community-reviews/${encodeURIComponent(id)}`,
+  monitor: "/admin/monitor",
+  audit: "/admin/audit",
+  reports: "/admin/reports",
 } as const;
 
 export const API_ROUTES = {
+  profile: "/api/profile",
   platformOverview: "/api/platform/overview",
   leaderboard: (page: number) => `/api/community/leaderboard?page=${page}`,
   analyzeUrl: "/api/analyze-url",
@@ -92,6 +101,8 @@ export const API_ROUTES = {
   academyProgress: "/api/academy/progress",
   quizzes: "/api/academy/quizzes",
   quizDetail: (id: string) => `/api/academy/quizzes/${encodeURIComponent(id)}`,
+  quizThumbnail: (id: string, version: string) =>
+    `/api/academy/quizzes/${encodeURIComponent(id)}/thumbnail?v=${encodeURIComponent(version)}`,
   submitQuiz: "/api/academy/submit-quiz",
   communitySubmit: "/api/community/submit",
   communityReplays: "/api/community/replays",
@@ -101,6 +112,16 @@ export const API_ROUTES = {
   replayAttempt: (id: string) => `/api/community/replays/${encodeURIComponent(id)}/attempt`,
   replayChallenge: (id: string) => `/api/community/replays/${encodeURIComponent(id)}/challenge`,
   adminQuizzes: "/api/admin/quizzes",
+  adminUsers: "/api/admin/users",
+  adminUser: (id: string) => `/api/admin/users/${encodeURIComponent(id)}`,
+  adminInvestigations: "/api/admin/investigations",
+  adminInvestigation: (id: string) => `/api/admin/investigations/${encodeURIComponent(id)}`,
+  adminMonitor: "/api/admin/monitor",
+  adminAudit: "/api/admin/audit",
+  adminReports: "/api/admin/reports",
+  adminReportsExport: "/api/admin/reports/export",
+  adminCaseWithdraw: (id: string) =>
+    `/api/admin/community-reviews/${encodeURIComponent(id)}/withdraw`,
   adminQuizzesPage: (page: number) => `/api/admin/quizzes?page=${page}`,
   adminQuiz: (id: string) => `/api/admin/quizzes/${encodeURIComponent(id)}`,
   adminCommunityReviews: "/api/admin/community-reviews",

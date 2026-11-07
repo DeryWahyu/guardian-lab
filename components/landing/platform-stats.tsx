@@ -11,7 +11,7 @@ export function PlatformStats() {
   });
   const data = resource.data;
   return (
-    <div className={styles.metrics}>
+    <div className={styles.metrics} data-landing-reveal>
       {resource.loading ? (
         <output aria-label="Memuat statistik" aria-busy="true" className={styles.stats}>
           {[0, 1, 2].map((item) => (

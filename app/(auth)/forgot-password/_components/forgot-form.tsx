@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, Phone } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { API_ROUTES, AUTH_ROUTES } from "@/lib/routes";
@@ -46,6 +46,7 @@ export function ForgotForm({ redirectTarget }: { redirectTarget: string }) {
           id="phone"
           name="phone"
           label="No. WhatsApp"
+          startAdornment={<Phone />}
           type="tel"
           inputMode="tel"
           autoComplete="tel"

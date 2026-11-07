@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useRef, ViewTransition } from "react";
 import { Footer } from "@/components/shared/footer";
 import { Header } from "@/components/shared/header";
 import type { UserSession } from "@/lib/auth/session";
@@ -11,30 +11,37 @@ import { LandingInvestigation } from "./landing-investigation";
 import { LandingMotion } from "./landing-motion";
 import { LandingScrollControls } from "./landing-scroll-controls";
 import { PillarsSection } from "./pillars-section";
+import { ResultPreviewSection } from "./result-preview-section";
 import { SocialProofSection } from "./social-proof-section";
+import { useLandingReveal } from "./use-landing-reveal";
 export interface LandingPageViewProps {
   initialUser?: UserSession | null;
 }
 export function LandingPageView({ initialUser }: LandingPageViewProps) {
-  const pageRef = useRef<HTMLDivElement>(null);
   return (
     <LandingMotion>
-      <div ref={pageRef} className={styles.page}>
-        <Header
-          initialUser={initialUser}
-          variant="landing"
-          dialogClassName={landingTypography}
-        />
-        <main>
+      <LandingPageContent initialUser={initialUser} />
+    </LandingMotion>
+  );
+}
+function LandingPageContent({ initialUser }: LandingPageViewProps) {
+  const pageRef = useRef<HTMLDivElement>(null);
+  useLandingReveal(pageRef);
+  return (
+    <div ref={pageRef} className={styles.page}>
+      <Header initialUser={initialUser} variant="landing" dialogClassName={landingTypography} />
+      <ViewTransition default="none" enter="guardian-user-page" exit="guardian-user-page">
+        <main data-user-transition>
           <LandingInvestigation initialUser={initialUser} />
           <PillarsSection />
+          <ResultPreviewSection />
           <JourneySection />
           <SocialProofSection />
           <CtaBanner />
         </main>
-        <Footer variant="landing" />
-        <LandingScrollControls pageRef={pageRef} />
-      </div>
-    </LandingMotion>
+      </ViewTransition>
+      <Footer variant="landing" />
+      <LandingScrollControls pageRef={pageRef} />
+    </div>
   );
 }

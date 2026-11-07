@@ -1,10 +1,11 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
 import { AUTH_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 import { getSafeRedirectUrl, loginSchema } from "@/lib/validations/auth";
 import { AuthField, AuthPasswordField } from "../../_components/auth-field";
 import { collectFormErrors, focusFormField } from "../../_components/auth-form-utils";
@@ -53,12 +54,13 @@ export function LoginForm() {
         onSubmit={submit}
         aria-label="Masuk ke Guardian Lab"
         aria-busy={request.isPending}
-        className={styles.form}
+        className={cn(styles.form, styles.credentials)}
       >
         <AuthField
           id="email"
           name="email"
           label="Email"
+          startAdornment={<Mail />}
           type="email"
           inputMode="email"
           autoComplete="username"

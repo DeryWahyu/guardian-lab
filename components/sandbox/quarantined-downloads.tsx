@@ -1,11 +1,12 @@
 "use client";
+import { ArrowUpRight, FileArchive, FileSearch, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import type { z } from "zod";
-import { WorkspaceEmpty } from "@/components/workspace/workspace-state";
-import workspace from "@/components/workspace/workspace.module.css";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import type { sandboxSessionSchema } from "@/lib/validations/sandbox";
 import { useQuarantinedDownloads } from "./use-quarantined-downloads";
+import styles from "./sandbox-session.module.css";
+import shared from "./web-sandbox.module.css";
 export function QuarantinedDownloads({
   session,
 }: {
@@ -13,40 +14,53 @@ export function QuarantinedDownloads({
 }) {
   const { pending, error, records, analyze } = useQuarantinedDownloads(session);
   return (
-    <section aria-labelledby="quarantine-title" className={`${workspace.panel} space-y-4`}>
-      <h2 id="quarantine-title" className="text-lg font-semibold">
-        Karantina unduhan APK
-      </h2>
-      <p className="max-w-2xl text-sm leading-relaxed text-slate-600">
+    <section aria-labelledby="quarantine-title" className={styles.quarantine}>
+      <div className={shared.sectionHeading}>
+        <span className={shared.headingIcon}>
+          <ShieldCheck aria-hidden="true" size={21} />
+        </span>
+        <div>
+          <h2 id="quarantine-title">Karantina unduhan APK</h2>
+          <p>Berkas tetap di server, tanpa dijalankan.</p>
+        </div>
+        <span className={styles.fileCount}>{session.downloads.length} / 4 APK</span>
+      </div>
+      <p className={styles.quarantineDescription}>
         APK yang selesai diunduh di browser server dipindahkan ke karantina. Berkas tidak dikirim ke
         perangkatmu dan tidak dijalankan. Maksimal 4 APK, masing-masing 50 MB; berkas dihapus saat
         sesi berakhir.
       </p>
       {!session.downloads.length && !Object.keys(records).length && (
-        <WorkspaceEmpty
-          pose="apk"
-          title="Belum ada unduhan APK."
-          description="APK yang selesai diunduh dalam sesi akan muncul di sini. Berkas tetap berada di server, lalu dapat dibedah secara statis."
-        />
-      )}
-      <ul className="space-y-3">
-        {session.downloads.map((file, i) => (
-          <li
-            key={file.id}
-            data-testid="quarantined-download"
-            className="space-y-2 rounded-xl border border-slate-200 p-4"
-          >
-            <p className="text-sm font-semibold">
-              Unduhan APK {i + 1} · {(file.size / 1024 / 1024).toFixed(2)} MB
+        <div className={styles.downloadEmpty}>
+          <FileArchive aria-hidden="true" size={26} />
+          <div>
+            <h3>Belum ada unduhan APK.</h3>
+            <p>
+              Unduhan yang selesai dalam sesi akan muncul di sini dan dapat dibedah secara statis.
             </p>
-            <p className="text-xs break-all text-slate-500">SHA-256: {file.sha256}</p>
+          </div>
+        </div>
+      )}
+      <ul className={styles.downloadList}>
+        {session.downloads.map((file, i) => (
+          <li key={file.id} data-testid="quarantined-download" className={styles.download}>
+            <span className={styles.fileIcon}>
+              <FileArchive aria-hidden="true" size={21} />
+            </span>
+            <div className={styles.fileDetails}>
+              <h3>
+                Unduhan APK {i + 1} <span>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+              </h3>
+              <p>SHA-256: {file.sha256}</p>
+            </div>
             {!records[file.id] && (
               <button
                 type="button"
                 onClick={() => void analyze(file.id)}
                 disabled={Boolean(pending) || session.status !== "ACTIVE"}
-                className={workspace.primary}
+                className={shared.secondaryButton}
               >
+                <FileSearch aria-hidden="true" size={17} />
                 {pending === file.id ? "Membedah APK..." : "Bedah APK statis"}
               </button>
             )}
@@ -57,13 +71,14 @@ export function QuarantinedDownloads({
         <Link
           key={downloadId}
           href={PROTECTED_ROUTES.historyDetail(recordId)}
-          className="text-brand-700 block min-h-11 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold"
+          className={styles.analysisLink}
         >
           Lihat hasil bedah APK ({downloadId.slice(0, 8)})
+          <ArrowUpRight aria-hidden="true" size={18} />
         </Link>
       ))}
       {error && (
-        <p role="alert" className="text-sm text-rose-700">
+        <p role="alert" className={shared.errorNotice}>
           {error}
         </p>
       )}

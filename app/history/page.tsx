@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { HistoryDashboardView } from "@/components/history/history-dashboard-view";
+import { HistoryPageSkeleton } from "@/components/history/history-states";
+import styles from "@/components/history/history-workspace.module.css";
+import { landingTypography } from "@/components/landing/landing-font";
 import { WorkspaceShell } from "@/components/workspace/workspace-shell";
 import { requirePageUser } from "@/lib/auth/page-access";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Riwayat Investigasi | Guardian Lab",
@@ -16,14 +20,11 @@ async function HistoryContent() {
 
 export default function HistoryPage() {
   return (
-    <WorkspaceShell>
-      <Suspense
-        fallback={
-          <div className="flex h-80 w-full animate-pulse items-center justify-center rounded-3xl border border-slate-200 bg-white text-sm text-slate-400">
-            Memuat riwayat forensik...
-          </div>
-        }
-      >
+    <WorkspaceShell
+      className={cn(landingTypography, styles.page)}
+      dialogClassName={landingTypography}
+    >
+      <Suspense fallback={<HistoryPageSkeleton />}>
         <HistoryContent />
       </Suspense>
     </WorkspaceShell>

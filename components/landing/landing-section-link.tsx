@@ -39,8 +39,8 @@ export function LandingSectionLink({
         "",
         `${window.location.pathname}${window.location.search}${target}`,
       );
-      window.dispatchEvent(new Event(LANDING_LOCATION_CHANGE_EVENT));
     }
+    window.dispatchEvent(new Event(LANDING_LOCATION_CHANGE_EVENT));
     requestAnimationFrame(() => {
       if (!section.isConnected) return;
       section.scrollIntoView({

@@ -5,6 +5,7 @@ import { InvestigationRequestFeedback } from "@/components/shared/investigation-
 import { cn } from "@/lib/utils";
 import type { AnalysisGatewayProps } from "./analysis-gateway-types";
 import { AuthGateModal } from "./auth-gate-modal";
+import { GatewayAccountNotice } from "./gateway-account-notice";
 import styles from "./gateway.module.css";
 import { GatewaySkeleton } from "./gateway-skeleton";
 import { GatewayUrlField } from "./gateway-url-field";
@@ -38,6 +39,7 @@ function AnalysisGatewayInner(props: AnalysisGatewayProps) {
           onChange={gateway.changeUrl}
           qrTriggerRef={qrTrigger}
           onOpenQr={gateway.openQr}
+          accountHelpId={props.currentUser ? undefined : "gateway-account-help"}
         />
         <div className={styles.fieldDetails}>
           {gateway.urlError && (
@@ -47,6 +49,7 @@ function AnalysisGatewayInner(props: AnalysisGatewayProps) {
           )}
           <InvestigationRequestFeedback error={gateway.requestError} uncertain={gateway.uncertain} />
           <p className={styles.fieldHelp}>Tautannya belum dibuka di perangkatmu.</p>
+          {!props.currentUser && <GatewayAccountNotice id="gateway-account-help" />}
           {gateway.isLoading && (
             <output className={styles.fieldHelp}>
               Input sedang dibaca dan dicatat. Tunggu sampai status investigasi tampil.
@@ -62,6 +65,7 @@ function AnalysisGatewayInner(props: AnalysisGatewayProps) {
         requestError={gateway.requestError}
         uncertain={gateway.uncertain}
         busy={gateway.busy}
+        requiresAccount={!props.currentUser}
         onClose={gateway.closeQr}
         onOpenChangeComplete={gateway.overlays.finishClose}
         onSelect={gateway.selectQr}
@@ -84,7 +88,7 @@ function AnalysisGatewayInner(props: AnalysisGatewayProps) {
 
 export function AnalysisGateway(props: AnalysisGatewayProps) {
   return (
-    <Suspense fallback={<GatewaySkeleton />}>
+    <Suspense fallback={<GatewaySkeleton requiresAccount={!props.currentUser} />}>
       <AnalysisGatewayInner {...props} />
     </Suspense>
   );

@@ -1,28 +1,43 @@
-import type { z } from "zod";
-import workspace from "@/components/workspace/workspace.module.css";
-import type { rankingEntrySchema } from "@/lib/validations/platform";
-export function RankingList({ items }: { items: z.infer<typeof rankingEntrySchema>[] }) {
+import { Flame, ShieldCheck } from "lucide-react";
+import { formatExp, type RankingEntry } from "./leaderboard-presentation";
+import styles from "./leaderboard.module.css";
+
+export function RankingList({ items }: { items: RankingEntry[] }) {
   return (
-    <ol className="divide-y divide-slate-200">
+    <ol
+      className={styles.rankingList}
+      start={items[0]?.position ?? 1}
+      aria-label="Daftar peringkat Guardian"
+    >
       {items.map((item) => (
-        <li key={item.alias} className={workspace.rankingRow} data-current={item.isCurrentUser}>
-          <div className="flex items-center gap-3">
-            <span className={workspace.rankNumber} data-top={item.position <= 3}>
-              {item.position}
+        <li key={item.alias} className={styles.rankingRow} data-current={item.isCurrentUser}>
+          <span className={styles.position} data-top={item.position <= 3}>
+            <span className="sr-only">Peringkat </span>
+            {item.position}
+          </span>
+          <div className={styles.identity}>
+            <span className={styles.avatar} aria-hidden="true">
+              <ShieldCheck size={23} strokeWidth={1.7} />
             </span>
             <div>
-              <p className="font-semibold">
+              <p className={styles.alias}>
                 {item.alias}
-                {item.isCurrentUser ? " (kamu)" : ""}
+                {item.isCurrentUser && <span className={styles.you}>Kamu</span>}
               </p>
-              <p className="mt-1 text-xs text-slate-500">
-                {item.rank} · {item.streakDays} hari belajar
+              <p className={styles.meta}>
+                <span>{item.rank}</span>
+                <span aria-hidden="true">&middot;</span>
+                <span>
+                  <Flame aria-hidden="true" size={13} />
+                  {item.streakDays} hari berturut-turut
+                </span>
               </p>
             </div>
           </div>
-          <span className="text-brand-700 font-semibold tabular-nums">
-            {item.exp.toLocaleString("id-ID")} EXP
-          </span>
+          <p className={styles.exp}>
+            <strong>{formatExp(item.exp)}</strong>
+            <span>EXP</span>
+          </p>
         </li>
       ))}
     </ol>

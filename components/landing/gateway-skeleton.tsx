@@ -1,7 +1,7 @@
 import styles from "./gateway.module.css";
 import { HeroScene } from "./hero-scene";
 
-export function GatewaySkeleton() {
+export function GatewaySkeleton({ requiresAccount = true }: { requiresAccount?: boolean }) {
   return (
     <section
       aria-label="Memuat form pemeriksaan"
@@ -18,6 +18,13 @@ export function GatewaySkeleton() {
         </div>
         <div className={styles.fieldDetails}>
           <div className="mt-3 ml-4.5 h-3 w-3/5 rounded bg-slate-100" />
+          {requiresAccount && (
+            <div className={styles.accountHelp}>
+              <div className="h-3 w-full rounded bg-slate-100" />
+              <div className="mt-2 h-3 w-full rounded bg-slate-100" />
+              <div className="mt-2 h-3 w-4/5 rounded bg-slate-100" />
+            </div>
+          )}
         </div>
       </div>
     </section>

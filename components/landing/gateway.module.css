@@ -134,6 +134,21 @@
   font-size: 11px;
   line-height: 1.7;
 }
+.accountHelp {
+  margin-top: 10px;
+  padding-inline: 18px;
+  color: #526473;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.accountHelp strong {
+  color: #334155;
+  font-weight: 600;
+}
+.dialogAccountHelp {
+  margin-top: 16px;
+  padding-inline: 0;
+}
 .skeletonSubmit {
   background: #dceef4;
 }

@@ -92,10 +92,16 @@ describe("Share Card from stored investigation", () => {
     expect(card?.text).toContain("dipersingkat");
   });
   it("retains the entire hostname when a long URL is shortened", () => {
-    const hostname = `${"a".repeat(60)}.${"b".repeat(60)}.${"c".repeat(60)}.${"d".repeat(60)}.test`;
+    // Long, valid DNS labels below token heuristics preserve the complete authority.
+    const hostname = `${Array.from({ length: 10 }, () => "guardianlearningsecure").join(".")}.test`;
     const card = buildShareCard({ ...fixture, target: `https://${hostname}/${"x".repeat(1000)}` });
     expect(card?.target).toContain(hostname.replace(/\./g, "[.]"));
     expect(card?.truncated).toBe(true);
+  });
+  it("fails closed for a hostname whose labels resemble credential tokens", () => {
+    const hostname = `${"a".repeat(60)}.${"b".repeat(60)}.test`;
+    const card = buildShareCard({ ...fixture, target: `https://${hostname}/` });
+    expect(card?.target).toBe("[TAUTAN_DISAMARKAN]");
   });
   it("redacts credentials and query secrets inside prose and defangs all indicators", () => {
     const text = sanitizeShareText(

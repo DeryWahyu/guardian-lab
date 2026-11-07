@@ -43,6 +43,11 @@ export async function POST(request: Request) {
     const user = await prisma.user.findUnique({ where: { email: result.data.email } });
     if (!user || !(await verifyPassword(result.data.password, user.passwordHash)))
       return NextResponse.json({ error: "Email atau password tidak sesuai" }, { status: 401 });
+    if (user.suspendedAt)
+      return NextResponse.json(
+        { error: "Akun sedang ditangguhkan. Hubungi pengelola untuk bantuan akses." },
+        { status: 403 },
+      );
     if (!user.phoneVerifiedAt) {
       if (!user.phone)
         return NextResponse.json(
@@ -68,7 +73,12 @@ export async function POST(request: Request) {
     const now = new Date();
     const resultSession = await prisma.$transaction(async (tx) => {
       const updated = await tx.user.updateMany({
-        where: { id: user.id, passwordHash: user.passwordHash, phoneVerifiedAt: { not: null } },
+        where: {
+          id: user.id,
+          passwordHash: user.passwordHash,
+          phoneVerifiedAt: { not: null },
+          suspendedAt: null,
+        },
         data: { lastActiveAt: now },
       });
       if (!updated.count) return null;

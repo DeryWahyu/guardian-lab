@@ -17,7 +17,7 @@ export function QuizQuestionEditor({
   removable: boolean;
 }) {
   return (
-    <fieldset className="space-y-3 rounded-xl border border-slate-200 p-4">
+    <fieldset className="min-w-0 space-y-3 rounded-xl border border-slate-200 p-4">
       <legend className="px-1 font-semibold">Soal {index + 1}</legend>
       <label className="block text-sm">
         Pertanyaan <span className="text-rose-600">*</span>

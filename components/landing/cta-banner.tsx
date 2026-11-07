@@ -17,7 +17,7 @@ export function CtaBanner() {
       className={cn(shared.sectionSpacing, styles.section)}
     >
       <div className={cn(shared.container, shared.sectionContainer)}>
-        <div className={styles.banner}>
+        <div className={styles.banner} data-landing-reveal>
           <div className={styles.surface} aria-hidden="true" />
           <div className={styles.copy}>
             <h2 id="closing-title" className={cn(shared.display, styles.title)}>

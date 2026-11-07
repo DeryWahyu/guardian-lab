@@ -25,7 +25,10 @@ export function CommunityReportView({ report }: { report: CommunityReport }) {
     emergencyActionPlan: { ifNotClicked: [], ifAlreadyInstalledOrFilled: [] },
   };
   return (
-    <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 [overflow-wrap:anywhere]">
+    <section
+      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 [overflow-wrap:anywhere]"
+      data-user-reveal
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold text-slate-900">Snapshot hasil pemeriksaan</h2>
         <DualModeToggle mode={params.get("mode") === "geek" ? "geek" : "human"} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail, Phone, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState } from "react";
@@ -82,12 +82,13 @@ export function RegisterForm() {
         onSubmit={submit}
         aria-label="Daftar akun Guardian Lab"
         aria-busy={request.isPending}
-        className={cn(styles.form, styles.registration)}
+        className={cn(styles.form, styles.credentials, styles.registration)}
       >
         <AuthField
           id="name"
           name="name"
           label="Nama"
+          startAdornment={<UserRound />}
           type="text"
           autoComplete="name"
           maxLength={50}
@@ -102,6 +103,7 @@ export function RegisterForm() {
           id="email"
           name="email"
           label="Email"
+          startAdornment={<Mail />}
           type="email"
           inputMode="email"
           autoComplete="email"
@@ -119,6 +121,7 @@ export function RegisterForm() {
           id="phone"
           name="phone"
           label="No. WhatsApp"
+          startAdornment={<Phone />}
           type="tel"
           inputMode="tel"
           autoComplete="tel"

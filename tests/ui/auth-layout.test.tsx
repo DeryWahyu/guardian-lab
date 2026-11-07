@@ -12,6 +12,7 @@ mock.module("next/navigation", () => ({
 // Mock Next.js font loader for static markup testing
 mock.module("next/font/google", () => ({
   Bricolage_Grotesque: () => ({ variable: "font-auth-display" }),
+  Plus_Jakarta_Sans: () => ({ variable: "--font-landing-sans", className: "font-landing-sans" }),
 }));
 
 // Mock Next.js Image component for static markup testing

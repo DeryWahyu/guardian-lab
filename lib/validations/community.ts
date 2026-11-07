@@ -26,7 +26,10 @@ export const communityReportSchema = z
     modelVersion: z.string().min(1),
     analyzedAt: z.iso.datetime(),
   })
-  .refine(matchesUrlModel, "Snapshot model URL harus mempertahankan indikator dan metadata aslinya.");
+  .refine(
+    matchesUrlModel,
+    "Snapshot model URL harus mempertahankan indikator dan metadata aslinya.",
+  );
 export type CommunityReport = z.infer<typeof communityReportSchema>;
 export const communityCaseSchema = z.object({
   id: investigationIdSchema,
@@ -37,6 +40,8 @@ export const communityCaseSchema = z.object({
   report: communityReportSchema.nullable(),
   createdAt: z.iso.datetime(),
   reviewedAt: z.iso.datetime().nullable(),
+  withdrawnAt: z.iso.datetime().nullable().optional(),
+  withdrawalReason: z.string().nullable().optional(),
   sourceRecordId: z.string().nullable().optional(),
   adminNotes: z.string().nullable().optional(),
   canReview: z.boolean().optional(),
@@ -59,6 +64,7 @@ export const communityQuerySchema = z.object({
   q: z.string().trim().max(150).default(""),
   page: z.coerce.number().int().min(1).max(100000).default(1),
   pageSize: z.coerce.number().int().min(1).max(30).default(12),
+  withdrawn: z.enum(["yes", "no"]).optional(),
 });
 export const communitySubmitSchema = z
   .object({
@@ -71,7 +77,7 @@ export const communityReviewSchema = z.discriminatedUnion("status", [
     .object({
       status: z.literal("APPROVED"),
       privacyConfirmed: z.literal(true),
-      adminNotes: z.string().trim().max(1000).default(""),
+      adminNotes: z.string().trim().min(10).max(1000),
     })
     .strict(),
   z

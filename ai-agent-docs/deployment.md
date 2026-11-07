@@ -110,6 +110,8 @@ Nilai secret tidak dicetak atau dikirim ke layanan eksternal. File ditulis atomi
 
 Gunakan MySQL 8, Bun, Docker Engine Linux, dan salinan `.env.example` menjadi `.env`. Jangan menimpa `.env` yang telah berisi konfigurasi lokal. Buat kunci broker acak minimal 32 karakter dan simpan sebagai `SANDBOX_BROKER_KEY`; jangan masukkan kunci ke git atau URL.
 
+Siapkan juga [layanan model URL/QR](#layanan-model-urlqr) pada terminal terpisah agar pemeriksaan memakai frozen V6.
+
 Verifikasi WhatsApp memerlukan `FONNTE_TOKEN` perangkat yang terhubung dan kuota Fonnte; token hanya di server. Set `AUTH_TRUST_PROXY=true` hanya jika proxy tepercaya menghapus dan mengganti `X-Forwarded-For`; default `false` menggunakan batas bersama. Seeder lokal mengisi akun demo beserta status nomor terverifikasi; daftar dan nomor berada di [demo-accounts.ts](../prisma/seeders/demo-accounts.ts), dan seeder menolak production. Aplikasikan migrasi dan generate Prisma Client sesuai alur deployment sebelum mengaktifkan perubahan auth; tanpa token/perangkat Fonnte, OTP tidak dapat terkirim.
 
 ```powershell
@@ -123,7 +125,11 @@ bun run sandbox:up
 bun run dev
 ```
 
-`academy:seed` menambahkan tiga materi awal tanpa membuat akun demo atau menimpa kuis yang sudah ada. `bun run db:seed` opsional membuat empat akun lokal yang diminta beserta materi tanpa progress buatan; perintah menolak production. Kedua perintah memakai fungsi Academy bersama di `prisma/seeders`.
+`academy:seed` menambahkan tiga materi awal tanpa membuat akun demo atau menimpa kuis yang sudah ada. `bun run db:seed` membuat atau memperbarui empat akun lokal dengan nama, email, nomor, peran dan password yang sama seperti sebelumnya, lalu mengisi aktivitas demo tiga akun USER. Kedua perintah memakai fungsi Academy bersama di `prisma/seeders`; `academy:seed` tetap terpisah dari data demo.
+
+Data demo pengguna dikelola oleh [demo-activity.ts](../prisma/seeders/demo-activity.ts) dengan skenario di [demo-content.ts](../prisma/seeders/demo-content.ts). Materi dan jawaban tersimpan menjadi sumber penilaian, kelulusan pertama memberi EXP sesuai hadiah kuis atau kasus, serta lencana hanya memakai Langkah Pertama dan Pembaca Bukti yang sudah ada. Profil, Belajar dan peringkat membaca progres yang sama. Riwayat berisi URL/QR tanpa pemanggilan V6 dan hasil APK simulasi; pengajuan komunitas mengisi status disetujui, menunggu serta ditolak, beserta audit simulasi yang ditandai jelas. Nama/summary kasus dan berkas simulasi memakai `[DEMO]`, metadata memakai `isDemo` dan versi seed, dan sumber analisis `LOCAL_DEMO`. Tidak ada file APK, korban, panggilan model, OTP, atau sesi sandbox nyata. Skor APK adalah fixture tampilan, bukan keluaran AI; URL/QR tetap `UNAVAILABLE` dengan risiko/skor null.
+
+Seeder menolak `NODE_ENV=production` dan database di luar host loopback atau nama layanan Compose `db`/`mysql`. Jalankan `bun run db:seed` pada konfigurasi database lokal yang memang akan diberi data demo. Tidak ada reset, penghapusan rekaman atau pengisian akun di luar daftar seed. ID fixture tetap; pengulangan tidak menduplikasi attempt, lencana, pengajuan, audit atau hadiah. Kelulusan nyata yang sudah mendapat EXP tidak diberi hadiah kedua. Kuis yang diedit/diarsipkan dan keputusan moderasi yang sudah berubah tidak dipulihkan oleh seed. Timestamp demo tidak mendahului tanggal bergabung, streak dihitung dari gabungan hari aktivitas WIB, dan pengulangan tidak menggeser tanggal lama agar terlihat aktif. CLI menampilkan ringkasan aktual setiap USER setelah seed, termasuk progres yang sudah ada; angka akhir dapat berbeda dari skenario awal.
 
 Untuk fitur APK, Java 11+ dan `bun run apk:setup` tetap diperlukan; baca [APK statis](./features.md#apk-statis). Docker builder memasang JADX terverifikasi, generate Prisma, lalu build. Runner menggunakan JRE 17 dan menyalin JAR/catatan verifikasi yang ikut tracing standalone. APK asli memakai direktori temp per job dan dibersihkan.
 
@@ -146,18 +152,20 @@ Container pengguna selalu memiliki watchdog sendiri maksimal 180 detik. Menghent
 
 ## Layanan model URL/QR
 
-Letakkan checkout `guardian-lab-ai` di sebelah `guardian-lab`. Python 3.12 dan pemasangan artifact hanya diperlukan pada layanan model; Next tetap memakai Bun. Kontrak hasil aplikasi berada pada [fitur model](./features.md#model-urlqr).
+Letakkan checkout `guardian-lab-ai` di sebelah `guardian-lab`. Python 3.12 dan pemasangan artifact hanya diperlukan pada layanan model yang berjalan terpisah dari Next. Kontrak hasil aplikasi berada pada [fitur model](./features.md#model-urlqr).
 
-Untuk menjalankan Python langsung, buka terminal pada root `guardian-lab-ai`:
+Untuk menjalankan Python langsung di Windows, buka terminal pada root `guardian-lab-ai`. Pilih Python 3.12 secara eksplisit karena Python default sistem bisa memiliki versi berbeda:
 
-```bash
-python3.12 -m venv .venv
-.venv/bin/python -m pip install -e "./ml[serve]"
-.venv/bin/python scripts/install_v6_model.py
-.venv/bin/python -m uvicorn guardian_ml.shadow_service:create_app --factory --host 127.0.0.1 --port 8001 --workers 1 --no-access-log
+```powershell
+py -3.12 -m venv ml/.venv
+./ml/.venv/Scripts/python.exe -m pip install -e "./ml[serve]"
+./ml/.venv/Scripts/python.exe scripts/install_v6_model.py
+./ml/.venv/Scripts/python.exe -m uvicorn guardian_ml.shadow_service:create_app --factory --host 127.0.0.1 --port 8001 --workers 1 --no-access-log
 ```
 
-Pada Windows gunakan `.venv/Scripts/python.exe`. Installer mengunduh artifact dan metadata asli dari release yang terikat checksum. Tidak perlu dataset, notebook, atau training. Binary tetap diabaikan Git. Simpan `GUARDIAN_ML_URL=http://127.0.0.1:8001` pada konfigurasi server Next yang sudah ada, kemudian jalankan aplikasi seperti biasa; jangan menimpa `.env` atau menambahkan prefix `NEXT_PUBLIC_` pada alamat model.
+Tiga perintah pertama diperlukan saat setup atau pembaruan dependency/artifact; perintah terakhir menjaga layanan berjalan. Pada Linux/macOS gunakan `python3.12` dan `ml/.venv/bin/python`. Installer memverifikasi binary, metadata, dependency dan manifest V6 asli tanpa dataset, notebook, atau training. Binary tetap diabaikan Git. Kontrak serta distribusi artifact dimiliki [panduan integrasi V6 repo AI](https://github.com/DeryWahyu/guardian-lab-ai/blob/main/ai-agent-docs/web-integration-v6.md).
+
+Isi `GUARDIAN_ML_URL=http://127.0.0.1:8001` pada `.env` web, lalu jalankan atau restart Next dari terminal lain di root repo web. `npm run dev` maupun `bun run dev` hanya menjalankan web; layanan model harus tetap aktif secara terpisah. Jangan menimpa konfigurasi `.env` lainnya atau memakai prefix `NEXT_PUBLIC_` untuk alamat model. URL langsung dan URL hasil dekode QR memakai adapter yang sama; model tetap shadow dan hasil rendah tetap perlu verifikasi. Rekaman lama berstatus unavailable tidak diproses ulang otomatis.
 
 Compose development membangun image model dari repo di sebelahnya, memasang artifact terverifikasi saat build, dan mengatur alamat Next menjadi `http://ml:8001`. Layanan `ml` dimulai bersama stack dan Watch memicu rebuild saat runtime model berubah. Runtime model non-root, read-only, satu worker, dan hanya berada di jaringan `ml-internal` tanpa akses internet langsung atau port host. Tidak perlu CORS karena browser tidak mengakses Python. Jangan menjalankan Python host secara terpisah ketika memakai stack development lengkap.
 
@@ -208,3 +216,14 @@ Perintah dan prasyarat pemeriksaan runtime berada pada [TEST_PLAN.md](../TEST_PL
 ## Output standalone
 
 Untuk hasil build Next lokal, salin `public` dan `.next/static` ke direktori pendamping pada `.next/standalone`, buat direktori tujuan terlebih dahulu, lalu jalankan `node --env-file=.env .next/standalone/server.js`. Set `PORT`/`HOSTNAME` bila diperlukan. Native library Sharp dan JAR JADX ikut melalui `outputFileTracingIncludes`; jangan hanya menyalin satu executable server.
+
+
+## Pembaruan operasi admin
+
+Operasi admin memakai [migrasi aditif](../prisma/migrations/20261108000000_admin_operations/migration.sql) untuk status penangguhan, penarikan publikasi, tinjauan investigasi serta audit. Terapkan migrasi dan generate Prisma Client sebelum menjalankan versi web ini; gunakan alur migrate deploy yang sama seperti startup aplikasi. Tidak memerlukan seed ulang atau reset database.
+
+Pada Windows, generate dapat tertahan karena query engine DLL sedang digunakan proses Next. Hentikan hanya dev server checkout web ini, jalankan generate dan migrasi, lalu hidupkan kembali server. Jangan mengganti engine dengan mode lain atau menghapus database untuk mengatasi berkas terkunci. Pemeriksaan teknis/runtime tetap memerlukan izin sesuai AGENTS.md.
+
+Monitor memakai konfigurasi layanan server yang sudah ada. Token Fonnte dan key broker tetap di environment server; UI hanya menampilkan status konfigurasi/operasional yang dibatasi. Ekspor laporan menggunakan CSV agregat yang dicatat dalam audit, bukan dump database atau bukti pemeriksaan mentah.
+
+Thumbnail Academy memakai [migrasi thumbnail](../prisma/migrations/20261108010000_academy_thumbnails/migration.sql). Terapkan migrasi dan generate Prisma Client sebelum menjalankan versi ini. Gambar WebP yang sudah dinormalisasi disimpan di MySQL melalui relasi satu gambar per kuis, sehingga ikut backup database dan tidak memerlukan volume unggahan atau layanan penyimpanan tambahan. Sharp yang sudah digunakan aplikasi menangani validasi/konversi gambar. Penggantian atau penghapusan thumbnail bersifat atomik bersama kuis dan audit; tidak ada berkas unggahan sementara yang perlu dibersihkan. API gambar bersifat privat dan ditampilkan langsung oleh browser memakai sesi pengguna.

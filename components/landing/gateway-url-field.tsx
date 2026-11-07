@@ -12,6 +12,7 @@ type Props = {
   onChange: (value: string) => void;
   qrTriggerRef: RefObject<HTMLButtonElement | null>;
   onOpenQr: () => void;
+  accountHelpId?: string;
 };
 
 export function GatewayUrlField({
@@ -22,6 +23,7 @@ export function GatewayUrlField({
   onChange,
   qrTriggerRef,
   onOpenQr,
+  accountHelpId,
 }: Props) {
   return (
     <>
@@ -49,7 +51,9 @@ export function GatewayUrlField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           aria-invalid={Boolean(error)}
-          aria-describedby={error ? "url-help url-error" : "url-help"}
+          aria-describedby={["url-help", accountHelpId, error ? "url-error" : undefined]
+            .filter(Boolean)
+            .join(" ")}
           placeholder="Tempel tautan yang bikin ragu…"
           className={styles.urlInput}
         />
