@@ -60,6 +60,11 @@ export const publicQuestionSchema = z.object({
   options: z.array(optionSchema),
   multiple: z.boolean(),
 });
+const thumbnailUrlSchema = z
+  .string()
+  .regex(/^\/api\/academy\/quizzes\/[\w-]+\/thumbnail\?v=[a-f0-9]{64}$/)
+  .nullable()
+  .optional();
 export const quizSummarySchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -69,6 +74,7 @@ export const quizSummarySchema = z.object({
   expReward: z.number(),
   isCompleted: z.boolean(),
   questionCount: z.number(),
+  thumbnailUrl: thumbnailUrlSchema,
 });
 export const quizDetailSchema = quizSummarySchema.extend({
   revision: z.iso.datetime(),
@@ -114,5 +120,9 @@ export const academyProgressSchema = z.object({
     }),
   ),
 });
-export const adminQuizSchema = quizInputSchema.extend({ id: z.string(), updatedAt: z.string() });
+export const adminQuizSchema = quizInputSchema.extend({
+  id: z.string(),
+  updatedAt: z.string(),
+  thumbnailUrl: thumbnailUrlSchema,
+});
 export const adminQuizPageSchema = z.coerce.number().int().min(1).max(10000).default(1);

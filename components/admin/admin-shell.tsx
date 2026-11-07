@@ -1,105 +1,95 @@
 "use client";
-
 import {
+  Activity,
   BookOpen,
+  ChartColumn,
   ClipboardCheck,
   ExternalLink,
+  FileSearch,
   LayoutDashboard,
-  Loader2,
   LogOut,
+  ScrollText,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { landingTypography } from "@/components/landing/landing-font";
 import { BrandIdentity } from "@/components/shared/brand-identity";
 import { LogoutDialog } from "@/components/shared/logout-dialog";
 import type { UserSession } from "@/lib/auth/session";
 import { useSessionUser } from "@/lib/hooks/use-session-user";
 import { ADMIN_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
+import styles from "./admin.module.css";
 
 const navigation = [
   { label: "Dashboard", href: ADMIN_ROUTES.dashboard, icon: LayoutDashboard },
-  { label: "Bank soal", href: ADMIN_ROUTES.quizzes, icon: BookOpen },
+  { label: "Pengguna", href: ADMIN_ROUTES.users, icon: Users },
+  { label: "Investigasi", href: ADMIN_ROUTES.investigations, icon: FileSearch },
   { label: "Moderasi kasus", href: ADMIN_ROUTES.communityReviews, icon: ClipboardCheck },
+  { label: "Academy", href: ADMIN_ROUTES.quizzes, icon: BookOpen },
+  { label: "Monitor layanan", href: ADMIN_ROUTES.monitor, icon: Activity },
+  { label: "Log aktivitas", href: ADMIN_ROUTES.audit, icon: ScrollText },
+  { label: "Laporan", href: ADMIN_ROUTES.reports, icon: ChartColumn },
 ];
-
 export function AdminShell({ user, children }: { user: UserSession; children: ReactNode }) {
   const pathname = usePathname();
   const { isLoggingOut, requestLogout, confirmLogout, logoutOpen, changeLogoutOpen, logoutError } =
     useSessionUser(user);
   return (
-    <div className="bg-background min-h-screen text-slate-900 lg:flex">
-      <aside className="border-b border-slate-200 bg-white lg:fixed lg:inset-y-0 lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-b-0">
-        <Link
-          href={ADMIN_ROUTES.dashboard}
-          className="focus-visible:outline-brand-600 flex items-center gap-3 px-6 py-6 focus-visible:outline-2"
-        >
+    <div className={cn(landingTypography, styles.shell)}>
+      <aside className={styles.sidebar}>
+        <Link className={styles.brand} href={ADMIN_ROUTES.dashboard}>
           <BrandIdentity subtitle="Ruang administrator" markClassName="size-9" />
         </Link>
-        <nav
-          aria-label="Navigasi admin"
-          className="grid grid-cols-3 gap-1 px-3 pb-3 lg:flex lg:flex-col lg:px-4 lg:py-5"
-        >
-          {navigation.map(({ href, label, icon: Icon }) => {
+        <p className={styles.navCaption}>Kelola Guardian Lab</p>
+        <nav aria-label="Navigasi admin" className={styles.nav}>
+          {navigation.map(({ label, href, icon: Icon }) => {
             const active =
               pathname === href ||
               (href !== ADMIN_ROUTES.dashboard && pathname.startsWith(`${href}/`));
             return (
-              <Link
-                key={href}
-                href={href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "focus-visible:outline-brand-600 flex flex-col items-center justify-center gap-1.5 rounded-xl px-2 py-3 text-center text-xs font-medium transition-colors focus-visible:outline-2 lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:text-left lg:text-sm",
-                  active
-                    ? "bg-brand-50 text-brand-700"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
-                )}
-              >
-                <Icon className="size-4" />
+              <Link key={href} href={href} aria-current={active ? "page" : undefined}>
+                <Icon size={18} aria-hidden="true" />
                 {label}
               </Link>
             );
           })}
         </nav>
-        <div className="hidden px-6 py-6 text-xs leading-relaxed text-slate-500 lg:mt-auto lg:block">
-          Tinjau temuan, kelola pembelajaran, dan jaga ruang digital bersama.
+        <div className={styles.sidebarNote}>
+          <span>Guardian Lab</span>
+          <p>Kelola akses, jaga kualitas bukti, dan dukung perjalanan belajar.</p>
         </div>
       </aside>
-      <div className="min-w-0 flex-1 lg:ml-60">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white/80 px-5 py-4 sm:px-8">
-          <Link
-            href={PUBLIC_ROUTES.home}
-            className="hover:text-brand-700 focus-visible:outline-brand-600 inline-flex items-center gap-2 rounded-lg text-sm text-slate-600 focus-visible:outline-2"
-          >
-            <ExternalLink className="size-4" />
-            Lihat halaman publik
+      <div className={styles.body}>
+        <header className={styles.topbar}>
+          <Link href={PUBLIC_ROUTES.home} className={styles.publicLink}>
+            <ExternalLink size={16} aria-hidden="true" />
+            Halaman pengguna
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <span className="block max-w-40 truncate text-sm font-semibold">{user.name}</span>
-              <span className="text-xs text-slate-500">Administrator</span>
+          <div className={styles.profile}>
+            <span className={styles.profileAvatar} aria-hidden="true">
+              {user.name.slice(0, 1).toUpperCase()}
+            </span>
+            <div>
+              <strong>{user.name}</strong>
+              <span>Administrator</span>
             </div>
             <button
               type="button"
+              className={styles.secondary}
               onClick={requestLogout}
               disabled={isLoggingOut}
-              aria-busy={isLoggingOut}
               aria-haspopup="dialog"
               aria-expanded={logoutOpen}
-              className="focus-visible:outline-brand-600 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 focus-visible:outline-2 disabled:cursor-wait disabled:opacity-60"
             >
-              {isLoggingOut ? (
-                <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
-              ) : (
-                <LogOut className="size-4" />
-              )}
+              <LogOut size={16} aria-hidden="true" />
               {isLoggingOut ? "Keluar..." : "Keluar"}
             </button>
           </div>
         </header>
-        <main className="mx-auto max-w-7xl p-5 sm:p-8 lg:p-10">{children}</main>
+        <main className={styles.main}>{children}</main>
       </div>
       <LogoutDialog
         open={logoutOpen}
@@ -107,6 +97,7 @@ export function AdminShell({ user, children }: { user: UserSession; children: Re
         pending={isLoggingOut}
         error={logoutError}
         onConfirm={() => void confirmLogout()}
+        className={landingTypography}
       />
     </div>
   );

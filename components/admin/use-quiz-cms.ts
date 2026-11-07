@@ -2,15 +2,31 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { thumbnailFileProblem } from "@/lib/academy/thumbnail-config";
 import { useApiResource } from "@/lib/hooks/use-api-resource";
 import { API_ROUTES } from "@/lib/routes";
-import { adminQuizSchema, type QuizInput, quizInputSchema } from "@/lib/validations/academy";
+import {
+  adminQuizPageSchema,
+  adminQuizSchema,
+  type QuizInput,
+  quizInputSchema,
+} from "@/lib/validations/academy";
 import { blankQuestion } from "./quiz-editor";
+import { useAdminQuery } from "./use-admin-query";
 
 const schema = z.array(adminQuizSchema);
-type Editor = { id?: string; revision?: string; value: QuizInput };
+type Editor = {
+  id?: string;
+  revision?: string;
+  value: QuizInput;
+  thumbnailUrl?: string | null;
+  thumbnail?: File | null;
+};
 export function useQuizCms(scope: string) {
-  const [page, setPage] = useState(1);
+  const query = useAdminQuery();
+  const parsedPage = adminQuizPageSchema.safeParse(query.params.get("page") ?? undefined);
+  const page = parsedPage.success ? parsedPage.data : 1;
+  const setPage = (value: number) => query.change("page", String(value));
   const list = useApiResource(API_ROUTES.adminQuizzesPage(page), schema, { scope });
   const [editor, setEditor] = useState<Editor | null>(null);
   const [archive, setArchive] = useState<string | null>(null);
@@ -46,6 +62,13 @@ export function useQuizCms(scope: string) {
       setError("Lengkapi materi, pilihan, dan minimal satu kunci jawaban untuk setiap soal.");
       return;
     }
+    if (!remove && editor?.thumbnail) {
+      const problem = thumbnailFileProblem(editor.thumbnail);
+      if (problem) {
+        setError(problem);
+        return;
+      }
+    }
     const abort = new AbortController();
     controller.current = abort;
     setPending(true);
@@ -58,19 +81,33 @@ export function useQuizCms(scope: string) {
           : editor?.id
             ? API_ROUTES.adminQuiz(editor.id)
             : API_ROUTES.adminQuizzes;
+      const data = {
+        ...input?.data,
+        ...(editor?.revision ? { revision: editor.revision } : {}),
+        ...(editor?.thumbnail === null ? { removeThumbnail: true } : {}),
+      };
+      let body: string | FormData | undefined;
+      if (!remove) {
+        if (editor?.thumbnail) {
+          const form = new FormData();
+          form.set("data", JSON.stringify(data));
+          form.set("thumbnail", editor.thumbnail);
+          body = form;
+        } else body = JSON.stringify(data);
+      }
       const response = await fetch(url, {
         method: remove ? "DELETE" : editor?.id ? "PUT" : "POST",
         signal: abort.signal,
-        headers: { "Content-Type": "application/json" },
-        body: remove
-          ? undefined
-          : JSON.stringify({
-              ...input?.data,
-              ...(editor?.revision ? { revision: editor.revision } : {}),
-            }),
+        headers: body instanceof FormData ? undefined : { "Content-Type": "application/json" },
+        body,
       });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Kuis belum tersimpan.");
+      const payload: unknown = await response.json();
+      if (!response.ok) {
+        const parsedError = z.object({ error: z.string() }).safeParse(payload);
+        throw new Error(parsedError.success ? parsedError.data.error : "Kuis belum tersimpan.");
+      }
+      if (remove) z.object({ success: z.literal(true) }).parse(payload);
+      else adminQuizSchema.parse(payload);
       if (abort.signal.aborted) return;
       setEditor(null);
       setArchive(null);

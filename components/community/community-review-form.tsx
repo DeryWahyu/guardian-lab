@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { landingTypography } from "@/components/landing/landing-font";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { API_ROUTES } from "@/lib/routes";
 import type { CommunityCase } from "@/lib/validations/community";
@@ -42,18 +43,17 @@ export function CommunityReviewForm({
         </select>
       </label>
       <label className="block space-y-2 text-sm">
-        Catatan admin{" "}
-        {decision === "REJECTED" ? <span className="text-rose-600">*</span> : "(Opsional)"}
+        Catatan admin <span className="text-rose-600">*</span>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          required={decision === "REJECTED"}
-          minLength={decision === "REJECTED" ? 10 : 0}
+          required
+          minLength={10}
           maxLength={1000}
           placeholder={
             decision === "REJECTED"
               ? "Jelaskan alasan penolakan, minimal 10 karakter"
-              : "Catatan untuk pemilik investigasi"
+              : "Jelaskan alasan persetujuan, minimal 10 karakter"
           }
           className="block min-h-28 w-full rounded-xl border border-slate-300 p-3"
         />
@@ -81,6 +81,7 @@ export function CommunityReviewForm({
         Tinjau keputusan
       </button>
       <ConfirmDialog
+        className={landingTypography}
         tone={decision === "APPROVED" ? "brand" : "danger"}
         open={open}
         onOpenChange={setOpen}

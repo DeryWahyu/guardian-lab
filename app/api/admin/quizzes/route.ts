@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { adminQuizzes, saveQuiz } from "@/lib/academy/admin";
 import { academyError } from "@/lib/academy/http";
+import { readQuizInput } from "@/lib/academy/quiz-input";
 import { authorizeRequest } from "@/lib/auth/access";
-import { readInput } from "@/lib/investigations/request-input";
 import { safeConnection } from "@/lib/security/connection";
-import { adminQuizPageSchema, quizInputSchema } from "@/lib/validations/academy";
+import { adminQuizPageSchema } from "@/lib/validations/academy";
 export async function GET(request: Request) {
   await safeConnection();
   try {
@@ -24,10 +24,11 @@ export async function POST(request: Request) {
   try {
     const auth = await authorizeRequest(request, "ADMIN");
     if (auth.error) return auth.error;
-    return NextResponse.json(
-      await saveQuiz(quizInputSchema.parse(await readInput(request, 200000, "json"))),
-      { status: 201 },
-    );
+    const { input, thumbnail } = await readQuizInput(request);
+    return NextResponse.json(await saveQuiz(input, undefined, undefined, auth.user.id, thumbnail), {
+      status: 201,
+      headers: { "Cache-Control": "private, no-store" },
+    });
   } catch (error) {
     return academyError(error);
   }

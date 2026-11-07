@@ -99,16 +99,21 @@ export function serializeCommunityCase(
     status: record.status,
     canPractice:
       record.status === "APPROVED" &&
+      !record.withdrawnAt &&
       Boolean(
         record.sourceRecordId && record.consentedAt && readCommunityReport(record.sanitizedData),
       ),
     report: readCommunityReport(record.sanitizedData),
     createdAt: record.createdAt.toISOString(),
     reviewedAt: record.reviewedAt?.toISOString() ?? null,
+    withdrawnAt: record.withdrawnAt?.toISOString() ?? null,
     ...(privateView
       ? {
           sourceRecordId: record.sourceRecordId,
           adminNotes: record.adminNotes ? sanitizeShareText(record.adminNotes) : null,
+          withdrawalReason: record.withdrawalReason
+            ? sanitizeShareText(record.withdrawalReason)
+            : null,
         }
       : {}),
     ...(admin ? { canReview: record.status === "PENDING_REVIEW" } : {}),

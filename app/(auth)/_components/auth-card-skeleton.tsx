@@ -4,15 +4,17 @@ import styles from "../auth.module.css";
 export function AuthCardSkeleton({
   title = "Menyiapkan halaman…",
   fields = 2,
+  enlarged = false,
 }: {
   title?: string;
   fields?: number;
+  enlarged?: boolean;
 }) {
   return (
     <output
       aria-label={title}
       aria-busy="true"
-      className="animate-pulse motion-reduce:animate-none"
+      className={cn("animate-pulse motion-reduce:animate-none", enlarged && styles.credentials)}
     >
       <div aria-hidden="true">
         <div className={styles.skeletonHeading} data-lines={fields === 2 ? 2 : 1} />

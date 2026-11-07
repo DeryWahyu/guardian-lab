@@ -2,6 +2,7 @@
 import { learningControl } from "@/components/academy/learning-ui";
 import type { QuizInput } from "@/lib/validations/academy";
 import { QuizQuestionEditor } from "./quiz-question-editor";
+import { QuizThumbnailField } from "./quiz-thumbnail-field";
 export function blankQuestion(): QuizInput["questions"][number] {
   return {
     questionText: "",
@@ -21,6 +22,9 @@ export function QuizEditor({
   save,
   cancel,
   error,
+  thumbnailUrl,
+  thumbnail,
+  changeThumbnail,
 }: {
   value: QuizInput;
   change: (q: QuizInput) => void;
@@ -28,6 +32,9 @@ export function QuizEditor({
   save: () => void;
   cancel: () => void;
   error: string | null;
+  thumbnailUrl?: string | null;
+  thumbnail: File | null | undefined;
+  changeThumbnail: (file: File | null | undefined) => void;
 }) {
   return (
     <form
@@ -36,9 +43,9 @@ export function QuizEditor({
         e.preventDefault();
         save();
       }}
-      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5"
+      className="min-w-0 space-y-5 rounded-2xl border border-slate-200 bg-white p-5"
     >
-      <fieldset disabled={pending} className="space-y-4">
+      <fieldset disabled={pending} className="min-w-0 space-y-4">
         <legend className="text-xl font-semibold">Materi dan soal kuis</legend>
         <label className="block text-sm">
           Judul <span className="text-rose-600">*</span>
@@ -64,6 +71,13 @@ export function QuizEditor({
             onChange={(e) => change({ ...value, description: e.target.value })}
           />
         </label>
+        <QuizThumbnailField
+          category={value.category}
+          savedUrl={thumbnailUrl}
+          file={thumbnail}
+          change={changeThumbnail}
+          disabled={pending}
+        />
         <div className="grid gap-4 sm:grid-cols-3">
           <label className="text-sm">
             Kategori <span className="text-rose-600">*</span>

@@ -10,6 +10,7 @@ import { STANDARD_USER_FIXTURE } from "../e2e/fixtures/user-fixtures";
 
 mock.module("next/font/google", () => ({
   Bricolage_Grotesque: () => ({ variable: "--font-landing-display" }),
+  Plus_Jakarta_Sans: () => ({ variable: "--font-landing-sans", className: "font-landing-sans" }),
 }));
 
 function getRedirectTarget(error: unknown): string {

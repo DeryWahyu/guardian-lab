@@ -17,6 +17,32 @@ export function LandingScrollControls({ pageRef }: { pageRef: RefObject<HTMLDivE
 
     let frame = 0;
     let lastVisible = false;
+    let requestedSection: string | null = null;
+    let navigationTimer = 0;
+    const sectionIds = new Set<string>(Object.values(LANDING_SECTIONS));
+    function releaseNavigation() {
+      if (!requestedSection) return;
+      requestedSection = null;
+      window.clearTimeout(navigationTimer);
+      navigationTimer = 0;
+      scheduleUpdate();
+    }
+    function navigateToSection() {
+      const sectionId = window.location.hash.slice(1);
+      if (!sectionIds.has(sectionId)) return;
+      requestedSection = sectionId;
+      window.clearTimeout(navigationTimer);
+      navigationTimer = window.setTimeout(releaseNavigation, 1800);
+      scheduleUpdate();
+    }
+    function interruptNavigation(event: KeyboardEvent) {
+      if (
+        ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " ", "Escape"].includes(
+          event.key,
+        )
+      )
+        releaseNavigation();
+    }
     function update() {
       frame = 0;
       const maxScroll = Math.max(
@@ -26,6 +52,7 @@ export function LandingScrollControls({ pageRef }: { pageRef: RefObject<HTMLDivE
       );
       const scroll = Math.min(maxScroll, Math.max(0, window.scrollY));
       const progress = maxScroll === 0 ? 0 : scroll / maxScroll;
+      page.dataset.landingScrolled = String(scroll > 24);
       page.style.setProperty("--landing-scroll-remaining", `${(1 - progress) * 100}%`);
       page
         .querySelector("[data-landing-progress]")
@@ -44,6 +71,21 @@ export function LandingScrollControls({ pageRef }: { pageRef: RefObject<HTMLDivE
         lastSection.getBoundingClientRect().top < window.innerHeight
       ) {
         activeSection = LANDING_SECTIONS.start;
+      }
+      if (requestedSection) {
+        const target = document.getElementById(requestedSection);
+        if (target) {
+          const margin = Number.parseFloat(window.getComputedStyle(target).scrollMarginTop) || 0;
+          const destination = Math.max(
+            0,
+            Math.min(maxScroll, target.getBoundingClientRect().top + window.scrollY - margin),
+          );
+          if (Math.abs(scroll - destination) <= 2) {
+            requestedSection = null;
+            window.clearTimeout(navigationTimer);
+          }
+        } else requestedSection = null;
+        if (requestedSection) activeSection = requestedSection;
       }
       if (page.dataset.landingActiveSection !== activeSection) {
         page.dataset.landingActiveSection = activeSection;
@@ -66,11 +108,23 @@ export function LandingScrollControls({ pageRef }: { pageRef: RefObject<HTMLDivE
     update();
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("resize", scheduleUpdate);
-    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleUpdate);
+    window.addEventListener(LANDING_LOCATION_CHANGE_EVENT, navigateToSection);
+    window.addEventListener("wheel", releaseNavigation, { passive: true });
+    window.addEventListener("touchstart", releaseNavigation, { passive: true });
+    window.addEventListener("pointerdown", releaseNavigation, { passive: true });
+    window.addEventListener("keydown", interruptNavigation);
+    const observer =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleUpdate);
     observer?.observe(page);
     return () => {
       window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
+      window.removeEventListener(LANDING_LOCATION_CHANGE_EVENT, navigateToSection);
+      window.removeEventListener("wheel", releaseNavigation);
+      window.removeEventListener("touchstart", releaseNavigation);
+      window.removeEventListener("pointerdown", releaseNavigation);
+      window.removeEventListener("keydown", interruptNavigation);
+      window.clearTimeout(navigationTimer);
       observer?.disconnect();
       if (frame) window.cancelAnimationFrame(frame);
     };
@@ -79,10 +133,16 @@ export function LandingScrollControls({ pageRef }: { pageRef: RefObject<HTMLDivE
   function scrollToTop() {
     const hash = `#${LANDING_SECTIONS.home}`;
     if (window.location.hash !== hash) {
-      window.history.pushState(null, "", `${window.location.pathname}${window.location.search}${hash}`);
+      window.history.pushState(
+        null,
+        "",
+        `${window.location.pathname}${window.location.search}${hash}`,
+      );
       window.dispatchEvent(new Event(LANDING_LOCATION_CHANGE_EVENT));
     }
-    pageRef.current?.querySelector<HTMLElement>("[data-landing-home]")?.focus({ preventScroll: true });
+    pageRef.current
+      ?.querySelector<HTMLElement>("[data-landing-home]")
+      ?.focus({ preventScroll: true });
     window.scrollTo({
       top: 0,
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",

@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CommunityPageView } from "@/components/community/community-page-view";
-import { ResultSkeleton } from "@/components/landing/results/result-skeleton";
+import { CommunityPageSkeleton } from "@/components/community/community-states";
+import styles from "@/components/community/community.module.css";
+import { landingTypography } from "@/components/landing/landing-font";
 import { WorkspaceShell } from "@/components/workspace/workspace-shell";
 import { requirePageUser } from "@/lib/auth/page-access";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Kasus Komunitas | Guardian Lab",
@@ -15,8 +18,11 @@ async function CommunityContent() {
 }
 export default function CommunityPage() {
   return (
-    <WorkspaceShell>
-      <Suspense fallback={<ResultSkeleton />}>
+    <WorkspaceShell
+      className={cn(landingTypography, styles.page)}
+      dialogClassName={landingTypography}
+    >
+      <Suspense fallback={<CommunityPageSkeleton />}>
         <CommunityContent />
       </Suspense>
     </WorkspaceShell>

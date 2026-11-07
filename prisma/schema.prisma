@@ -87,33 +87,64 @@ enum ReplayStatus {
 // -------------------------------------------------------------
 
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  passwordHash    String
-  name            String
-  phone           String?   @unique @db.VarChar(16)
-  phoneVerifiedAt DateTime?
-  role            Role      @default(USER)
-  exp             Int       @default(0)
-  streakDays      Int       @default(0)
-  lastLearningAt  DateTime?
-  lastActiveAt    DateTime  @default(now())
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id               String    @id @default(cuid())
+  email            String    @unique
+  passwordHash     String
+  name             String
+  phone            String?   @unique @db.VarChar(16)
+  phoneVerifiedAt  DateTime?
+  role             Role      @default(USER)
+  exp              Int       @default(0)
+  streakDays       Int       @default(0)
+  lastLearningAt   DateTime?
+  lastActiveAt     DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  suspendedAt      DateTime?
+  suspensionReason String?   @db.Text
 
   // Relations
-  sessions         Session[]
-  authChallenges   AuthChallenge[]
-  forensicRecords  ForensicRecord[]
-  sandboxSessions  SandboxSession[]
-  userBadges       UserBadge[]
-  quizAttempts     QuizAttempt[]
-  communityReplays CommunityReplay[]
-  reviewedReplays  CommunityReplay[] @relation("ReplayReviewer")
-  replayAttempts   ReplayAttempt[]
+  sessions             Session[]
+  authChallenges       AuthChallenge[]
+  forensicRecords      ForensicRecord[]
+  sandboxSessions      SandboxSession[]
+  userBadges           UserBadge[]
+  quizAttempts         QuizAttempt[]
+  communityReplays     CommunityReplay[]
+  reviewedReplays      CommunityReplay[]          @relation("ReplayReviewer")
+  replayAttempts       ReplayAttempt[]
+  auditActions         AdminAuditLog[]
+  investigationReviews AdminInvestigationReview[]
 
   @@index([email])
   @@index([role])
+}
+
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String   @db.VarChar(64)
+  entityType String   @db.VarChar(32)
+  entityId   String   @db.VarChar(191)
+  reason     String?  @db.Text
+  details    Json
+  createdAt  DateTime @default(now())
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt, id])
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
+}
+
+model AdminInvestigationReview {
+  id              String         @id @default(cuid())
+  investigationId String         @unique
+  reviewerId      String
+  status          String         @db.VarChar(32)
+  note            String         @db.Text
+  updatedAt       DateTime       @updatedAt
+  investigation   ForensicRecord @relation(fields: [investigationId], references: [id], onDelete: Cascade)
+  reviewer        User           @relation(fields: [reviewerId], references: [id], onDelete: Restrict)
 }
 
 model AuthChallenge {
@@ -182,10 +213,11 @@ model ForensicRecord {
   finishedAt        DateTime?
 
   // Relations
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
   communityReplay CommunityReplay?
-  sandboxSessions SandboxSession[] @relation("SandboxSource")
+  sandboxSessions SandboxSession[]          @relation("SandboxSource")
   sandboxDownload SandboxDownloadAnalysis?
+  adminReview     AdminInvestigationReview?
 
   @@index([userId])
   @@index([type])
@@ -195,20 +227,20 @@ model ForensicRecord {
 }
 
 model SandboxSession {
-  id          String        @id @default(cuid())
-  userId      String
-  targetUrl   String        @db.Text
-  type        SandboxType
-  status      SandboxStatus @default(ACTIVE)
-  startedAt   DateTime      @default(now())
-  expiresAt   DateTime
-  destroyedAt DateTime?
+  id                    String        @id @default(cuid())
+  userId                String
+  targetUrl             String        @db.Text
+  type                  SandboxType
+  status                SandboxStatus @default(ACTIVE)
+  startedAt             DateTime      @default(now())
+  expiresAt             DateTime
+  destroyedAt           DateTime?
   sourceInvestigationId String?
 
   // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sourceInvestigation ForensicRecord? @relation("SandboxSource", fields: [sourceInvestigationId], references: [id], onDelete: SetNull)
-  downloadAnalyses SandboxDownloadAnalysis[]
+  user                User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceInvestigation ForensicRecord?           @relation("SandboxSource", fields: [sourceInvestigationId], references: [id], onDelete: SetNull)
+  downloadAnalyses    SandboxDownloadAnalysis[]
 
   @@index([userId])
   @@index([status])
@@ -217,11 +249,12 @@ model SandboxSession {
 }
 
 model SandboxDownloadAnalysis {
-  sessionId String
+  sessionId  String
   downloadId String
-  recordId String? @unique
-  session SandboxSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  record ForensicRecord? @relation(fields: [recordId], references: [id], onDelete: SetNull)
+  recordId   String?         @unique
+  session    SandboxSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  record     ForensicRecord? @relation(fields: [recordId], references: [id], onDelete: SetNull)
+
   @@id([sessionId, downloadId])
 }
 
@@ -269,10 +302,18 @@ model Quiz {
   // Relations
   questions QuizQuestion[]
   attempts  QuizAttempt[]
+  thumbnail QuizThumbnail?
 
   @@index([category])
   @@index([difficulty])
   @@index([published])
+}
+
+model QuizThumbnail {
+  quizId  String @id
+  data    Bytes  @db.MediumBlob
+  version String @db.Char(64)
+  quiz    Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
 }
 
 model QuizQuestion {
@@ -293,41 +334,43 @@ model QuizQuestion {
 }
 
 model QuizAttempt {
-  id          String   @id @default(cuid())
-  userId      String
-  quizId      String
-  score       Int
-  expEarned   Int      @default(0)
-  passed      Boolean  @default(false)
-  completedAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String
+  quizId       String
+  score        Int
+  expEarned    Int      @default(0)
+  passed       Boolean  @default(false)
+  completedAt  DateTime @default(now())
   submissionId String?
-  result Json?
+  result       Json?
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, submissionId])
   @@index([userId])
   @@index([quizId])
   @@index([completedAt])
-  @@unique([userId, submissionId])
 }
 
 model CommunityReplay {
-  id             String       @id @default(cuid())
-  userId         String
-  sourceRecordId String?      @unique
-  consentedAt    DateTime?
-  reviewerId     String?
-  title          String
-  description    String       @db.Text
-  scamType       String
-  sanitizedData  Json
-  status         ReplayStatus @default(PENDING_REVIEW)
-  adminNotes     String?      @db.Text
-  reviewedAt     DateTime?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id               String       @id @default(cuid())
+  userId           String
+  sourceRecordId   String?      @unique
+  consentedAt      DateTime?
+  reviewerId       String?
+  title            String
+  description      String       @db.Text
+  scamType         String
+  sanitizedData    Json
+  status           ReplayStatus @default(PENDING_REVIEW)
+  adminNotes       String?      @db.Text
+  reviewedAt       DateTime?
+  withdrawnAt      DateTime?
+  withdrawalReason String?      @db.Text
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   // Relations
   user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -341,21 +384,21 @@ model CommunityReplay {
 }
 
 model ReplayAttempt {
-  id          String   @id @default(cuid())
-  userId      String
-  replayId    String
-  solved      Boolean  @default(false)
-  expEarned   Int      @default(0)
-  attemptedAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String
+  replayId     String
+  solved       Boolean  @default(false)
+  expEarned    Int      @default(0)
+  attemptedAt  DateTime @default(now())
   submissionId String?
-  result Json?
+  result       Json?
 
   // Relations
   user   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   replay CommunityReplay @relation(fields: [replayId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, submissionId])
   @@index([userId])
   @@index([replayId])
   @@index([attemptedAt])
-  @@unique([userId, submissionId])
 }

@@ -68,8 +68,13 @@ const submitId = (id: string, token = ownerToken, extra = {}) =>
       ...extra,
     }),
   );
-const decide = (id: string, body: unknown, token = adminToken) =>
-  review(req(API_ROUTES.adminCommunityReview(id), token, "PUT", body), ctx(id));
+const decide = (id: string, body: unknown, token = adminToken) => {
+  const input =
+    body && typeof body === "object" && "status" in body && body.status === "APPROVED"
+      ? { adminNotes: "Bukti dan privasi snapshot telah diperiksa.", ...body }
+      : body;
+  return review(req(API_ROUTES.adminCommunityReview(id), token, "PUT", input), ctx(id));
+};
 
 describe("Stored investigation contribution and moderation", () => {
   beforeAll(async () => {

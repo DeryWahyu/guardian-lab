@@ -1,9 +1,20 @@
+import {
+  ArrowUpRight,
+  CircleAlert,
+  Clock3,
+  Link2,
+  LockKeyhole,
+  Monitor,
+  RefreshCw,
+  ShieldCheck,
+  Square,
+} from "lucide-react";
 import Link from "next/link";
 import type { z } from "zod";
-import { WorkspaceEmpty } from "@/components/workspace/workspace-state";
-import workspace from "@/components/workspace/workspace.module.css";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import type { sandboxSessionSchema } from "@/lib/validations/sandbox";
+import styles from "./sandbox-session.module.css";
+import shared from "./web-sandbox.module.css";
 
 const labels = {
   STARTING: "Menyiapkan",
@@ -13,65 +24,128 @@ const labels = {
   FAILED: "Gagal",
   UNKNOWN: "Belum terkonfirmasi",
 };
+
+const messages = {
+  STARTING: {
+    title: "Menyiapkan ruang jelajah...",
+    description: "Browser terisolasi sedang disiapkan. Status diperbarui otomatis.",
+  },
+  UNKNOWN: {
+    title: "Status sesi perlu diperiksa.",
+    description:
+      "Koneksi runtime terputus. Pembersihan belum terkonfirmasi; periksa status kembali.",
+  },
+  FAILED: {
+    title: "Browser belum berhasil dibuka.",
+    description: "Mulai sesi baru melalui form tautan. Jika masih gagal, periksa status layanan.",
+  },
+  DESTROYED: {
+    title: "Sesi dan data sementara telah dihapus.",
+    description: "Mulai sesi baru melalui form tautan untuk melanjutkan penjelajahan.",
+  },
+  EXPIRED: {
+    title: "Sesi jelajah telah berakhir.",
+    description: "Mulai sesi baru melalui form tautan untuk melanjutkan penjelajahan.",
+  },
+};
+
 export function SandboxSessionPanel({
   session,
   remaining,
   pending,
   onStop,
+  onRefresh,
 }: {
   session: z.infer<typeof sandboxSessionSchema>;
   remaining: number;
   pending: boolean;
   onStop: () => void;
+  onRefresh: () => void;
 }) {
   const live = ["STARTING", "ACTIVE", "UNKNOWN"].includes(session.status);
+  const seconds = Math.max(0, Math.min(180, remaining));
+  const time = `${Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
+  const unknown = session.status === "UNKNOWN";
+  const failed = session.status === "FAILED";
+  const deleted = session.status === "DESTROYED";
+  const StateIcon = unknown || failed ? CircleAlert : deleted ? ShieldCheck : Monitor;
+  const message =
+    session.status === "ACTIVE"
+      ? seconds > 0
+        ? {
+            title: "Menunggu tampilan browser.",
+            description: "Stream belum tersedia. Periksa status kembali untuk melihat pembaruan.",
+          }
+        : {
+            title: "Sesi jelajah telah berakhir.",
+            description: "Waktu sesi selesai. Menunggu konfirmasi penghapusan container.",
+          }
+      : messages[session.status];
+
   return (
-    <section
-      aria-label="Sesi sandbox"
-      className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
-    >
-      <div className="space-y-3 border-b border-slate-200 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="flex flex-wrap items-center gap-3 text-sm">
-            <strong className={workspace.statusChip} data-status={session.status}>
+    <section aria-label="Sesi sandbox" className={styles.session}>
+      <div className={styles.toolbar}>
+        <div className={styles.sessionIdentity}>
+          <span className={shared.headingIcon}>
+            <Monitor aria-hidden="true" size={21} />
+          </span>
+          <div>
+            <h2>Browser terisolasi</h2>
+            <span className={styles.status} data-status={session.status}>
               {labels[session.status]}
-            </strong>
-            {live && (
-              <>
-                {" "}
-                Sisa <span className="font-semibold tabular-nums">{remaining} detik</span>
-              </>
-            )}
-          </p>
-          {live && (
+            </span>
+          </div>
+        </div>
+        {live && (
+          <div className={styles.sessionControls}>
+            <div
+              className={styles.timer}
+              data-urgent={seconds <= 30}
+              role="timer"
+              aria-label={`Sisa waktu ${seconds} detik`}
+            >
+              <Clock3 aria-hidden="true" size={19} />
+              <div>
+                <span>Sisa waktu</span>
+                <strong>{time}</strong>
+              </div>
+            </div>
             <button
               type="button"
               disabled={pending}
-              className={workspace.secondary}
-              onClick={onStop}
+              className={shared.secondaryButton}
+              onClick={onRefresh}
             >
-              Hentikan dan hapus sesi
+              <RefreshCw aria-hidden="true" size={16} /> Periksa status
             </button>
-          )}
-        </div>
-        {live && (
-          <progress
-            aria-label="Sisa waktu sesi sandbox"
-            max={180}
-            value={Math.max(0, Math.min(180, remaining))}
-            className={workspace.sessionProgress}
-          />
+            <button type="button" disabled={pending} className={styles.stopButton} onClick={onStop}>
+              <Square aria-hidden="true" size={14} /> Hentikan dan hapus sesi
+            </button>
+          </div>
         )}
-        <p className="text-xs text-slate-500">Tautan awal sesi ini</p>
-        <p className="text-sm font-medium break-all" data-testid="sandbox-active-target">
-          {session.targetUrl}
-        </p>
+      </div>
+      {live && (
+        <progress
+          aria-label="Sisa waktu sesi sandbox"
+          max={180}
+          value={seconds}
+          className={styles.progress}
+        />
+      )}
+      <div className={styles.addressBar}>
+        <Link2 aria-hidden="true" className={styles.addressIcon} size={18} />
+        <div>
+          <span>Tautan awal sesi ini</span>
+          <p data-testid="sandbox-active-target">{session.targetUrl}</p>
+        </div>
         {session.sourceInvestigationId && (
           <Link
             href={PROTECTED_ROUTES.historyDetail(session.sourceInvestigationId)}
-            className="text-brand-700 inline-flex min-h-11 items-center text-sm underline"
+            className={styles.sourceLink}
           >
-            Kembali ke investigasi sumber
+            Investigasi sumber <ArrowUpRight aria-hidden="true" size={16} />
           </Link>
         )}
       </div>
@@ -79,33 +153,25 @@ export function SandboxSessionPanel({
         <iframe
           title="Browser Chromium terisolasi"
           src={session.streamUrl}
-          className="aspect-video min-h-64 w-full bg-slate-950 sm:min-h-96"
+          className={styles.browser}
           sandbox="allow-scripts allow-same-origin"
           allow="clipboard-read 'none'; clipboard-write 'none'; camera 'none'; microphone 'none'; geolocation 'none'"
           referrerPolicy="no-referrer"
         />
       ) : (
-        <div className="p-5">
-          <WorkspaceEmpty
-            pose="sandbox"
-            title={
-              session.status === "STARTING"
-                ? "Menyiapkan ruang jelajah…"
-                : session.status === "UNKNOWN"
-                  ? "Status sesi perlu diperiksa."
-                  : "Sesi jelajah telah berakhir."
-            }
-            description={
-              session.status === "STARTING"
-                ? "Container sedang disiapkan. Status diperbarui otomatis."
-                : session.status === "UNKNOWN"
-                  ? "Koneksi runtime terputus. Pembersihan belum terkonfirmasi; periksa status kembali."
-                  : live
-                    ? "Waktu sesi selesai. Menunggu konfirmasi penghapusan container."
-                    : "Sesi sudah berakhir. Mulai sesi baru untuk membuka browser."
-            }
-          />
+        <div className={styles.sessionState} role="status">
+          <span className={styles.stateIcon}>
+            <StateIcon aria-hidden="true" size={29} />
+          </span>
+          <h3>{message.title}</h3>
+          <p>{message.description}</p>
         </div>
+      )}
+      {live && (
+        <p className={styles.browserFootnote}>
+          <LockKeyhole aria-hidden="true" size={15} /> Jangan masukkan akun atau data pribadi.
+          Clipboard dan unduhan langsung ke perangkat dinonaktifkan.
+        </p>
       )}
     </section>
   );

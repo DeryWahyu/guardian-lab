@@ -1,28 +1,22 @@
 "use client";
-import Link from "next/link";
-import { WorkspaceStage } from "@/components/workspace/workspace-stage";
-import workspace from "@/components/workspace/workspace.module.css";
-import { PROTECTED_ROUTES } from "@/lib/routes";
+import { ShieldCheck } from "lucide-react";
 import { CommunityCasesView } from "./community-cases-view";
+import { CommunityHero } from "./community-hero";
+import styles from "./community.module.css";
 
 export function CommunityPageView({ scope }: { scope: string }) {
   return (
-    <div className="space-y-5">
-      <WorkspaceStage
-        title="Belajar dari kasus, saling menjaga."
-        description="Telusuri bukti dari kasus yang sudah ditinjau. Latih pemahamanmu atau ajukan hasil lengkap untuk membantu Guardian lain."
-        pose="community"
-        tone="lavender"
-      >
-        <div className={workspace.actions}>
-          <Link href={PROTECTED_ROUTES.history} className={workspace.primary}>
-            Ajukan dari riwayat
-          </Link>
-          <Link href={PROTECTED_ROUTES.leaderboard} className={workspace.secondary}>
-            Lihat peringkat belajar Guardian
-          </Link>
+    <div className={styles.content}>
+      <CommunityHero />
+      <div className={styles.moderationNotice} data-user-reveal data-user-order="1">
+        <span>
+          <ShieldCheck aria-hidden="true" size={25} />
+        </span>
+        <div>
+          <strong>Kasus diajukan pengguna dan ditinjau admin.</strong>
+          <span>Identitas pengaju tidak ditampilkan.</span>
         </div>
-      </WorkspaceStage>
+      </div>
       <CommunityCasesView scope={scope} />
     </div>
   );

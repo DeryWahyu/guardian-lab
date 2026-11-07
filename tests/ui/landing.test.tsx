@@ -10,7 +10,7 @@ import { LANDING_SECTIONS } from "@/lib/routes";
 
 mock.module("next/image", () => ({
   default: (props: Record<string, unknown>) => {
-    // eslint-disable-next-line @next/next/no-img-element
+    // biome-ignore lint/performance/noImgElement: Native img is the static test double for next/image.
     return <img {...props} alt={(props.alt as string) || ""} />;
   },
 }));
@@ -43,12 +43,15 @@ describe("LANDING-01..04, HERO-01..02, SCROLL-02 Landing Page Sections & Interac
     expect(cta).toContain(`id="${LANDING_SECTIONS.start}"`);
   });
 
-  it("renders 4 accordion FAQ items initially closed with correct answers (LANDING-04)", () => {
+  it("renders seven FAQ items including model limits and WhatsApp usage, initially closed (LANDING-04)", () => {
     const faq = renderToStaticMarkup(<LandingFaq />);
     expect(faq).toContain("<details");
     // Count number of details tags
     const count = (faq.match(/<details/g) || []).length;
-    expect(count).toBe(4);
+    expect(count).toBe(7);
+    expect(faq).toContain("Apakah skor rendah berarti tautan pasti aman?");
+    expect(faq).toContain("Apakah AI memeriksa isi situs dan redirect?");
+    expect(faq).toContain("Untuk apa nomor WhatsApp saya digunakan?");
 
     expect(faq).toContain("Apakah tautan langsung dibuka di perangkat saya?");
     expect(faq).toContain("Apakah file APK akan dipasang?");

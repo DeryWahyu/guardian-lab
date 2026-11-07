@@ -47,7 +47,7 @@ export function InvestigationView({
     );
   }
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-user-reveal>
       <div className="flex flex-wrap items-center justify-end gap-3 text-xs text-slate-500">
         {refreshing && <span aria-live="polite">Memperbarui status…</span>}
         <button

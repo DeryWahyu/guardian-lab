@@ -45,39 +45,50 @@ export function SocialProofSection() {
       className={cn(shared.sectionSpacing, styles.section)}
     >
       <div className={cn(shared.container, shared.sectionContainer)}>
-        <h2 id="community-title" className={cn(shared.display, shared.sectionTitle)}>
+        <h2
+          id="community-title"
+          className={cn(shared.display, shared.sectionTitle)}
+          data-landing-reveal
+        >
           Belajar bareng, jaga sesama.
         </h2>
-        <p className={shared.sectionIntro}>
+        <p className={shared.sectionIntro} data-landing-reveal data-landing-order="1">
           Bangun kebiasaan digital yang lebih waspada. Ada pelajaran dan pengalaman untuk
           dipelajari.
         </p>
         <div className={styles.learning}>
-          {paths.map(({ id, label, icon: Icon, title, description, action, href, image }) => (
-            <article key={id} className={cn(styles.learningCard, styles[id])}>
-              <div className={styles.cardSurface} aria-hidden="true" />
-              <div className={styles.cardCopy}>
-                <span className={styles.cardLabel}>
-                  <Icon aria-hidden="true" />
-                  {label}
-                </span>
-                <h3 className={cn(shared.display, styles.cardTitle)}>{title}</h3>
-                <p>{description}</p>
-                <Link href={href} className={shared.textLink}>
-                  {action} <ArrowUpRight aria-hidden="true" />
-                </Link>
-              </div>
-              <SceneReveal className={styles.companion}>
-                <Image
-                  src={image}
-                  alt=""
-                  sizes="(min-width: 900px) 175px, (min-width: 640px) 190px, 125px"
-                  loading="lazy"
-                  draggable={false}
-                />
-              </SceneReveal>
-            </article>
-          ))}
+          {paths.map(
+            ({ id, label, icon: Icon, title, description, action, href, image }, index) => (
+              <article
+                key={id}
+                className={cn(styles.learningCard, styles[id])}
+                data-landing-reveal
+                data-landing-order={index}
+              >
+                <div className={styles.cardSurface} aria-hidden="true" />
+                <div className={styles.cardCopy}>
+                  <span className={styles.cardLabel}>
+                    <Icon aria-hidden="true" />
+                    {label}
+                  </span>
+                  <h3 className={cn(shared.display, styles.cardTitle)}>{title}</h3>
+                  <p>{description}</p>
+                  <Link href={href} className={shared.textLink}>
+                    {action} <ArrowUpRight aria-hidden="true" />
+                  </Link>
+                </div>
+                <SceneReveal className={styles.companion}>
+                  <Image
+                    src={image}
+                    alt=""
+                    sizes="(min-width: 900px) 175px, (min-width: 640px) 190px, 125px"
+                    loading="lazy"
+                    draggable={false}
+                  />
+                </SceneReveal>
+              </article>
+            ),
+          )}
         </div>
         <PlatformStats />
         <LandingFaq />

@@ -37,15 +37,19 @@ export function JourneySection() {
       className={cn(shared.sectionSpacing, styles.section)}
     >
       <div className={cn(shared.container, shared.sectionContainer)}>
-        <h2 id="journey-title" className={cn(shared.display, shared.sectionTitle)}>
+        <h2
+          id="journey-title"
+          className={cn(shared.display, shared.sectionTitle)}
+          data-landing-reveal
+        >
           Tiga langkah, lebih terarah.
         </h2>
-        <p className={shared.sectionIntro}>
+        <p className={shared.sectionIntro} data-landing-reveal data-landing-order="1">
           Tak harus langsung tahu semuanya. Guardian menemanimu, satu langkah setiap kali.
         </p>
         <ol className={styles.steps}>
           {steps.map((step, index) => (
-            <li key={step.title}>
+            <li key={step.title} data-landing-reveal data-landing-order={index}>
               <SceneReveal className={styles.illustration}>
                 <Image src={step.image} alt="" sizes="160px" loading="lazy" draggable={false} />
               </SceneReveal>

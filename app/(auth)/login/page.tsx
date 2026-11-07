@@ -14,7 +14,7 @@ type Props = { searchParams: Promise<{ redirect?: string | string[] }> };
 
 export default function LoginPage({ searchParams }: Props) {
   return (
-    <Suspense fallback={<AuthCardSkeleton title="Menyiapkan halaman masuk…" />}>
+    <Suspense fallback={<AuthCardSkeleton title="Menyiapkan halaman masuk…" enlarged />}>
       <LoginContent searchParams={searchParams} />
     </Suspense>
   );

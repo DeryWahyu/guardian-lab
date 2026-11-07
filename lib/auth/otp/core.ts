@@ -90,10 +90,11 @@ export async function createPending(
 }
 export async function getPending(token: string | undefined) {
   if (!token || token.length > 100) return null;
-  return prisma.authChallenge.findFirst({
+  const pending = await prisma.authChallenge.findFirst({
     where: { tokenHash: digest(`token:${token}`), consumedAt: null, expiresAt: { gt: new Date() } },
     include: { user: true },
   });
+  return pending?.user?.suspendedAt ? null : pending;
 }
 export function maskPhone(phone: string) {
   return `${phone.slice(0, 3)}••••••${phone.slice(-3)}`;

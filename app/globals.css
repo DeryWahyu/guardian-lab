@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../components/workspace/workspace-transitions.css";
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -62,6 +63,9 @@
 }
 
 :root {
+  --guardian-page-background:
+    radial-gradient(ellipse at 50% 42%, #ffffffd9, transparent 70%),
+    linear-gradient(115deg, #f2edff, #fafcff 48%, #f4efff);
   --background: #f8fafc;
   --foreground: #0f172a;
   --card: oklch(1 0 0);

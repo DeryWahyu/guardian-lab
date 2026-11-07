@@ -21,7 +21,11 @@ export function WorkspaceStage({
   tone?: "cyan" | "lavender" | "yellow";
 }) {
   return (
-    <section className={cn(styles.stage, compact && styles.compactStage)} data-tone={tone}>
+    <section
+      className={cn(styles.stage, compact && styles.compactStage)}
+      data-tone={tone}
+      data-user-reveal
+    >
       <div className={styles.stageSurface} />
       <div className={styles.stageCopy}>
         <h1 className={styles.title}>{title}</h1>

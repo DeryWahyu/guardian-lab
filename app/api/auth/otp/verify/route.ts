@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       });
       if (!claimed.count) return null;
       const matching = await tx.user.updateMany({
-        where: { id: user.id, phone: user.phone },
+        where: { id: user.id, phone: user.phone, suspendedAt: null },
         data: { phoneVerifiedAt: now, lastActiveAt: now },
       });
       if (!matching.count) throw new Error("Nomor akun berubah");

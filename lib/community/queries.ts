@@ -14,6 +14,9 @@ export async function listCommunityCases(request: Request, user: UserSession, ad
   const { view, status, type, q, page, pageSize } = query.data;
   const own = !admin && view === "mine";
   const where: Prisma.CommunityReplayWhereInput = {
+    ...(admin && query.data.withdrawn
+      ? { withdrawnAt: query.data.withdrawn === "yes" ? { not: null } : null }
+      : {}),
     ...(admin
       ? { status: status ?? "PENDING_REVIEW" }
       : own
@@ -48,6 +51,7 @@ export async function getCommunityCase(id: string, user: UserSession) {
   const privateView = record.userId === user.id || user.role === "ADMIN";
   const visible =
     record.status === "APPROVED" &&
+    !record.withdrawnAt &&
     record.consentedAt &&
     record.sourceRecordId &&
     readCommunityReport(record.sanitizedData);

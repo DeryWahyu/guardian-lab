@@ -14,7 +14,7 @@ export function WorkspaceEmpty({
   children?: ReactNode;
 }) {
   return (
-    <section className={styles.empty}>
+    <section className={styles.empty} data-user-reveal>
       <WorkspaceMascot pose={pose} small />
       <div>
         <h2>{title}</h2>

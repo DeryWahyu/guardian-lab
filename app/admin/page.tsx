@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { DashboardSkeleton } from "@/components/admin/dashboard-skeleton";
 import { DashboardView } from "@/components/admin/dashboard-view";
 import { getAdminDashboard } from "@/lib/admin/dashboard";
+import { requirePageUser } from "@/lib/auth/page-access";
 
 export const metadata = {
   title: "Dashboard Admin | Guardian Lab",
@@ -9,7 +10,8 @@ export const metadata = {
 };
 
 async function DashboardContent() {
-  return <DashboardView data={await getAdminDashboard()} />;
+  const user = await requirePageUser("ADMIN");
+  return <DashboardView scope={`${user.id}:${user.role}`} data={await getAdminDashboard()} />;
 }
 
 export default function AdminDashboardPage() {

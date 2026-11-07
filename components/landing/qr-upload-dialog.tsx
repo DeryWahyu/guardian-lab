@@ -6,6 +6,7 @@ import type { FormEvent } from "react";
 import { InvestigationRequestFeedback } from "@/components/shared/investigation-request-feedback";
 import { InvestigationUploadField } from "@/components/shared/investigation-upload-field";
 import { cn } from "@/lib/utils";
+import { GatewayAccountNotice } from "./gateway-account-notice";
 import styles from "./gateway.module.css";
 import { landingTypography } from "./landing-font";
 
@@ -17,6 +18,7 @@ type Props = {
   requestError: string | null;
   uncertain: boolean;
   busy: boolean;
+  requiresAccount?: boolean;
   onClose: () => void;
   onOpenChangeComplete: (open: boolean) => void;
   onSelect: (files: File[]) => void;
@@ -70,9 +72,13 @@ export function QrUploadDialog(props: Props) {
               onClear={props.onClear}
             />
             <InvestigationRequestFeedback error={props.requestError} uncertain={props.uncertain} />
+            {props.requiresAccount && (
+              <GatewayAccountNotice id="qr-account-help" className={styles.dialogAccountHelp} />
+            )}
             <button
               type="submit"
               disabled={props.busy || !props.file}
+              aria-describedby={props.requiresAccount ? "qr-account-help" : undefined}
               className={styles.dialogSubmit}
             >
               {props.busy ? (
@@ -82,7 +88,6 @@ export function QrUploadDialog(props: Props) {
               )}
               {props.busy ? "Memproses gambar…" : "Baca kode QR"}
             </button>
-            {/* AI sedang disiapkan; skor risiko belum tersedia. */}
           </form>
         </Dialog.Popup>
       </Dialog.Portal>

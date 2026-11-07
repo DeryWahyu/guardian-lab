@@ -14,6 +14,7 @@ import {
 import { AUTH_ROUTES, LANDING_SECTIONS, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import landingStyles from "./landing-chrome.module.css";
+import { NavigationLabel } from "./navigation-label";
 
 export type HeaderVariant = "default" | "landing" | "information";
 
@@ -153,7 +154,7 @@ export function HeaderNavigation({ signedIn, variant, mobile = false, onSelect }
             aria-current={active ? "page" : undefined}
             className={className}
           >
-            {content}
+            <NavigationLabel>{content}</NavigationLabel>
           </LandingLink>
         ) : (
           <Link
@@ -164,7 +165,7 @@ export function HeaderNavigation({ signedIn, variant, mobile = false, onSelect }
             title={locked ? "Masuk untuk membuka fitur ini" : undefined}
             className={className}
           >
-            {content}
+            <NavigationLabel>{content}</NavigationLabel>
           </Link>
         );
       })}

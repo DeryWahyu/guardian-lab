@@ -1,9 +1,16 @@
-import { ResultSkeleton } from "@/components/landing/results/result-skeleton";
+import { SharePageSkeleton } from "@/components/act/share-page-skeleton";
+import styles from "@/components/act/share-workspace.module.css";
+import { landingTypography } from "@/components/landing/landing-font";
+import { WorkspaceShell } from "@/components/workspace/workspace-shell";
+import { cn } from "@/lib/utils";
 
 export default function Loading() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <ResultSkeleton />
-    </div>
+    <WorkspaceShell
+      className={cn(landingTypography, styles.page)}
+      dialogClassName={landingTypography}
+    >
+      <SharePageSkeleton />
+    </WorkspaceShell>
   );
 }

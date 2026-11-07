@@ -8,7 +8,7 @@ export const metadata = {
 };
 async function Content() {
   const user = await requirePageUser("ADMIN");
-  return <QuizCmsView scope={`${user.id}:${user.role}`} />;
+  return <QuizCmsView key={user.id + user.role} scope={`${user.id}:${user.role}`} />;
 }
 export default function Page() {
   return (

@@ -15,7 +15,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const input = communityReviewSchema.safeParse(await readInput(request, 8192, "json"));
     if (!input.success)
       throw new InputError(
-        "Persetujuan memerlukan konfirmasi privasi. Penolakan memerlukan alasan minimal 10 karakter.",
+        "Persetujuan memerlukan konfirmasi privasi. Setiap keputusan memerlukan alasan minimal 10 karakter.",
       );
     return NextResponse.json(await reviewCommunityCase(id.data, auth.user.id, input.data));
   } catch (error) {

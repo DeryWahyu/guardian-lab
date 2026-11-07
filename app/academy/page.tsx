@@ -1,10 +1,13 @@
 import { Suspense } from "react";
 import { AcademyPageView } from "@/components/academy/academy-page-view";
-import { LearningSkeleton } from "@/components/academy/learning-ui";
+import { AcademySkeleton } from "@/components/academy/academy-page-state";
+import styles from "@/components/academy/academy.module.css";
+import { landingTypography } from "@/components/landing/landing-font";
 import { WorkspaceShell } from "@/components/workspace/workspace-shell";
 import { requirePageUser } from "@/lib/auth/page-access";
+import { cn } from "@/lib/utils";
 export const metadata = {
-  title: "Guardian Academy",
+  title: "Belajar | Guardian Lab",
   description: "Latihan mengenali ancaman digital dan progres belajar akunmu.",
 };
 async function Content() {
@@ -13,8 +16,11 @@ async function Content() {
 }
 export default function Page() {
   return (
-    <WorkspaceShell>
-      <Suspense fallback={<LearningSkeleton presentation="workspace" />}>
+    <WorkspaceShell
+      className={cn(landingTypography, styles.page, styles.hub)}
+      dialogClassName={landingTypography}
+    >
+      <Suspense fallback={<AcademySkeleton />}>
         <Content />
       </Suspense>
     </WorkspaceShell>

@@ -20,4 +20,6 @@ const response = await fetch(API_ROUTES.historyDetail(investigationId));
 - Menu fitur pengguna memakai label Bahasa Indonesia. Tautan utama menuju landing berlabel **Beranda**, sementara path dan pembentuk URL tetap mengikuti `lib/routes.ts`.
 - Halaman Tentang Guardian Lab, Kebijakan Privasi, dan Ketentuan Penggunaan memakai layout bersama pada [app/(public-info)](<../app/(public-info)/layout.tsx>), tanpa kewajiban login. Navbar varian informasi menaut ke Beranda dan ketiga halaman tersebut untuk semua status sesi; halaman aktif mengikuti pathname. Gaya navbar menggunakan komponen yang sama dengan landing dan halaman fitur. Kolom **Informasi** pada kedua varian footer memakai konstanta publik untuk menaut ketiganya.
 
+Profil pemilik sesi diakses dari avatar/nama navbar desktop dan menu Profil saya di ponsel. Akses halaman/API tetap memeriksa sesi database; profil bukan halaman publik dan bukan detail pengguna berdasarkan ID URL.
+
 Jangan menyalin daftar konstanta ke dokumentasi. Path dan signature terbaru dibaca langsung dari kode.

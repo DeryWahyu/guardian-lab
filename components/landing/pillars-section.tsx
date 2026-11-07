@@ -60,7 +60,7 @@ export function PillarsSection() {
       className={cn(shared.sectionSpacing, styles.section)}
     >
       <div className={cn(shared.container, shared.sectionContainer)}>
-        <div className={styles.heading}>
+        <div className={styles.heading} data-landing-reveal>
           <h2 id="pillars-title" className={cn(shared.display, shared.sectionTitle)}>
             Kenali dulu, baru melangkah.
           </h2>
@@ -69,38 +69,45 @@ export function PillarsSection() {
           </p>
         </div>
         <div className={styles.grid}>
-          {features.map(({ id, title, image, icon: Icon, description, action, tab, href }) => (
-            <article key={id} className={cn(styles.card, styles[id])}>
-              <div className={styles.surface} aria-hidden="true" />
-              <div className={styles.content}>
-                <h3>
-                  <Icon aria-hidden="true" />
-                  {title}
-                </h3>
-                <p>{description}</p>
-                {href ? (
-                  <Link href={href} className={styles.action}>
-                    {action}
-                    <ArrowUpRight aria-hidden="true" />
-                  </Link>
-                ) : (
-                  <LandingLink tab={tab} className={styles.action}>
-                    {action}
-                    <ArrowUpRight aria-hidden="true" />
-                  </LandingLink>
-                )}
-              </div>
-              <SceneReveal className={styles.mascot}>
-                <Image
-                  src={image}
-                  alt=""
-                  sizes="(min-width: 768px) 185px, (min-width: 375px) 130px, 105px"
-                  loading="lazy"
-                  draggable={false}
-                />
-              </SceneReveal>
-            </article>
-          ))}
+          {features.map(
+            ({ id, title, image, icon: Icon, description, action, tab, href }, index) => (
+              <article
+                key={id}
+                className={cn(styles.card, styles[id])}
+                data-landing-reveal
+                data-landing-order={index}
+              >
+                <div className={styles.surface} aria-hidden="true" />
+                <div className={styles.content}>
+                  <h3>
+                    <Icon aria-hidden="true" />
+                    {title}
+                  </h3>
+                  <p>{description}</p>
+                  {href ? (
+                    <Link href={href} className={styles.action}>
+                      {action}
+                      <ArrowUpRight aria-hidden="true" />
+                    </Link>
+                  ) : (
+                    <LandingLink tab={tab} className={styles.action}>
+                      {action}
+                      <ArrowUpRight aria-hidden="true" />
+                    </LandingLink>
+                  )}
+                </div>
+                <SceneReveal className={styles.mascot}>
+                  <Image
+                    src={image}
+                    alt=""
+                    sizes="(min-width: 768px) 185px, (min-width: 375px) 130px, 105px"
+                    loading="lazy"
+                    draggable={false}
+                  />
+                </SceneReveal>
+              </article>
+            ),
+          )}
         </div>
       </div>
     </section>

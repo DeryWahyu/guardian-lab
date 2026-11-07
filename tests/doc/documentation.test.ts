@@ -19,7 +19,8 @@ function extractMarkdownLinks(text: string) {
         j++;
       }
       if (depth === 0) {
-        links.push(text.substring(closeBracket + 2, j - 1));
+        const target = text.substring(closeBracket + 2, j - 1).trim();
+        links.push(target.startsWith("<") && target.endsWith(">") ? target.slice(1, -1) : target);
         i = j;
         continue;
       }
@@ -30,6 +31,14 @@ function extractMarkdownLinks(text: string) {
 }
 
 describe("DOC-01 & DOC-02 Documentation & AI Instruction Integrity", () => {
+  it("reads CommonMark angle destinations while preserving route-group parentheses", () => {
+    expect(extractMarkdownLinks("[Info](<../app/(public-info)/>)")).toEqual([
+      "../app/(public-info)/",
+    ]);
+    expect(extractMarkdownLinks("[Routes](./routes-and-navigation.md#routing)")).toEqual([
+      "./routes-and-navigation.md#routing",
+    ]);
+  });
   it("ensures features.md is the single authoritative feature doc without old deleted docs (DOC-01)", () => {
     const aiDocsDir = join(process.cwd(), "ai-agent-docs");
     expect(existsSync(join(aiDocsDir, "features.md"))).toBe(true);

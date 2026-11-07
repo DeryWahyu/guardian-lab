@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { publishedCommunityWhere } from "./visibility";
 
 export async function getRanking(page = 1, currentUserId?: string, pageSize = 10) {
-  const where = { role: "USER" as const, exp: { gt: 0 } };
+  const where = { role: "USER" as const, exp: { gt: 0 }, suspendedAt: null };
   const [users, total] = await prisma.$transaction([
     prisma.user.findMany({
       where,

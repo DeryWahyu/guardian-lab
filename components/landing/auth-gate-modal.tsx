@@ -86,7 +86,8 @@ export function AuthGateModal({
               Masuk untuk melanjutkan pemeriksaan
             </Dialog.Title>
             <Dialog.Description className="mx-auto max-w-xs text-xs leading-relaxed text-slate-600 sm:text-sm">
-              Masuk untuk mengirim pemeriksaan dan menyimpan investigasi ke akunmu.
+              Gunakan akun dengan nomor WhatsApp terverifikasi untuk mengirim pemeriksaan dan
+              menyimpan riwayat.
               {pendingType !== "url" && " Berkas perlu dipilih ulang setelah login."}
             </Dialog.Description>
           </div>

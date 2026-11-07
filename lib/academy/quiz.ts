@@ -1,6 +1,7 @@
 import type { Quiz, QuizQuestion } from "@prisma/client";
 import { InputError } from "@/lib/investigations/request-input";
 import { prisma } from "@/lib/prisma";
+import { API_ROUTES } from "@/lib/routes";
 import { optionSchema } from "@/lib/validations/academy";
 
 export function readQuestion(q: QuizQuestion) {
@@ -18,6 +19,7 @@ export async function quizList(userId: string) {
     orderBy: { createdAt: "asc" },
     include: {
       _count: { select: { questions: true } },
+      thumbnail: { select: { version: true } },
       attempts: { where: { userId, passed: true }, select: { id: true }, take: 1 },
     },
   });
@@ -25,7 +27,11 @@ export async function quizList(userId: string) {
     .filter((q) => q._count.questions > 0)
     .map((q) => summary(q, q.attempts.length > 0, q._count.questions));
 }
-export function summary(q: Quiz, completed: boolean, questionCount: number) {
+export function summary(
+  q: Quiz & { thumbnail?: { version: string } | null },
+  completed: boolean,
+  questionCount: number,
+) {
   return {
     id: q.id,
     title: q.title,
@@ -35,6 +41,7 @@ export function summary(q: Quiz, completed: boolean, questionCount: number) {
     expReward: q.expReward,
     isCompleted: completed,
     questionCount,
+    thumbnailUrl: q.thumbnail ? API_ROUTES.quizThumbnail(q.id, q.thumbnail.version) : null,
   };
 }
 export async function quizDetail(id: string, userId: string, admin: boolean) {
@@ -42,6 +49,7 @@ export async function quizDetail(id: string, userId: string, admin: boolean) {
     where: { id },
     include: {
       questions: { orderBy: { order: "asc" } },
+      thumbnail: { select: { version: true } },
       attempts: { where: { userId, passed: true }, select: { id: true }, take: 1 },
     },
   });

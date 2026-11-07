@@ -16,6 +16,7 @@ async function approvedCase(id: string, tx: Prisma.TransactionClient = prisma) {
   if (
     !record ||
     record.status !== "APPROVED" ||
+    record.withdrawnAt ||
     !record.sourceRecordId ||
     !record.consentedAt ||
     !report
@@ -58,6 +59,7 @@ export async function submitCommunityChallenge(
   return prisma.$transaction(
     async (tx) => {
       const user = await tx.user.update({ where: { id: userId }, data: { exp: { increment: 0 } } });
+      if (user.suspendedAt) throw new InputError("Akun sedang ditangguhkan.", 403);
       const previous = await tx.replayAttempt.findUnique({
         where: { userId_submissionId: { userId, submissionId: input.submissionId } },
       });

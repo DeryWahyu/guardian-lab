@@ -60,11 +60,16 @@ export function CommunityCaseDetail({
         compact
       >
         <p className="text-xs font-semibold text-slate-500">
-          {COMMUNITY_STATUS_LABELS[record.status]}
+          {record.withdrawnAt ? "Publikasi ditarik" : COMMUNITY_STATUS_LABELS[record.status]}
         </p>
         <p className="text-xs text-slate-500">ID kasus: {record.id} · Pengaju anonim</p>
         {record.adminNotes && (
           <p className="rounded-xl bg-slate-50 p-3 text-sm">Catatan admin: {record.adminNotes}</p>
+        )}
+        {record.withdrawalReason && (
+          <p className="rounded-xl bg-amber-50 p-3 text-sm">
+            Alasan penarikan: {record.withdrawalReason}
+          </p>
         )}
         {record.sourceRecordId && (
           <Link
