@@ -3,60 +3,44 @@ import type { ThreatAnalysisResult } from "@/types/analysis";
 
 export function GeekViewPanel({
   result,
-  search = "",
-  onSearchChange,
 }: {
   result: ThreatAnalysisResult;
   search?: string;
   onSearchChange?: (value: string) => void;
 }) {
   const entries = Object.entries(result.technicalEvidence);
-  const filtered = entries.filter(([key, value]) =>
-    `${key} ${JSON.stringify(value)}`.toLowerCase().includes(search.toLowerCase()),
-  );
   return (
     <section
       aria-label="Bukti teknis tersimpan"
-      className="space-y-4 rounded-2xl bg-slate-950 p-5 text-slate-100"
+      className="space-y-4 rounded-2xl border border-slate-200/90 bg-white p-5 text-slate-900 shadow-2xs"
     >
-      <h3 className="font-mono text-base font-semibold">Bukti teknis tersimpan</h3>
-      <p className="font-mono text-xs break-all text-slate-300">{result.defangedTarget}</p>
-      <p className="text-xs text-slate-300">
-        {result.technicalEvidence.urlModel ? "Indikator model: " : ""}{result.riskLevel} ·{" "}
-        {result.riskScore}/100 · {result.scamCategory}
-      </p>
-      <label className="block text-xs text-slate-400" htmlFor="evidence-search">
-        Cari bukti (Opsional)
-      </label>
-      <input
-        id="evidence-search"
-        type="search"
-        value={search}
-        maxLength={200}
-        onChange={(event) => onSearchChange?.(event.target.value)}
-        placeholder={
-          result.technicalEvidence.urlModel
-            ? "Cari versi model, threshold, atau nama atribut…"
-            : "Cari permission, endpoint, atau nama atribut…"
-        }
-        className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white"
-      />
-      <p className="text-xs text-slate-400">
-        {filtered.length} dari {entries.length} atribut. Atribut yang tidak tercatat tidak digunakan
-        untuk menyimpulkan kondisi aman.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div className="flex items-center gap-2">
+          <span className="flex size-7 items-center justify-center rounded-lg bg-cyan-50 font-mono text-xs font-bold text-cyan-700">
+            &gt;_
+          </span>
+          <h3 className="font-mono text-sm font-bold text-slate-900">Bukti Teknis Tersimpan</h3>
+        </div>
+        <span className="rounded-full bg-slate-100 px-3 py-1 font-mono text-xs font-semibold text-slate-700 shadow-2xs">
+          {result.technicalEvidence.urlModel ? "Indikator: " : ""}
+          {result.riskLevel} · {result.riskScore}/100 · {result.scamCategory}
+        </span>
+      </div>
+
       {!entries.length ? (
-        <p className="text-sm text-slate-300">
+        <p className="rounded-xl border border-slate-100 bg-slate-50 p-4 text-xs text-slate-500">
           Belum ada bukti teknis yang tersimpan pada hasil ini.
         </p>
-      ) : !filtered.length ? (
-        <p className="text-sm text-slate-300">Tidak ada bukti yang cocok dengan pencarian.</p>
       ) : (
-        <div className="max-h-[32rem] space-y-3 overflow-auto">
-          {filtered.map(([key, value]) => (
-            <div key={key} className="rounded-xl border border-slate-800 p-3">
-              <h4 className="text-brand-300 mb-2 font-mono text-xs font-semibold">{key}</h4>
-              <pre className="max-h-64 overflow-auto font-mono text-xs break-all whitespace-pre-wrap text-slate-200">
+        <div className="space-y-3.5">
+          {entries.map(([key, value]) => (
+            <div key={key} className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="rounded-md border border-cyan-100 bg-cyan-50 px-2 py-0.5 font-mono text-xs font-bold text-cyan-800">
+                  {key}
+                </span>
+              </div>
+              <pre className="max-h-80 overflow-auto rounded-xl border border-slate-200/80 bg-slate-50/70 p-3.5 font-mono text-xs leading-relaxed break-all whitespace-pre-wrap text-slate-800">
                 {JSON.stringify(value, null, 2)}
               </pre>
             </div>

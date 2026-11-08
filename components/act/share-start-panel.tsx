@@ -1,4 +1,4 @@
-import { ArrowRight, ClipboardList, History, Info, Search } from "lucide-react";
+import { ArrowRight, ClipboardList, History, Search } from "lucide-react";
 import Link from "next/link";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import { ShareSteps } from "./share-steps";
@@ -30,9 +30,6 @@ export function ShareStartPanel({ hasRecord = false }: { hasRecord?: boolean }) 
           {hasRecord ? "Pilih hasil lain dari riwayat" : "Pilih hasil dari riwayat"}
           <ArrowRight aria-hidden="true" size={18} />
         </Link>
-        <p className={styles.privacyNote}>
-          <Info aria-hidden="true" size={19} /> Periksa isi kartu sebelum membagikannya.
-        </p>
       </div>
     </section>
   );

@@ -106,10 +106,17 @@ function WebSandboxForm({
             session={session}
             remaining={state.remaining}
             pending={Boolean(state.pending)}
-            onStop={() => setConfirm(true)}
+            error={state.error}
+            onStop={() => {
+              if (live) {
+                setConfirm(true);
+              } else {
+                void state.mutate();
+              }
+            }}
             onRefresh={state.resource.retry}
           />
-          <QuarantinedDownloads key={session.sessionId} session={session} />
+          {!live && <QuarantinedDownloads key={session.sessionId} session={session} />}
         </>
       )}
       <ConfirmDialog

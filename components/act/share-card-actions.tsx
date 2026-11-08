@@ -1,19 +1,10 @@
 "use client";
 
-import {
-  Check,
-  ChevronDown,
-  Copy,
-  Download,
-  Loader2,
-  MessageCircle,
-  RefreshCw,
-  Share2,
-} from "lucide-react";
+import { Check, Copy, Download, Loader2, RefreshCw, Share2 } from "lucide-react";
 import type { RefObject } from "react";
 import type { ShareCardData } from "@/lib/share-card/content";
-import { useShareCardActions } from "./use-share-card-actions";
 import styles from "./share-workspace.module.css";
+import { useShareCardActions } from "./use-share-card-actions";
 
 export function ShareCardActions({
   cardRef,
@@ -73,22 +64,6 @@ export function ShareCardActions({
           </button>
         )}
       </div>
-      {!actions.manualCopy && (
-        <details className={styles.messageDetails}>
-          <summary>
-            <MessageCircle aria-hidden="true" size={17} />
-            <span>Pratinjau pesan WhatsApp</span>
-            <ChevronDown aria-hidden="true" size={16} />
-          </summary>
-          <textarea
-            aria-label="Pratinjau pesan WhatsApp"
-            className={styles.messagePreview}
-            readOnly
-            spellCheck={false}
-            value={card.text}
-          />
-        </details>
-      )}
       <div aria-live="polite" className={styles.exportFeedback} data-status={actions.status}>
         {actions.status === "preparing" && <p>Menyiapkan gambar untuk diunduh atau dibagikan...</p>}
         {actions.status === "error" && (

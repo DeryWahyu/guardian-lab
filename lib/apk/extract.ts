@@ -38,7 +38,8 @@ export async function extractApk(bytes: Buffer, signal?: AbortSignal) {
     scanner.scan(manifestText, manifestFile.source);
     let count = 1,
       scannedBytes = Buffer.byteLength(manifestText),
-      truncated = false;
+      truncated = false,
+      appCodeTruncated = false;
     const packagePath = manifest.packageName?.replace(/\./g, "/");
     const sources = files
       .filter(
@@ -65,6 +66,9 @@ export async function extractApk(bytes: Buffer, signal?: AbortSignal) {
         file.size > APK_LIMITS.sourceFileBytes
       ) {
         truncated = true;
+        if (packagePath && file.source.startsWith(`sources/${packagePath}/`)) {
+          appCodeTruncated = true;
+        }
         continue;
       }
       const content = await readBoundedText(file.path, APK_LIMITS.sourceFileBytes);
@@ -75,7 +79,7 @@ export async function extractApk(bytes: Buffer, signal?: AbortSignal) {
     const found = scanner.result();
     truncated ||= found.truncated;
     const warnings: string[] = [];
-    if (exitCode !== 0)
+    if (exitCode !== 0 && exitCode !== 3)
       warnings.push(
         "Sebagian kode tidak berhasil didekompilasi. Temuan hanya mencakup bagian yang terbaca.",
       );
@@ -83,8 +87,8 @@ export async function extractApk(bytes: Buffer, signal?: AbortSignal) {
       warnings.push(
         "Tidak ditemukan berkas classes.dex. Pemeriksaan hanya mencakup manifest dan resource yang terbaca.",
       );
-    if (truncated)
-      warnings.push("Pembacaan sumber atau daftar temuan dipersingkat karena batas pemeriksaan.");
+    if (appCodeTruncated)
+      warnings.push("Pembacaan sumber kode aplikasi dipersingkat karena batas pemeriksaan.");
     if (manifest.label?.startsWith("@"))
       warnings.push("Label aplikasi masih berupa referensi resource yang belum terselesaikan.");
     return apkStaticSchema.parse({

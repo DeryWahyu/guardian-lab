@@ -61,9 +61,9 @@ export async function runJadx(input: string, workdir: string, signal?: AbortSign
       "java",
       [
         "-Xms32m",
-        "-Xmx384m",
+        "-Xmx640m",
         "-XX:MaxMetaspaceSize=160m",
-        "-XX:ActiveProcessorCount=2",
+        "-XX:ActiveProcessorCount=4",
         `-Duser.home=${workdir}`,
         `-Djava.io.tmpdir=${workdir}`,
         "-cp",
@@ -77,7 +77,7 @@ export async function runJadx(input: string, workdir: string, signal?: AbortSign
         "--decompilation-mode",
         "simple",
         "--threads-count",
-        "1",
+        "4",
         "--log-level",
         "error",
         "-d",
@@ -109,7 +109,7 @@ export async function runJadx(input: string, workdir: string, signal?: AbortSign
         stop(
           new ApkExtractionError(
             "APK_TIMEOUT",
-            "Ekstraksi melewati batas 45 detik. Hasil belum dapat dilengkapi.",
+            `Ekstraksi melewati batas ${Math.round(APK_LIMITS.timeoutMs / 1000)} detik. Hasil belum dapat dilengkapi.`,
           ),
         ),
       APK_LIMITS.timeoutMs,
@@ -137,7 +137,7 @@ export async function runJadx(input: string, workdir: string, signal?: AbortSign
       } finally {
         checking = false;
       }
-    }, 750);
+    }, 5000);
     function cleanup() {
       clearTimeout(timeout);
       clearInterval(watcher);

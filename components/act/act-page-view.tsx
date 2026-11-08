@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, RefreshCw, Users } from "lucide-react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
@@ -78,16 +78,13 @@ export function ActPageView({ accessScope }: { accessScope: string }) {
       )}
       {record && (
         <nav className={styles.contextLinks} aria-label="Lanjutan investigasi">
-          <Link href={card ? PROTECTED_ROUTES.historyDetail(card.id) : PROTECTED_ROUTES.history}>
+          <Link
+            href={card ? PROTECTED_ROUTES.historyDetail(card.id) : PROTECTED_ROUTES.history}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-900"
+          >
             <ArrowLeft aria-hidden="true" size={16} />
             {card ? "Kembali ke hasil investigasi" : "Buka riwayat investigasi"}
           </Link>
-          {card && (
-            <Link href={PROTECTED_ROUTES.communitySubmit(card.id)}>
-              <Users aria-hidden="true" size={16} />
-              Ajukan ke komunitas
-            </Link>
-          )}
         </nav>
       )}
     </div>

@@ -1,5 +1,5 @@
 "use client";
-import { Share2 } from "lucide-react";
+import { Share2, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -27,7 +27,7 @@ export interface ResultPresenterProps {
   error?: string | null;
   onRetry?: () => void;
   className?: string;
-  presentation?: "default" | "workspace";
+  presentation?: "default" | "workspace" | "dialog";
 }
 function ResultPresenterInner({
   result: record,
@@ -56,19 +56,29 @@ function ResultPresenterInner({
     <section
       aria-label="Hasil Analisis Forensik Keamanan"
       className={cn(
-        "mx-auto max-w-4xl space-y-6 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8",
+        presentation === "dialog"
+          ? "space-y-3.5"
+          : "mx-auto max-w-4xl space-y-6 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8",
         presentation === "workspace" && workspace.workspaceResult,
+        className,
       )}
     >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold text-slate-500">Hasil analisis tersimpan</p>
-          <h2 className="mt-1 text-xl font-bold text-slate-900">Laporan Investigasi</h2>
-        </div>
+      <div
+        className={cn(
+          "flex items-center",
+          presentation === "dialog" ? "justify-start" : "flex-wrap justify-between gap-4",
+        )}
+      >
+        {presentation !== "dialog" && (
+          <div>
+            <p className="text-xs font-semibold text-slate-500">Hasil analisis tersimpan</p>
+            <h2 className="mt-1 text-xl font-bold text-slate-900">Laporan Investigasi</h2>
+          </div>
+        )}
         <DualModeToggle mode={mode} />
       </div>
-      <InvestigationMetadata record={record} />
-      <UrlModelNotice model={result.technicalEvidence.urlModel} />
+      <InvestigationMetadata record={record} compact={presentation === "dialog"} />
+      {presentation !== "dialog" && <UrlModelNotice model={result.technicalEvidence.urlModel} />}
       {apkReport && (
         <ApkStaticPanel
           presentation={presentation}
@@ -82,7 +92,12 @@ function ResultPresenterInner({
         />
       )}
       {mode === "human" ? (
-        <div className="grid gap-5 md:grid-cols-2">
+        <div
+          className={cn(
+            "grid gap-4",
+            presentation === "dialog" ? "sm:grid-cols-2" : "gap-5 md:grid-cols-2",
+          )}
+        >
           <ThreatScoreGauge
             score={result.riskScore}
             riskLevel={result.riskLevel}
@@ -104,25 +119,55 @@ function ResultPresenterInner({
           onSearchChange={searchEvidence}
         />
       )}
-      <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-4">
-        <SandboxLaunchLink target={record.target} type={record.type} investigationId={record.id} />
+      <div
+        className={cn(
+          "flex items-center justify-end gap-2 border-t border-slate-100",
+          presentation === "dialog" ? "flex-nowrap overflow-x-auto pt-3" : "flex-wrap pt-4",
+        )}
+      >
+        <SandboxLaunchLink
+          target={record.target}
+          type={record.type}
+          investigationId={record.id}
+          className={
+            presentation === "dialog"
+              ? "inline-flex min-h-0 shrink-0 items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium whitespace-nowrap text-slate-700 transition-colors hover:bg-slate-50"
+              : undefined
+          }
+        />
         <Link
           href={PROTECTED_ROUTES.communitySubmit(record.id)}
-          className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700"
+          className={cn(
+            "inline-flex shrink-0 items-center gap-1.5 rounded-full border border-cyan-200/90 bg-cyan-50/50 font-medium whitespace-nowrap text-cyan-800 transition-colors hover:border-cyan-300 hover:bg-cyan-100/70",
+            presentation === "dialog" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm",
+          )}
         >
-          Ajukan ke komunitas
+          <Users className="size-3.5 text-cyan-700" aria-hidden="true" />
+          <span>Ajukan ke komunitas</span>
         </Link>
         <Link
           href={PROTECTED_ROUTES.history}
-          className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700"
+          className={cn(
+            "shrink-0 rounded-full border border-slate-200 whitespace-nowrap text-slate-700 transition-colors hover:bg-slate-50",
+            presentation === "dialog"
+              ? "px-3 py-1.5 text-xs font-medium"
+              : "border-slate-300 px-4 py-2 text-sm",
+          )}
         >
           Kembali ke riwayat
         </Link>
         <Link
           href={PUBLIC_ROUTES.actWithInvestigation(record.id)}
-          className="bg-brand-600 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white"
+          className={cn(
+            "bg-brand-600 hover:bg-brand-700 inline-flex shrink-0 items-center gap-1.5 rounded-full font-semibold whitespace-nowrap text-white shadow-2xs transition-colors",
+            presentation === "dialog" ? "px-3.5 py-1.5 text-xs" : "px-4 py-2 text-sm",
+          )}
         >
-          <Share2 className="size-4" aria-hidden="true" /> Buat Guardian Share Card
+          <Share2
+            className={presentation === "dialog" ? "size-3.5" : "size-4"}
+            aria-hidden="true"
+          />
+          <span>Buat Guardian Share Card</span>
         </Link>
       </div>
     </section>
