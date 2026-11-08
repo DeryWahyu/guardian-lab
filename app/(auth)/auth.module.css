@@ -598,3 +598,9 @@
     transition: none;
   }
 }
+
+@media (max-width: 767px) {
+  .link {
+    min-height: 44px;
+  }
+}

@@ -1,6 +1,7 @@
-import { Award, Crown, Flame, Medal } from "lucide-react";
-import { formatExp, type RankingEntry } from "./leaderboard-presentation";
+import { Award, Crown, Medal } from "lucide-react";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import styles from "./leaderboard.module.css";
+import { formatExp, type RankingEntry } from "./leaderboard-presentation";
 
 export function LeaderboardPodium({ items }: { items: RankingEntry[] }) {
   const leaders = items.filter((item) => item.position >= 1 && item.position <= 3);
@@ -29,6 +30,8 @@ export function LeaderboardPodium({ items }: { items: RankingEntry[] }) {
       >
         {leaders.map((item) => {
           const Icon = item.position === 1 ? Crown : Medal;
+          const emblem =
+            item.position === 1 ? "crown" : item.position === 2 ? "silverMedal" : "bronzeMedal";
           return (
             <li
               key={item.alias}
@@ -40,9 +43,7 @@ export function LeaderboardPodium({ items }: { items: RankingEntry[] }) {
                 <Icon aria-hidden="true" size={16} />
                 Peringkat {item.position}
               </span>
-              <span className={styles.podiumEmblem} aria-hidden="true">
-                <Icon size={31} strokeWidth={1.7} />
-              </span>
+              <FeatureIcon name={emblem} className={styles.podiumEmblem} />
               <p className={styles.podiumAlias}>
                 {item.alias}
                 {item.isCurrentUser && <span className={styles.you}>Kamu</span>}
@@ -53,7 +54,7 @@ export function LeaderboardPodium({ items }: { items: RankingEntry[] }) {
                 <span>EXP</span>
               </p>
               <p className={styles.podiumStreak}>
-                <Flame aria-hidden="true" size={14} />
+                <FeatureIcon name="streak" size="inline" muted={item.streakDays === 0} />
                 {item.streakDays} hari berturut-turut
               </p>
             </li>

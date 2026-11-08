@@ -1,7 +1,7 @@
-import { Award, TrendingUp } from "lucide-react";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { AcademyCaseCard } from "./academy-case-card";
-import { formatStudyDate, type AcademyProgress, type AcademyQuiz } from "./academy-presentation";
 import styles from "./academy-overview.module.css";
+import { type AcademyProgress, type AcademyQuiz, formatStudyDate } from "./academy-presentation";
 
 export function AcademyProgressPanel({
   progress,
@@ -20,9 +20,7 @@ export function AcademyProgressPanel({
     >
       <section className={styles.progressPanel} aria-labelledby="academy-progress-title">
         <div className={styles.progressHeading}>
-          <span className={styles.journalIcon}>
-            <TrendingUp aria-hidden="true" size={23} />
-          </span>
+          <FeatureIcon name="progress" />
           <div>
             <h2 id="academy-progress-title">Perjalanan belajarmu</h2>
             <p>Satu langkah, lebih banyak bekal.</p>
@@ -48,14 +46,15 @@ export function AcademyProgressPanel({
       </section>
       <section className={styles.badgePanel} aria-labelledby="academy-badge-title">
         <div className={styles.sideHeading}>
-          <h2 id="academy-badge-title">Koleksi lencana</h2>
+          <h2 id="academy-badge-title">
+            <FeatureIcon name="badge" size="inline" />
+            Koleksi lencana
+          </h2>
           <span>{progress.badges.length}</span>
         </div>
         {!progress.badges.length ? (
           <div className={styles.badgeEmpty}>
-            <span>
-              <Award aria-hidden="true" size={28} />
-            </span>
+            <FeatureIcon name="badge" size="large" muted />
             <h3>Lencana pertamamu menanti.</h3>
             <p>Lulus satu kuis untuk meraihnya.</p>
           </div>
@@ -63,9 +62,7 @@ export function AcademyProgressPanel({
           <ul className={styles.badgeList}>
             {progress.badges.map((badge) => (
               <li key={badge.id}>
-                <span>
-                  <Award aria-hidden="true" size={21} />
-                </span>
+                <FeatureIcon name="badge" size="small" />
                 <div>
                   <h3>{badge.title}</h3>
                   <p>{badge.description}</p>

@@ -60,12 +60,6 @@
   height: 52px;
   place-items: center;
   border-radius: 15px;
-  background: #e1f5f8;
-  color: #008792;
-}
-.nextIcon svg {
-  width: 29px;
-  height: 29px;
 }
 .nextLesson > div {
   min-width: 0;
@@ -226,13 +220,8 @@
   position: absolute;
   top: 3px;
   left: 19px;
-  display: grid;
   width: 38px;
   height: 40px;
-  place-items: center;
-  border-radius: 11px;
-  background: #e3f5f8;
-  color: #008693;
 }
 .metrics dd {
   margin-top: 4px;

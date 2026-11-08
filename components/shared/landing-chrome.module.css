@@ -222,3 +222,38 @@
     animation: none;
   }
 }
+
+.mobileAccount {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+.mobileIdentity {
+  display: flex;
+  flex: 1 1 180px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.mobileIdentity > div:first-child {
+  flex-shrink: 0;
+}
+.mobileIdentityText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.mobileMetrics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.mobileMetrics > span {
+  white-space: nowrap;
+}

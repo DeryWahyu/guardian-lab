@@ -1,4 +1,5 @@
 import { Clipboard, Clock3, Download, Info, Link2, Play } from "lucide-react";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { sandboxTargetPlan } from "@/lib/sandbox/target-plan";
 import styles from "./web-sandbox.module.css";
 
@@ -47,7 +48,10 @@ export function SandboxLaunchPanel({
   return (
     <section className={styles.launchPanel} aria-labelledby="sandbox-launch-title">
       <div className={styles.launchHeading}>
-        <h2 id="sandbox-launch-title">Mulai penjelajahan</h2>
+        <h2 id="sandbox-launch-title" className={styles.launchTitle}>
+          <FeatureIcon name="browser" size="small" />
+          Mulai penjelajahan
+        </h2>
         <output
           className={styles.availability}
           data-state={pending ? "busy" : available ? "ready" : "offline"}
@@ -86,8 +90,8 @@ export function SandboxLaunchPanel({
             aria-describedby="sandbox-target-hint sandbox-restrictions sandbox-service-message"
           />
         </div>
-        <p id="sandbox-target-hint" className="sr-only">
-          Masukkan tautan publik dengan protokol HTTP atau HTTPS.
+        <p id="sandbox-target-hint" className={styles.fieldHint}>
+          Gunakan tautan publik berawalan http:// atau https://.
         </p>
         {plan?.requiresRemoval && (
           <div className={styles.consentNotice}>

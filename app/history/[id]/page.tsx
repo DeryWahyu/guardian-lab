@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import styles from "@/components/history/history-detail.module.css";
+import { HistoryDetailSkeleton } from "@/components/history/history-detail-frame";
 import { HistoryDetailView } from "@/components/history/history-detail-view";
+import { landingTypography } from "@/components/landing/landing-font";
 import { WorkspaceShell } from "@/components/workspace/workspace-shell";
 import { requirePageUser } from "@/lib/auth/page-access";
+import { cn } from "@/lib/utils";
 
 export const instant = false;
 export const metadata: Metadata = {
-  title: "Detail Investigasi | Guardian Lab",
+  title: "Rekaman Pemeriksaan | Guardian Lab",
   description: "Lihat rekaman, status proses, dan bukti pemeriksaan investigasi.",
 };
 
@@ -22,14 +26,11 @@ async function HistoryDetailContent({ params }: { params: Promise<{ id: string }
 
 export default function HistoryDetailPage({ params }: HistoryDetailPageProps) {
   return (
-    <WorkspaceShell reading>
-      <Suspense
-        fallback={
-          <div className="flex h-96 w-full animate-pulse items-center justify-center rounded-3xl border border-slate-200 bg-white text-slate-400">
-            Memuat detail laporan forensik...
-          </div>
-        }
-      >
+    <WorkspaceShell
+      className={cn(landingTypography, styles.page)}
+      dialogClassName={landingTypography}
+    >
+      <Suspense fallback={<HistoryDetailSkeleton />}>
         <HistoryDetailContent params={params} />
       </Suspense>
     </WorkspaceShell>

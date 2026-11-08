@@ -683,3 +683,9 @@
     transform: none;
   }
 }
+
+@media (max-width: 767px) {
+  .shell :is(input:not([type="checkbox"], [type="radio"], [type="file"]), select, textarea) {
+    font-size: 16px;
+  }
+}

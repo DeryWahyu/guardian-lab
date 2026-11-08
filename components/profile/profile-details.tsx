@@ -1,18 +1,10 @@
 "use client";
 
-import {
-  BadgeCheck,
-  CalendarDays,
-  Loader2,
-  LockKeyhole,
-  Mail,
-  Phone,
-  Save,
-  UserRound,
-} from "lucide-react";
+import { BadgeCheck, CalendarDays, Loader2, LockKeyhole, Mail, Save } from "lucide-react";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import type { Profile } from "@/lib/validations/profile";
-import { profileDate } from "./profile-presentation";
 import styles from "./profile.module.css";
+import { profileDate } from "./profile-presentation";
 import { useProfileForm } from "./use-profile-form";
 
 export function ProfileDetails({ profile, reload }: { profile: Profile; reload: () => void }) {
@@ -20,9 +12,7 @@ export function ProfileDetails({ profile, reload }: { profile: Profile; reload: 
   return (
     <section className={styles.panel} aria-labelledby="profile-details-title" data-user-reveal>
       <div className={styles.panelHeading}>
-        <span className={styles.icon}>
-          <UserRound size={28} aria-hidden="true" />
-        </span>
+        <FeatureIcon name="user" className={styles.icon} />
         <div>
           <h2 id="profile-details-title">Informasi akun</h2>
           <p>Detail akun Guardian-mu.</p>
@@ -80,9 +70,7 @@ export function ProfileDetails({ profile, reload }: { profile: Profile; reload: 
           Digunakan untuk masuk ke Guardian Lab.
         </p>
         <div className={styles.contactRow}>
-          <span className={styles.icon}>
-            <Phone size={25} aria-hidden="true" />
-          </span>
+          <FeatureIcon name="phone" className={styles.icon} />
           <div>
             <span className={styles.caption}>Nomor WhatsApp</span>
             <strong>{profile.phone ?? "Belum tersedia"}</strong>

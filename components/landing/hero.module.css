@@ -86,7 +86,11 @@
   font-size: clamp(40px, 4vw, 52px);
   font-weight: 800;
   letter-spacing: -0.05em;
-  line-height: 1.05;
+  line-height: 1.12;
+}
+.title .titleAccent {
+  display: inline-block;
+  color: var(--landing-cyan, #0891b2);
 }
 .hero:focus-visible .intro .title {
   text-decoration: none;
@@ -96,7 +100,11 @@
   margin-top: 16px;
   color: #475979;
   font-size: 16px;
-  line-height: 1.65;
+  line-height: 1.75;
+}
+.intro > p strong {
+  color: #284b62;
+  font-weight: 650;
 }
 .supportCopy {
   position: relative;
@@ -110,23 +118,34 @@
   padding-left: 12px;
 }
 .supportEyebrow {
-  margin: 0 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 15px;
+  padding: 5px 9px;
+  border: 1px solid #cee8ef;
+  border-radius: 999px;
+  background: #ffffffb3;
   color: #0e7490;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.045em;
   line-height: 1.6;
   text-transform: uppercase;
+}
+.supportEyebrow svg {
+  flex-shrink: 0;
 }
 .supportCopy .supportTitle {
   margin: 0;
   color: #0f172a;
   font-size: clamp(22px, 1.8vw, 24px);
   font-weight: 750;
+  letter-spacing: -0.035em;
   line-height: 1.35;
 }
 .supportTitle span {
-  color: #0e7490;
+  color: var(--landing-cyan, #0891b2);
 }
 .supportDescription {
   margin-top: 14px;

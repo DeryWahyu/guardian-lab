@@ -5,8 +5,9 @@ import {
   LearningSkeleton,
   learningControl,
 } from "@/components/academy/learning-ui";
-import { WorkspaceMascot } from "@/components/workspace/workspace-mascot";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import workspace from "@/components/workspace/workspace.module.css";
+import { WorkspaceMascot } from "@/components/workspace/workspace-mascot";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import { useCommunityChallenge } from "./use-community-challenge";
 export function CommunityChallengeView({ id, scope }: { id: string; scope: string }) {
@@ -22,7 +23,8 @@ export function CommunityChallengeView({ id, scope }: { id: string; scope: strin
       data-user-reveal
     >
       <div className="space-y-2">
-        <h2 id="challenge-title" className="text-xl font-semibold">
+        <h2 id="challenge-title" className="flex items-center gap-3 text-xl font-semibold">
+          <FeatureIcon name="casebook" />
           Uji pemahaman kasus
         </h2>
         <p className="text-sm text-slate-600">
@@ -39,7 +41,8 @@ export function CommunityChallengeView({ id, scope }: { id: string; scope: strin
         <output
           className={`block space-y-2 rounded-xl p-4 text-sm ${attempt.result.passed ? "bg-emerald-50" : "bg-amber-50"}`}
         >
-          <h3 className="text-lg font-semibold">
+          <h3 className="flex flex-wrap items-center gap-3 text-lg font-semibold">
+            <FeatureIcon name={attempt.result.passed ? "case" : "progress"} />
             Nilai {attempt.result.score}/100 ·{" "}
             {attempt.result.passed ? "Kasus diselesaikan" : "Pelajari bukti kembali"}
           </h3>

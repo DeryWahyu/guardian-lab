@@ -1,5 +1,5 @@
-import { Link2, MessagesSquare, ShieldCheck } from "lucide-react";
 import type { z } from "zod";
+import type { FeatureIconName } from "@/components/shared/feature-icon";
 import type {
   academyProgressSchema,
   quizDetailSchema,
@@ -13,10 +13,10 @@ export type AcademyLesson = z.infer<typeof quizDetailSchema>;
 export type AcademyResult = z.infer<typeof quizResultSchema>;
 
 export const academyTopics = {
-  SPOT_THE_PHISH: { label: "Kenali phishing", Icon: Link2 },
-  SOCIAL_ENGINEERING: { label: "Rekayasa sosial", Icon: MessagesSquare },
-  DANGEROUS_PERMISSIONS: { label: "Izin aplikasi", Icon: ShieldCheck },
-};
+  SPOT_THE_PHISH: { label: "Kenali phishing", icon: "link" },
+  SOCIAL_ENGINEERING: { label: "Rekayasa sosial", icon: "messages" },
+  DANGEROUS_PERMISSIONS: { label: "Izin aplikasi", icon: "permissions" },
+} satisfies Record<AcademyQuiz["category"], { label: string; icon: FeatureIconName }>;
 
 export function formatStudyDate(value: string) {
   const date = new Date(value);

@@ -3,6 +3,7 @@
 import { ArrowRight, FileCheck2, ImageIcon, Info, Users } from "lucide-react";
 import Link from "next/link";
 import { memo, useRef } from "react";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import type { ShareCardData } from "@/lib/share-card/content";
 import { ShareCardActions } from "./share-card-actions";
@@ -44,15 +45,13 @@ export const PreparedShareCard = memo(
           <ShareCardActions cardRef={cardRef} card={card} />
           <div className="mt-5 space-y-3 rounded-2xl border border-cyan-200/90 bg-gradient-to-br from-cyan-50/90 via-white to-teal-50/50 p-4 shadow-2xs">
             <div className="flex items-center gap-2.5">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-cyan-700 text-white shadow-2xs">
-                <Users aria-hidden="true" className="size-4" />
-              </span>
+              <FeatureIcon name="people" size="small" />
               <h3 className="text-sm leading-snug font-bold text-slate-900">
                 Ajukan Kasus ke Komunitas
               </h3>
             </div>
             <p className="text-xs leading-relaxed text-slate-600">
-              Publikasikan temuan ini agar anggota komunitas lain dapat belajar dan terlindungi.
+              Ajukan temuan ini untuk ditinjau admin dan dipelajari bersama.
             </p>
             <Link
               href={PROTECTED_ROUTES.communitySubmit(card.id)}

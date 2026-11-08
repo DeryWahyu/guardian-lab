@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import workspace from "@/components/workspace/workspace.module.css";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,14 @@ export function CommunityCard({
   presentation?: "default" | "workspace" | "browser";
 }) {
   const browser = presentation === "browser";
+  const typeIcon =
+    item.report?.type === "APK"
+      ? "apk"
+      : item.report?.type === "QR"
+        ? "qr"
+        : item.report?.type === "URL"
+          ? "url"
+          : "record";
   return (
     <article
       className={cn(
@@ -24,21 +33,24 @@ export function CommunityCard({
         presentation === "workspace" && workspace.lessonCard,
       )}
     >
-      <p className={browser ? styles.caseMeta : "text-xs font-semibold text-slate-500"}>
-        {item.report?.type ?? "Kasus lama"} ·{" "}
-        <span
-          className={
-            browser
-              ? styles.statusChip
-              : presentation === "workspace"
-                ? workspace.statusChip
-                : undefined
-          }
-          data-status={item.status}
-        >
-          {item.withdrawnAt ? "Publikasi ditarik" : COMMUNITY_STATUS_LABELS[item.status]}
-        </span>
-      </p>
+      <div className={browser ? styles.caseHeader : undefined}>
+        {browser && <FeatureIcon name={typeIcon} />}
+        <p className={browser ? styles.caseMeta : "text-xs font-semibold text-slate-500"}>
+          {item.report?.type ?? "Kasus lama"} ·{" "}
+          <span
+            className={
+              browser
+                ? styles.statusChip
+                : presentation === "workspace"
+                  ? workspace.statusChip
+                  : undefined
+            }
+            data-status={item.status}
+          >
+            {item.withdrawnAt ? "Publikasi ditarik" : COMMUNITY_STATUS_LABELS[item.status]}
+          </span>
+        </p>
+      </div>
       {browser ? (
         <h3 className={styles.caseTitle}>{item.title}</h3>
       ) : (
@@ -63,7 +75,7 @@ export function CommunityCard({
               : "inline-flex min-h-11 items-center rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold"
           }
         >
-          Lihat kasus
+          {browser ? "Pelajari kasus" : "Lihat kasus"}
           {browser && <ArrowUpRight aria-hidden="true" size={17} />}
         </Link>
       </div>

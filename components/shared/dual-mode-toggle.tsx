@@ -54,7 +54,7 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
         onClick={() => handleToggle("human")}
         aria-pressed={currentMode === "human"}
         className={cn(
-          "inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150 sm:text-xs",
+          "inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150 sm:text-xs",
           currentMode === "human"
             ? "border border-slate-200/70 bg-white font-semibold text-slate-900 shadow-xs"
             : "border border-transparent text-slate-500 hover:text-slate-800",
@@ -74,7 +74,7 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
         onClick={() => handleToggle("geek")}
         aria-pressed={currentMode === "geek"}
         className={cn(
-          "inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-xs font-medium transition-all duration-150 sm:text-xs",
+          "inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-xs font-medium transition-all duration-150 sm:text-xs",
           currentMode === "geek"
             ? "border border-slate-200/70 bg-white font-semibold text-slate-900 shadow-xs"
             : "border border-transparent text-slate-500 hover:text-slate-800",
@@ -94,7 +94,9 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
 
 export function DualModeToggle(props: DualModeToggleProps) {
   return (
-    <Suspense fallback={<div className="h-9 w-64 animate-pulse rounded-xl bg-slate-200/70" />}>
+    <Suspense
+      fallback={<div className="h-14 w-64 max-w-full animate-pulse rounded-xl bg-slate-200/70" />}
+    >
       <DualModeToggleInner {...props} />
     </Suspense>
   );

@@ -68,7 +68,7 @@
   cursor: pointer;
 }
 .primaryButton svg,
-.secondaryButton svg {
+.secondaryButton > svg {
   flex-shrink: 0;
 }
 .primaryButton {
@@ -90,7 +90,7 @@
   border-color: #a8cedc;
   background: #f3fbff;
 }
-.secondaryButton svg {
+.secondaryButton > svg {
   color: #008894;
 }
 .primaryButton:disabled,
@@ -631,4 +631,16 @@
     padding-inline: 9px;
     font-size: 12px;
   }
+}
+
+.caseHeader {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.caseHeader > p {
+  min-width: 0;
+}
+.caseHeader .caseMeta {
+  gap: 5px 9px;
 }

@@ -91,16 +91,6 @@
   font-size: 11px;
   line-height: 1.8;
 }
-.activityIcon {
-  display: grid;
-  flex: 0 0 38px;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border-radius: 12px;
-  background: #e0f5f9;
-  color: #008b98;
-}
 .activityEmpty {
   display: grid;
   justify-items: center;
@@ -113,15 +103,7 @@
   text-align: center;
 }
 .activityEmpty > span {
-  display: grid;
-  width: 64px;
-  height: 64px;
   margin-bottom: 3px;
-  place-items: center;
-  border: 1px solid #dcecee;
-  border-radius: 20px;
-  background: #f0f9fa;
-  color: var(--academy-teal);
 }
 .activityEmpty h3 {
   color: #334a60;
@@ -303,10 +285,6 @@
   border-radius: 12px;
   background: #edf9fa;
 }
-.skeletonReading,
-.skeletonLessonHero {
-  grid-template-columns: minmax(0, 1fr);
-}
 .skeletonOverview {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -322,21 +300,12 @@
 .skeletonActivity {
   min-height: 150px;
 }
-.skeletonLessonHero {
-  min-height: 260px;
-  padding: 28px;
-  border: 1px solid var(--academy-border);
-  border-radius: 22px;
-}
 @media (max-width: 1000px) {
   .activity {
     padding: 22px;
   }
   .skeletonBody {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .skeletonReading {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (max-width: 700px) {

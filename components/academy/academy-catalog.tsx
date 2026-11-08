@@ -1,12 +1,13 @@
 "use client";
 
-import { BookOpen, Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import { categorySchema } from "@/lib/validations/academy";
-import { AcademyLessonCard } from "./academy-lesson-card";
-import { academyTopics, type AcademyQuiz } from "./academy-presentation";
 import styles from "./academy-catalog.module.css";
+import { AcademyLessonCard } from "./academy-lesson-card";
+import { type AcademyQuiz, academyTopics } from "./academy-presentation";
 
 export function AcademyCatalog({ quizzes }: { quizzes: AcademyQuiz[] }) {
   const params = useSearchParams();
@@ -73,7 +74,7 @@ export function AcademyCatalog({ quizzes }: { quizzes: AcademyQuiz[] }) {
           </select>
         </label>
       </div>
-      <div className={styles.topics} role="group" aria-label="Topik latihan">
+      <fieldset className={styles.topics} aria-label="Topik latihan">
         <button
           type="button"
           aria-pressed={category === "all"}
@@ -91,11 +92,11 @@ export function AcademyCatalog({ quizzes }: { quizzes: AcademyQuiz[] }) {
             {academyTopics[key].label}
           </button>
         ))}
-      </div>
+      </fieldset>
       <div className={styles.catalogStatus}>
-        <p role="status">
+        <output>
           {filtered.length} dari {quizzes.length} latihan ditampilkan
-        </p>
+        </output>
         {active && (
           <button type="button" onClick={reset}>
             <X aria-hidden="true" size={14} />
@@ -105,7 +106,7 @@ export function AcademyCatalog({ quizzes }: { quizzes: AcademyQuiz[] }) {
       </div>
       {!quizzes.length ? (
         <div className={styles.empty}>
-          <BookOpen aria-hidden="true" size={28} />
+          <FeatureIcon name="quiz" size="large" muted />
           <h3>Latihan sedang dipersiapkan.</h3>
           <p>
             Belum ada latihan yang diterbitkan. Materi akan muncul setelah admin menerbitkannya.

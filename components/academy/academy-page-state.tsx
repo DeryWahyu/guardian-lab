@@ -2,36 +2,26 @@ import { BookOpen, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import type { LoadProblem } from "@/lib/investigations/client";
 import { AUTH_ROUTES, PROTECTED_ROUTES } from "@/lib/routes";
-import { cn } from "@/lib/utils";
 import styles from "./academy.module.css";
 
-export function AcademySkeleton({ lesson = false }: { lesson?: boolean }) {
+export function AcademySkeleton() {
   return (
-    <output
-      aria-label={lesson ? "Memuat latihan" : "Memuat ruang belajar"}
-      aria-busy="true"
-      className={styles.skeleton}
-    >
-      <div
-        className={cn(styles.skeletonHero, lesson && styles.skeletonLessonHero)}
-        aria-hidden="true"
-      >
+    <output aria-label="Memuat ruang belajar" aria-busy="true" className={styles.skeleton}>
+      <div className={styles.skeletonHero} aria-hidden="true">
         <div className={styles.skeletonCopy}>
           <span />
           <span />
           <span />
         </div>
-        {!lesson && <div className={styles.skeletonArtwork} />}
+        <div className={styles.skeletonArtwork} />
       </div>
-      {!lesson && (
-        <div className={styles.skeletonMetrics} aria-hidden="true">
-          {[0, 1, 2, 3, 4].map((item) => (
-            <span key={item} />
-          ))}
-        </div>
-      )}
-      <div className={cn(styles.skeletonBody, lesson && styles.skeletonReading)} aria-hidden="true">
-        {(lesson ? [0, 1] : [0, 1, 2]).map((item) => (
+      <div className={styles.skeletonMetrics} aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((item) => (
+          <span key={item} />
+        ))}
+      </div>
+      <div className={styles.skeletonBody} aria-hidden="true">
+        {[0, 1, 2].map((item) => (
           <div key={item}>
             <span />
             <span />
@@ -39,16 +29,12 @@ export function AcademySkeleton({ lesson = false }: { lesson?: boolean }) {
           </div>
         ))}
       </div>
-      {!lesson && (
-        <>
-          <div className={styles.skeletonOverview} aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
-          <div className={styles.skeletonActivity} aria-hidden="true" />
-        </>
-      )}
+      <div className={styles.skeletonOverview} aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className={styles.skeletonActivity} aria-hidden="true" />
     </output>
   );
 }
