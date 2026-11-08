@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, Terminal } from "lucide-react";
+import { Terminal, User } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useTransition } from "react";
 import { cn } from "@/lib/utils";
@@ -45,10 +45,7 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-full border p-1 transition-all duration-300",
-        currentMode === "geek"
-          ? "shadow-brand-950/30 border-slate-800 bg-slate-950/80 shadow-lg"
-          : "border-slate-200/80 bg-slate-100/90 shadow-inner",
+        "inline-flex items-center gap-1 rounded-xl border border-slate-200/90 bg-slate-100/80 p-1",
         className,
       )}
     >
@@ -57,15 +54,18 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
         onClick={() => handleToggle("human")}
         aria-pressed={currentMode === "human"}
         className={cn(
-          "flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 sm:text-sm",
+          "inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150 sm:text-xs",
           currentMode === "human"
-            ? "text-brand-600 bg-white shadow-xs shadow-slate-200"
-            : currentMode === "geek"
-              ? "text-slate-400 hover:text-slate-200"
-              : "text-slate-500 hover:text-slate-800",
+            ? "border border-slate-200/70 bg-white font-semibold text-slate-900 shadow-xs"
+            : "border border-transparent text-slate-500 hover:text-slate-800",
         )}
       >
-        <Sparkles className="text-brand-600 size-3.5 shrink-0 sm:size-4" />
+        <User
+          className={cn(
+            "size-3.5 shrink-0",
+            currentMode === "human" ? "text-cyan-700" : "text-slate-400",
+          )}
+        />
         <span>Mode Bahasa Manusia</span>
       </button>
 
@@ -74,13 +74,18 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
         onClick={() => handleToggle("geek")}
         aria-pressed={currentMode === "geek"}
         className={cn(
-          "flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 font-mono text-xs font-semibold transition-all duration-200 sm:text-sm",
+          "inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-xs font-medium transition-all duration-150 sm:text-xs",
           currentMode === "geek"
-            ? "border-brand-500/40 text-brand-400 shadow-brand-900/50 border bg-[#0B0F17] shadow-xs"
-            : "text-slate-500 hover:text-slate-800",
+            ? "border border-slate-200/70 bg-white font-semibold text-slate-900 shadow-xs"
+            : "border border-transparent text-slate-500 hover:text-slate-800",
         )}
       >
-        <Terminal className="text-brand-400 size-3.5 shrink-0 sm:size-4" />
+        <Terminal
+          className={cn(
+            "size-3.5 shrink-0",
+            currentMode === "geek" ? "text-cyan-700" : "text-slate-400",
+          )}
+        />
         <span>Mode Teknis (Geek View)</span>
       </button>
     </div>
@@ -89,7 +94,7 @@ function DualModeToggleInner({ mode: propMode, onChange, className }: DualModeTo
 
 export function DualModeToggle(props: DualModeToggleProps) {
   return (
-    <Suspense fallback={<div className="h-9 w-64 animate-pulse rounded-full bg-slate-200/70" />}>
+    <Suspense fallback={<div className="h-9 w-64 animate-pulse rounded-xl bg-slate-200/70" />}>
       <DualModeToggleInner {...props} />
     </Suspense>
   );

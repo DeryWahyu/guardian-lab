@@ -280,6 +280,9 @@
   padding: 0;
   list-style: none;
 }
+.restrictions:first-child {
+  margin-top: 0;
+}
 .restrictions li {
   display: flex;
   align-items: flex-start;

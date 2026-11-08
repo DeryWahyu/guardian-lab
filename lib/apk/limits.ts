@@ -4,10 +4,10 @@ export const APK_LIMITS = {
   entryBytes: 50 * 1024 * 1024,
   manifestBytes: 2 * 1024 * 1024,
   outputBytes: 80 * 1024 * 1024,
-  sourceBytes: 12 * 1024 * 1024,
+  sourceBytes: 30 * 1024 * 1024,
   sourceFileBytes: 1024 * 1024,
-  sourceFiles: 1000,
-  timeoutMs: 45000,
+  sourceFiles: 3500,
+  timeoutMs: 120000,
 } as const;
 
 export class ApkExtractionError extends Error {

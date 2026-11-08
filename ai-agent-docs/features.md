@@ -5,7 +5,7 @@ Baca hanya bagian fitur yang dikerjakan. Batas produk/keamanan dan izin pengujia
 ## Status aktif
 
 - URL/QR, ekstraksi APK statis, sandbox web, Academy, Share Card, dan komunitas terhubung dengan MySQL.
-- URL dan tautan QR memanggil layanan Python Logistic Regression v6 dari backend. Model tetap shadow/riset nonkomersial, `production_ready=false`, dan perlu verifikasi. APK tetap statis dan tidak memakai classifier URL. Tidak ada skor heuristik pengganti, worker, atau proses ulang otomatis.
+- URL dan tautan QR memanggil layanan Python Logistic Regression v6 dari backend. Model tetap shadow/riset nonkomersial, `production_ready=false`, dan perlu verifikasi. Bedah APK memadukan ekstraksi statis JADX dengan penilaian ancaman DeepSeek AI (`deepseek-chat`) dan mesin heuristik luring, tanpa memakai classifier URL. Tidak ada worker latar belakang atau proses ulang otomatis.
 - Share Card dan kontribusi komunitas menerima hasil lengkap tersimpan, termasuk indikator v6 beserta batas bukti model. Ketidaktersediaan layanan tidak diberi skor atau kategori risiko.
 - Android dinamis, viewport ponsel remote, dan thumbnail sesi belum tersedia. Halaman Android menawarkan APK statis; API menolak dengan 503 tanpa sesi palsu.
 
@@ -83,7 +83,7 @@ Sumber: [skema input](../lib/validations/analysis-input.ts), [request reader](..
 
 ## Hasil dan riwayat
 
-- Landing menampilkan [pratinjau hasil](../components/landing/result-preview-section.tsx) setelah fitur dan sebelum cara kerja, tersedia tanpa sesi atau pemuatan data. Ini ilustrasi antarmuka berlabel dengan domain `.invalid` yang dinonaktifkan, bukan laporan investigasi. Tab manusia/teknis hanya mengganti tampilan lokal tanpa mengubah query hasil aktif. Tidak ada skor, verdict model, temuan, versi/hash, atau ID investigasi rekaan, pemanggilan analisis, ekspor, pengajuan komunitas, maupun preset input. CTA kembali ke kolom pemeriksaan manual melalui navigasi landing yang sama. Tampilan mengikuti [branding](./branding.md#landing).
+- Landing page (`/`) menyajikan hasil investigasi phishing dalam dialog interaktif berbasis Base UI Dialog yang dapat ditutup, menjaga alur vertikal halaman landing tetap bersih tanpa sisipan section inline.
 - Landing/detail/list menggunakan DTO yang sama. `?investigation=<id>&tab=<jenis>` memuat ulang hasil tersimpan; `?mode=geek` mempertahankan mode. Pergantian akun/ID membersihkan data lama dan respons terlambat diabaikan.
 - `RECEIVED`/`PROCESSING` dipoll tiga detik ketika halaman terlihat; terminal menghentikan polling. Refresh/fokus hanya GET, tanpa membuat investigasi baru. Timeout 15 detik memakai AbortController baru pada setiap request agar retry tetap bekerja.
 - Hasil lengkap memerlukan status `COMPLETED`, sumber/versi, skor 0–100, kategori, ringkasan, dan bukti valid. Label/warna mengikuti verdict tersimpan; hasil parsial/legacy tidak membuka ekspor atau kontribusi.
@@ -97,14 +97,14 @@ Sumber: [history](../lib/investigations/history.ts), [serialisasi](../lib/invest
 
 ## APK statis
 
-- Halaman Bedah APK menyediakan area tarik/lepas dan tombol pemilih file, ringkasan nama/ukuran berkas serta ganti/hapus. Tombol Periksa APK aktif setelah berkas valid dipilih dan tetap memerlukan submit manual. Keterangan AI/skor belum tersedia dan privasi selalu terlihat. Ilustrasi membedakan menunggu file, file terpilih, pemuatan dan proses; hasil tetap membaca rekaman tersimpan melalui presenter bersama.
+- Halaman Bedah APK menyediakan area tarik/lepas dan tombol pemilih file, ringkasan nama/ukuran berkas serta ganti/hapus. Tombol Periksa APK aktif setelah berkas valid dipilih dan tetap memerlukan submit manual. Keterangan status analisis statis & AI aktif terlihat pada panel form. Ilustrasi membedakan menunggu file, file terpilih, pemuatan dan proses; hasil tetap membaca rekaman tersimpan melalui presenter bersama.
 
 - Server memeriksa ZIP/CRC/manifest lalu menjalankan JADX untuk manifest biner/resource dan DEX; APK tidak dipasang, dieksekusi, atau dikirim ke model. Java 11+ dan toolchain terverifikasi diperlukan; setup ada di [deployment.md](./deployment.md).
 - Batas arsip, dekompresi, JVM, durasi, output, dan pembacaan sumber mengikuti [limits.ts](../lib/apk/limits.ts). Tolak traversal, symlink, duplikasi ambigu, enkripsi, arsip palsu, serta XML berbahaya.
 - Satu ekstraksi aktif per proses aplikasi; sibuk mengembalikan 429 sebelum rekaman dibuat. Child process tanpa shell menggunakan environment terbatas, tanpa secret, serta cleanup direktori job miliknya setelah selesai/gagal/batal.
 - `inputMetadata.apkStatic` menyimpan status `EXTRACTED`/`PARTIAL`, metadata manifest/izin, cakupan, origin dinonaktifkan, fingerprint indikator token, dan potongan Java tersanitasi. Binary/hasil mentah tidak disimpan permanen; pemeriksaan ulang memerlukan unggahan ulang.
 - Izin adalah kemampuan yang diminta, bukan bukti pencurian. Data parsial menyatakan keterbatasan; indikator kosong tidak diisi dengan bukti buatan. Pemeriksaan tidak membuktikan installability atau seluruh perilaku runtime.
-- Sukses statis: 201 dengan laporan dan status investigasi sesuai ketidaktersediaan model. Gagal setelah penerimaan: 422 dengan ID `FAILED`; input salah tanpa ID. Alasan ramah pengguna tidak membocorkan stdout/stderr atau path mesin.
+- Sukses statis & AI: 201 dengan rekaman `COMPLETED` memuat temuan statis JADX pada `inputMetadata` dan penilaian ancaman DeepSeek AI / heuristik pada `result` (`riskLevel`, `riskScore`, `scamCategory`, `summary`, `deceptionTricks`, `technicalEvidence`). Gagal setelah penerimaan: 422 dengan ID `FAILED`; input salah tanpa ID. Alasan ramah pengguna tidak membocorkan stdout/stderr atau path mesin.
 
 Sumber: [lib/apk/](../lib/apk/), [kontrak laporan](../lib/validations/apk-static.ts), dan [toolchain](../lib/apk/toolchain.json).
 
@@ -159,7 +159,6 @@ Sumber: [lib/share-card/](../lib/share-card/) dan [komponen Act](../components/a
 - Mutasi, filter, pagination, dan batas body mengikuti skema/API; tidak menerima skor atau bukti buatan klien.
 
 Sumber: [lib/community/](../lib/community/), [validasi komunitas](../lib/validations/community.ts), dan [challenge](../lib/validations/community-challenge.ts).
-
 
 ## Administrasi dan operasional
 

@@ -11,7 +11,6 @@ import { LandingInvestigation } from "./landing-investigation";
 import { LandingMotion } from "./landing-motion";
 import { LandingScrollControls } from "./landing-scroll-controls";
 import { PillarsSection } from "./pillars-section";
-import { ResultPreviewSection } from "./result-preview-section";
 import { SocialProofSection } from "./social-proof-section";
 import { useLandingReveal } from "./use-landing-reveal";
 export interface LandingPageViewProps {
@@ -34,7 +33,6 @@ function LandingPageContent({ initialUser }: LandingPageViewProps) {
         <main data-user-transition>
           <LandingInvestigation initialUser={initialUser} />
           <PillarsSection />
-          <ResultPreviewSection />
           <JourneySection />
           <SocialProofSection />
           <CtaBanner />

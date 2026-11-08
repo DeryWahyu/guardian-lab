@@ -11,10 +11,12 @@ import { LandingResults } from "./landing-results";
 type Props = { initialUser?: UserSession | null };
 
 export function LandingInvestigation({ initialUser }: Props) {
+  const [activeInvestigationId, setActiveInvestigationId] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   function clearResult() {
+    setActiveInvestigationId(null);
     setAnalysisError(null);
     const next = new URLSearchParams(window.location.search);
     if (!next.has("investigation")) return;
@@ -32,6 +34,7 @@ export function LandingInvestigation({ initialUser }: Props) {
   function success(record: Investigation) {
     setIsAnalyzing(false);
     setAnalysisError(null);
+    setActiveInvestigationId(record.id);
     const next = new URLSearchParams(window.location.search);
     next.delete("target");
     next.delete("file");
@@ -56,7 +59,13 @@ export function LandingInvestigation({ initialUser }: Props) {
         />
       </HeroSection>
       <Suspense fallback={null}>
-        <LandingResults initialUser={initialUser} isAnalyzing={isAnalyzing} error={analysisError} />
+        <LandingResults
+          initialUser={initialUser}
+          isAnalyzing={isAnalyzing}
+          error={analysisError}
+          activeId={activeInvestigationId}
+          onClose={clearResult}
+        />
       </Suspense>
     </>
   );

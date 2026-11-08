@@ -35,10 +35,10 @@ export function ConfirmDialog({
       }}
     >
       <AlertDialog.Portal>
-        <AlertDialog.Backdrop className="fixed inset-0 z-50 bg-slate-950/50" />
+        <AlertDialog.Backdrop className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-xs" />
         <AlertDialog.Popup
           className={cn(
-            "fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-1/2 space-y-4 rounded-2xl bg-white p-6 shadow-xl",
+            "fixed top-1/2 left-1/2 z-[100] w-[calc(100%-2rem)] max-w-lg -translate-1/2 space-y-4 rounded-2xl bg-white p-6 shadow-xl",
             className,
           )}
         >

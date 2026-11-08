@@ -7,7 +7,7 @@ import type { ThreatAnalysisResult } from "@/types/analysis";
 export interface ThreatScoreGaugeProps {
   score: number;
   riskLevel: ThreatAnalysisResult["riskLevel"];
-  defangedTarget: string;
+  defangedTarget?: string;
   scamCategory: string;
   model?: UrlModelEvidence;
   className?: string;
@@ -15,40 +15,55 @@ export interface ThreatScoreGaugeProps {
 export function ThreatScoreGauge({
   score,
   riskLevel,
-  defangedTarget,
   scamCategory,
   model,
   className,
 }: ThreatScoreGaugeProps) {
   const risk = getRiskPresentation(riskLevel, model);
   return (
-    <div className={cn("space-y-4 rounded-2xl border border-slate-200 bg-white p-6", className)}>
-      <span
-        className={cn(
-          "inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold",
-          risk.color,
-          risk.background,
-        )}
-      >
-        <Shield className="size-4" aria-hidden="true" />
-        {risk.label}
-      </span>
-      <div>
-        <p className="text-xs font-medium text-slate-500">
-          {model ? "Skor indikator model" : "Skor risiko tersimpan"}
-        </p>
-        <p className="mt-1 text-4xl font-bold text-slate-900">
-          {score}
-          <span className="text-base font-normal text-slate-500"> / 100</span>
+    <div
+      className={cn(
+        "flex h-full flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-5 shadow-2xs transition-all",
+        className,
+      )}
+    >
+      <div className="space-y-3.5">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="flex size-7 items-center justify-center rounded-lg bg-cyan-50 text-cyan-700">
+              <Shield className="size-4" aria-hidden="true" />
+            </span>
+            <span className="text-xs font-bold tracking-wider text-slate-500 uppercase">
+              {model ? "Skor Indikator Model" : "Skor Risiko"}
+            </span>
+          </div>
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold shadow-2xs",
+              risk.color,
+              risk.background,
+            )}
+          >
+            {risk.label}
+          </span>
+        </div>
+
+        <div className="space-y-2 pt-0.5">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-4xl font-extrabold tracking-tight text-slate-900">{score}</span>
+            <span className="text-sm font-medium text-slate-400">/ 100</span>
+          </div>
+          <p className="text-sm font-bold text-slate-800">{scamCategory}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 border-t border-slate-100 pt-3">
+        <p className="text-[11px] leading-relaxed text-slate-400">
+          {model
+            ? "Kategori mengikuti threshold model sebelum pembulatan. Indikator skor bukan jaminan mutlak tautan aman."
+            : "Kategori dan skor risiko mengikuti hasil analisis tersimpan. Selalu verifikasi sebelum membuka tautan atau memasang berkas."}
         </p>
       </div>
-      <p className="text-sm font-semibold text-slate-800">{scamCategory}</p>
-      <p className="font-mono text-xs break-all text-slate-600">{defangedTarget}</p>
-      <p className="text-xs text-slate-500">
-        {model
-          ? "Kategori mengikuti threshold model pada skor asli sebelum pembulatan. Skor bukan persentase kepastian phishing."
-          : "Kategori dan skor mengikuti hasil analisis yang tersimpan."}
-      </p>
     </div>
   );
 }

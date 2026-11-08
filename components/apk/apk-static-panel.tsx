@@ -1,7 +1,7 @@
 import { explainPermission } from "@/lib/apk/presentation";
 import type { ApkStaticReport } from "@/lib/validations/apk-static";
-import { ApkStaticTechnical } from "./apk-static-technical";
 import { ApkPermissionList } from "./apk-permission-list";
+import { ApkStaticTechnical } from "./apk-static-technical";
 
 export function ApkStaticPanel({
   report,
@@ -37,7 +37,7 @@ export function ApkStaticPanel({
           UTC
         </p>
       </div>
-      {report.warnings.length > 0 && (
+      {mode === "geek" && report.warnings.length > 0 && (
         <div className="space-y-1 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           {report.warnings.map((warning) => (
             <p key={warning}>{warning}</p>

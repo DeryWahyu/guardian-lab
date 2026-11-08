@@ -66,7 +66,7 @@ export function InvestigationStatusPanel({
         </p>
       )}
       {mode === "geek" && !apkReport && (
-        <pre className="max-h-96 overflow-auto rounded-xl bg-slate-950 p-4 text-xs break-all whitespace-pre-wrap text-slate-100">
+        <pre className="max-h-96 overflow-auto rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-xs break-all whitespace-pre-wrap text-slate-700">
           {JSON.stringify(
             {
               status: record.status,

@@ -1,6 +1,6 @@
 "use client";
 
-import { FileCheck2, ImageIcon, Info } from "lucide-react";
+import { ArrowRight, FileCheck2, ImageIcon, Info, Users } from "lucide-react";
 import Link from "next/link";
 import { memo, useRef } from "react";
 import { PROTECTED_ROUTES } from "@/lib/routes";
@@ -42,6 +42,27 @@ export const PreparedShareCard = memo(
             <span>{card.date}</span>
           </div>
           <ShareCardActions cardRef={cardRef} card={card} />
+          <div className="mt-5 space-y-3 rounded-2xl border border-cyan-200/90 bg-gradient-to-br from-cyan-50/90 via-white to-teal-50/50 p-4 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-cyan-700 text-white shadow-2xs">
+                <Users aria-hidden="true" className="size-4" />
+              </span>
+              <h3 className="text-sm leading-snug font-bold text-slate-900">
+                Ajukan Kasus ke Komunitas
+              </h3>
+            </div>
+            <p className="text-xs leading-relaxed text-slate-600">
+              Publikasikan temuan ini agar anggota komunitas lain dapat belajar dan terlindungi.
+            </p>
+            <Link
+              href={PROTECTED_ROUTES.communitySubmit(card.id)}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-800 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-cyan-900"
+            >
+              <Users aria-hidden="true" className="size-4" />
+              <span>Ajukan ke komunitas sekarang</span>
+              <ArrowRight aria-hidden="true" className="ml-auto size-3.5" />
+            </Link>
+          </div>
           <p className={styles.privacyNote}>
             <Info aria-hidden="true" size={17} /> Kamu memilih aplikasi dan penerima. Periksa
             kembali isi kartu sebelum meneruskannya.

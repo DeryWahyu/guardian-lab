@@ -1,5 +1,6 @@
 import { Info, Loader2, Search } from "lucide-react";
 import { InvestigationRequestFeedback } from "@/components/shared/investigation-request-feedback";
+import { ApkProgressCard } from "./apk-progress-card";
 import { ApkUploadField } from "./apk-upload-field";
 import styles from "./apk-workspace.module.css";
 
@@ -57,22 +58,11 @@ export function ApkUploadPanel({
       <div className={styles.modelNotice}>
         <Info aria-hidden="true" size={17} />
         <p>
-          <strong>AI sedang disiapkan.</strong> Skor risiko belum tersedia.
-          <br />
-          Temuan statis yang berhasil diekstrak tetap ditampilkan.
+          <strong>Analisis Statis &amp; AI Aktif.</strong> Dekompilasi JADX memeriksa manifes dan
+          izin secara mendalam, dipadukan dengan analisis pola ancaman DeepSeek AI.
         </p>
       </div>
-      <div className={styles.privacy}>
-        <p>
-          <Info aria-hidden="true" size={16} /> Jangan unggah berkas berisi data pribadi.
-        </p>
-      </div>
-      {pending && (
-        <output className={styles.pendingNotice}>
-          Proses dapat memerlukan waktu hingga sekitar satu menit. Tunggu hingga selesai dan jangan
-          kirim ulang.
-        </output>
-      )}
+      <ApkProgressCard pending={pending} className="mt-3.5" />
     </form>
   );
 }

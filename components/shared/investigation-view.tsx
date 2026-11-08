@@ -19,7 +19,7 @@ export function InvestigationView({
   scope?: string;
   expectedType?: Investigation["type"];
   returnTo?: string;
-  presentation?: "default" | "workspace";
+  presentation?: "default" | "workspace" | "dialog";
 }) {
   const { record, loading, refreshing, problem, retry } = useInvestigation(id, scope);
   if (loading) return <ResultSkeleton />;
@@ -47,18 +47,20 @@ export function InvestigationView({
     );
   }
   return (
-    <div className="space-y-4" data-user-reveal>
-      <div className="flex flex-wrap items-center justify-end gap-3 text-xs text-slate-500">
-        {refreshing && <span aria-live="polite">Memperbarui status…</span>}
-        <button
-          type="button"
-          disabled={refreshing}
-          onClick={retry}
-          className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 disabled:opacity-50"
-        >
-          <RefreshCw className="size-3.5" aria-hidden="true" /> Perbarui status
-        </button>
-      </div>
+    <div className={presentation === "dialog" ? "space-y-3" : "space-y-4"} data-user-reveal>
+      {presentation !== "dialog" && (
+        <div className="flex flex-wrap items-center justify-end gap-3 text-xs text-slate-500">
+          {refreshing && <span aria-live="polite">Memperbarui status…</span>}
+          <button
+            type="button"
+            disabled={refreshing}
+            onClick={retry}
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 disabled:opacity-50"
+          >
+            <RefreshCw className="size-3.5" aria-hidden="true" /> Perbarui status
+          </button>
+        </div>
+      )}
       {problem && (
         <div
           role="alert"

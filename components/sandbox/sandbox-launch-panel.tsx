@@ -1,4 +1,4 @@
-import { Clipboard, Clock3, Download, Info, Link2, Play, RefreshCw } from "lucide-react";
+import { Clipboard, Clock3, Download, Info, Link2, Play } from "lucide-react";
 import { sandboxTargetPlan } from "@/lib/sandbox/target-plan";
 import styles from "./web-sandbox.module.css";
 
@@ -10,13 +10,13 @@ export function SandboxServiceNotice({
   message: string;
 }) {
   return (
-    <div className={styles.serviceNotice} data-available={available} role="status">
+    <output className={styles.serviceNotice} data-available={available}>
       <span className={styles.serviceDot} aria-hidden="true" />
       <div>
         <strong>{available ? "Layanan tersedia" : "Layanan belum tersedia"}</strong>
         <p>{message}</p>
       </div>
-    </div>
+    </output>
   );
 }
 
@@ -30,7 +30,7 @@ export function SandboxLaunchPanel({
   onTargetChange,
   onConsentChange,
   onSubmit,
-  onRefresh,
+  onRefresh: _onRefresh,
 }: {
   target: string;
   consent: boolean;
@@ -41,21 +41,20 @@ export function SandboxLaunchPanel({
   onTargetChange: (value: string) => void;
   onConsentChange: (value: boolean) => void;
   onSubmit: () => void;
-  onRefresh: () => void;
+  onRefresh?: () => void;
 }) {
   const plan = sandboxTargetPlan(target);
   return (
     <section className={styles.launchPanel} aria-labelledby="sandbox-launch-title">
       <div className={styles.launchHeading}>
         <h2 id="sandbox-launch-title">Mulai penjelajahan</h2>
-        <span
+        <output
           className={styles.availability}
           data-state={pending ? "busy" : available ? "ready" : "offline"}
-          role="status"
         >
           <span aria-hidden="true" />
           {pending ? "Menyiapkan" : available ? "Siap digunakan" : "Belum tersedia"}
-        </span>
+        </output>
       </div>
       <form
         onSubmit={(event) => {
@@ -84,7 +83,7 @@ export function SandboxLaunchPanel({
             value={target}
             placeholder="https://example.com"
             onChange={(event) => onTargetChange(event.target.value)}
-            aria-describedby="sandbox-target-hint sandbox-privacy sandbox-restrictions sandbox-service-message"
+            aria-describedby="sandbox-target-hint sandbox-restrictions sandbox-service-message"
           />
         </div>
         <p id="sandbox-target-hint" className="sr-only">
@@ -135,20 +134,13 @@ export function SandboxLaunchPanel({
           </span>
         </button>
       </form>
-      <button type="button" className={styles.refreshButton} disabled={pending} onClick={onRefresh}>
-        <RefreshCw aria-hidden="true" size={17} /> Periksa status
-      </button>
-      <p
+      <output
         id="sandbox-service-message"
         className={available ? "sr-only" : styles.serviceMessage}
-        role="status"
       >
         {message}
-      </p>
+      </output>
       <div className={styles.protectionNotes}>
-        <p id="sandbox-privacy" className={styles.privacyHint}>
-          <Info aria-hidden="true" size={18} /> Jangan masukkan akun atau data pribadi.
-        </p>
         <ul id="sandbox-restrictions" className={styles.restrictions}>
           <li>
             <Clipboard aria-hidden="true" size={17} /> Clipboard dinonaktifkan

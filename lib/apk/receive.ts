@@ -1,12 +1,9 @@
 import type { ForensicRecord, Prisma } from "@prisma/client";
 import { sanitizeEvidence } from "@/lib/investigations/privacy";
 import { serializeInvestigation } from "@/lib/investigations/serialize";
-import {
-  createInvestigation,
-  MODEL_UNAVAILABLE_MESSAGE,
-  transitionInvestigation,
-} from "@/lib/investigations/service";
+import { createInvestigation, transitionInvestigation } from "@/lib/investigations/service";
 import { prisma } from "@/lib/prisma";
+import { analyzeApkThreatWithDeepSeek } from "./deepseek";
 import { extractApk } from "./extract";
 import { ApkExtractionError } from "./limits";
 
@@ -22,6 +19,7 @@ export async function receiveApk(
   await transitionInvestigation({ id: record.id, userId: input.userId, status: "PROCESSING" });
   try {
     const report = await extractApk(bytes, signal);
+    const threat = await analyzeApkThreatWithDeepSeek(report, input.target);
     const result = await prisma.$transaction(async (tx) => {
       await tx.forensicRecord.update({
         where: { id: record.id },
@@ -37,9 +35,23 @@ export async function receiveApk(
         {
           id: record.id,
           userId: input.userId,
-          status: "UNAVAILABLE",
-          errorCode: "MODEL_NOT_CONFIGURED",
-          errorMessage: `Ekstraksi statis APK tersimpan. ${MODEL_UNAVAILABLE_MESSAGE}`,
+          status: "COMPLETED",
+          result: {
+            riskLevel: threat.riskLevel,
+            riskScore: threat.riskScore,
+            scamCategory: threat.scamCategory,
+            summary: threat.humanFriendlySummary,
+            deceptionTricks: threat.deceptionTricks,
+            technicalEvidence: {
+              permissions: report.manifest.permissions,
+              c2Endpoints: report.indicators.urls.map((u) => u.value),
+              botTokens: report.indicators.botFingerprints,
+              suspiciousDexStrings: report.snippets.map((s) => `${s.source}: ${s.code}`),
+              apkStatic: report,
+            },
+            analysisSource: threat.analysisSource,
+            modelVersion: threat.modelVersion,
+          },
         },
         tx,
       );
