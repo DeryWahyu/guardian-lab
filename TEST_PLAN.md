@@ -343,3 +343,13 @@ Prasyarat: persetujuan eksplisit sebelum pengujian tambahan; database lokal teri
 - [ ] **SEED-04: Pengulangan dan gabungan progres:** seed dua kali, termasuk bersamaan dan setelah pengguna menyelesaikan kuis/kasus. ID, jumlah rekaman, attempt, pengajuan, lencana dan audit tidak bertambah pada pengulangan; EXP tidak berlipat atau berkurang. Kelulusan asli tidak diberi hadiah kedua, gagal/ulang tidak memberi EXP, dan hasil/feedback sesuai soal snapshot. Simulasikan kegagalan di tengah transaksi lalu ulangi seed. Moderasi, penarikan kasus dan penangguhan yang telah diubah tidak ditimpa. Akun suspended tidak memperoleh aktivitas baru.
 - [ ] **SEED-05: Kejujuran fixture dan tanggal:** rekaman/summary/kasus APK menunjukkan `[DEMO]`, `LOCAL_DEMO`, metadata versi/isDemo dan peringatan bahwa skor simulasi bukan keluaran AI. URL/QR memakai domain `.example`, tanpa skor/risiko atau bukti V6 palsu. Tidak ada OTP, model, unggahan APK atau sesi sandbox yang dijalankan. Uji batas hari WIB, akun baru, riwayat lama dan seed yang diulang pada hari berbeda: timestamp tidak mendahului akun, streak sesuai gabungan aktivitas dan tanggal lama tidak diperbarui hanya untuk menaikkan streak.
 - [ ] **SEED-06: Lingkungan:** `NODE_ENV=production` dan DATABASE_URL di luar loopback/layanan Compose ditolak sebelum akun diubah. `academy:seed` tetap hanya menambah materi dan dapat dipakai deployment production tanpa data demo. Seed utama tidak melakukan reset/migrasi otomatis atau menghapus data.
+
+## Sinkronisasi tipe prop presentation untuk komponen hasil pemeriksaan: pemeriksaan tertunda
+
+Prasyarat: persetujuan eksplisit untuk pemeriksaan build/typecheck/CI.
+
+- [ ] **TYPE-PRESENTATION-01: Kompatibilitas tipe presentation prop:**
+  - `InvestigationStatusPanel`, `InvestigationProblem`, dan `ApkStaticPanel` menerima prop `presentation?: "default" | "workspace" | "dialog"`.
+  - Komponen pemanggil seperti `ResultPresenter` dan `InvestigationView` yang memiliki opsi `presentation="dialog"` dapat meneruskan nilai `presentation` tanpa error kompilasi TypeScript TS2322.
+  - Saat `presentation === "dialog"`, komponen menyesuaikan spacing dan batas tepi agar pas di dalam dialog tanpa border ganda.
+  - Next.js production build (`next build`) berhasil melakukan type check tanpa kegagalan pada stage builder container.
