@@ -6,6 +6,22 @@ export function rejectCrossOrigin(request: Request): NextResponse | null {
   if (!origin || ["GET", "HEAD", "OPTIONS"].includes(request.method)) return null;
   let expected = new URL(request.url);
   const host = request.headers.get("host");
+
+  const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (configuredAppUrl) {
+    try {
+      const appUrl = new URL(configuredAppUrl);
+      if (
+        origin === appUrl.origin &&
+        (!host || host.replace(/:(?:80|443)$/, "") === appUrl.host.replace(/:(?:80|443)$/, ""))
+      ) {
+        return null;
+      }
+    } catch {
+      // Invalid NEXT_PUBLIC_APP_URL is ignored.
+    }
+  }
+
   // Next may use the wildcard bind address in Docker or normalize loopback to localhost.
   // Recover only loopback Hosts on the same port; forwarded headers are not trusted.
   if (
