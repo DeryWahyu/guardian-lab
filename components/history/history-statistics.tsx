@@ -1,4 +1,4 @@
-import { Box, Layers3, ShieldAlert } from "lucide-react";
+import { FeatureIcon, type FeatureIconName } from "@/components/shared/feature-icon";
 import type { HistoryResponse } from "@/lib/validations/history";
 import styles from "./history-workspace.module.css";
 
@@ -9,10 +9,10 @@ export function HistoryStatistics({
   summary: HistoryResponse["summary"] | null;
   loading: boolean;
 }) {
-  const statistics = [
-    { label: "Investigasi sesuai filter", value: summary?.total, Icon: Layers3 },
-    { label: "Hasil berisiko tinggi", value: summary?.highRisk, Icon: ShieldAlert },
-    { label: "Model belum tersedia", value: summary?.unavailable, Icon: Box },
+  const statistics: { label: string; value: number | undefined; icon: FeatureIconName }[] = [
+    { label: "Investigasi sesuai filter", value: summary?.total, icon: "layers" },
+    { label: "Hasil berisiko tinggi", value: summary?.highRisk, icon: "risk" },
+    { label: "Model belum tersedia", value: summary?.unavailable, icon: "model" },
   ];
   return (
     <dl
@@ -21,12 +21,10 @@ export function HistoryStatistics({
       data-user-reveal
       data-user-order="1"
     >
-      {statistics.map(({ label, value, Icon }) => (
+      {statistics.map(({ label, value, icon }) => (
         <div key={label}>
           <dt>
-            <span>
-              <Icon aria-hidden="true" size={27} />
-            </span>
+            <FeatureIcon name={icon} muted={value === 0 || value === undefined} />
             {label}
           </dt>
           <dd>

@@ -108,13 +108,7 @@
   height: 52px;
   place-items: center;
   border-radius: 13px;
-  background: #dff5f7;
-  color: #008993;
   transform: translateY(-50%);
-}
-.statistics > div:last-child dt > span {
-  background: #ece5ff;
-  color: #504978;
 }
 .statistics dd {
   min-height: 44px;
@@ -433,16 +427,6 @@
   border-radius: 17px;
   background: linear-gradient(110deg, #edf9fc, #f5f8ff);
   text-align: center;
-}
-.empty > span {
-  display: grid;
-  width: 62px;
-  height: 62px;
-  place-items: center;
-  border: 1px solid #c4e9ee;
-  border-radius: 19px;
-  background: #dff5f7;
-  color: #00858d;
 }
 .empty h3,
 .problem h3 {

@@ -1,6 +1,7 @@
-import { ArrowDown, History } from "lucide-react";
-import { formatStudyDate, type AcademyProgress } from "./academy-presentation";
+import { ArrowDown } from "lucide-react";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import styles from "./academy.module.css";
+import { type AcademyProgress, formatStudyDate } from "./academy-presentation";
 
 export function AcademyActivity({ attempts }: { attempts: AcademyProgress["recentAttempts"] }) {
   return (
@@ -15,15 +16,11 @@ export function AcademyActivity({ attempts }: { attempts: AcademyProgress["recen
           <h2 id="academy-activity-title">Jejak belajarmu</h2>
           <p>Aktivitas belajar terakhir.</p>
         </div>
-        <span className={styles.activityIcon}>
-          <History aria-hidden="true" size={21} />
-        </span>
+        <FeatureIcon name="history" />
       </div>
       {!attempts.length ? (
         <div className={styles.activityEmpty}>
-          <span>
-            <History aria-hidden="true" size={27} />
-          </span>
+          <FeatureIcon name="history" size="large" muted />
           <h3>Setiap langkah punya cerita.</h3>
           <p>
             Belum ada aktivitas belajar. Selesaikan latihan pertamamu dan lihat progresnya di sini.

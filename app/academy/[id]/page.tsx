@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import { AcademySkeleton } from "@/components/academy/academy-page-state";
 import styles from "@/components/academy/academy.module.css";
+import lessonStyles from "@/components/academy/quiz-lesson.module.css";
+import { QuizLessonSkeleton } from "@/components/academy/quiz-lesson-skeleton";
 import { QuizLessonView } from "@/components/academy/quiz-lesson-view";
 import { landingTypography } from "@/components/landing/landing-font";
 import { WorkspaceShell } from "@/components/workspace/workspace-shell";
@@ -17,11 +18,10 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   return (
     <WorkspaceShell
-      reading
-      className={cn(landingTypography, styles.page)}
+      className={cn(landingTypography, styles.page, lessonStyles.page)}
       dialogClassName={landingTypography}
     >
-      <Suspense fallback={<AcademySkeleton lesson />}>
+      <Suspense fallback={<QuizLessonSkeleton />}>
         <Content params={params} />
       </Suspense>
     </WorkspaceShell>

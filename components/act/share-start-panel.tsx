@@ -1,5 +1,6 @@
 import { ArrowRight, ClipboardList, History, Search } from "lucide-react";
 import Link from "next/link";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import { ShareSteps } from "./share-steps";
 import styles from "./share-workspace.module.css";
@@ -9,8 +10,13 @@ export function ShareStartPanel({ hasRecord = false }: { hasRecord?: boolean }) 
     <section className={styles.startWorkspace} aria-labelledby="share-start-title">
       <ShareSteps />
       <div className={styles.startPanel}>
-        <h2 id="share-start-title">Pilih hasil pemeriksaan</h2>
-        <p className={styles.panelDescription}>Gunakan hasil lengkap dari riwayatmu.</p>
+        <div className={styles.startHeading}>
+          <FeatureIcon name="share" size="small" />
+          <div>
+            <h2 id="share-start-title">Pilih hasil pemeriksaan</h2>
+            <p className={styles.panelDescription}>Mulai dari hasil lengkap di riwayatmu.</p>
+          </div>
+        </div>
         <div className={styles.sourceEmpty}>
           <span className={styles.sourceIcon}>
             <ClipboardList aria-hidden="true" size={42} />

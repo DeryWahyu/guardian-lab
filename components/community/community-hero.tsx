@@ -1,8 +1,9 @@
-import { ArrowRight, FilePlus2, Trophy } from "lucide-react";
+import { ArrowRight, FilePlus2 } from "lucide-react";
 import Link from "next/link";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { PROTECTED_ROUTES } from "@/lib/routes";
-import { CommunityIllustration } from "./community-illustration";
 import styles from "./community.module.css";
+import { CommunityIllustration } from "./community-illustration";
 
 export function CommunityHero() {
   return (
@@ -23,7 +24,7 @@ export function CommunityHero() {
             <ArrowRight aria-hidden="true" size={21} />
           </Link>
           <Link href={PROTECTED_ROUTES.leaderboard} className={styles.secondaryButton}>
-            <Trophy aria-hidden="true" size={23} />
+            <FeatureIcon name="rank" size="inline" />
             Peringkat Guardian
           </Link>
         </div>

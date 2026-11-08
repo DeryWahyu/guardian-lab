@@ -9,8 +9,8 @@ import { useSessionUser } from "@/lib/hooks/use-session-user";
 import { ADMIN_ROUTES, AUTH_ROUTES, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import { BrandIdentity } from "./brand-identity";
 import { HeaderNavigation, type HeaderVariant } from "./header-navigation";
-import { LogoutDialog } from "./logout-dialog";
 import landingStyles from "./landing-chrome.module.css";
+import { LogoutDialog } from "./logout-dialog";
 
 export interface HeaderProps {
   initialUser?: UserSession | null;
@@ -142,17 +142,17 @@ function HeaderContent({ initialUser, variant, dialogClassName }: HeaderProps) {
           <div className="border-t border-slate-100 pt-4">
             {user ? (
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div className={landingStyles.mobileAccount}>
+                  <div className={landingStyles.mobileIdentity}>
                     <div className="bg-brand-100 text-brand-700 flex size-8 items-center justify-center rounded-full text-sm font-bold">
                       {user.name.charAt(0).toUpperCase()}
                     </div>
-                    <div className="flex flex-col">
+                    <div className={landingStyles.mobileIdentityText}>
                       <span className="text-sm font-bold text-slate-800">{user.name}</span>
                       <span className="text-xs text-slate-500">{user.email}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className={landingStyles.mobileMetrics}>
                     <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-bold text-orange-600">
                       🔥 {user.streakDays}d
                     </span>

@@ -1,6 +1,6 @@
-import { Flame, ShieldCheck } from "lucide-react";
-import { formatExp, type RankingEntry } from "./leaderboard-presentation";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import styles from "./leaderboard.module.css";
+import { formatExp, type RankingEntry } from "./leaderboard-presentation";
 
 export function RankingList({ items }: { items: RankingEntry[] }) {
   return (
@@ -11,14 +11,12 @@ export function RankingList({ items }: { items: RankingEntry[] }) {
     >
       {items.map((item) => (
         <li key={item.alias} className={styles.rankingRow} data-current={item.isCurrentUser}>
-          <span className={styles.position} data-top={item.position <= 3}>
+          <span className={styles.position} data-position={item.position}>
             <span className="sr-only">Peringkat </span>
             {item.position}
           </span>
           <div className={styles.identity}>
-            <span className={styles.avatar} aria-hidden="true">
-              <ShieldCheck size={23} strokeWidth={1.7} />
-            </span>
+            <FeatureIcon name="security" className={styles.avatar} />
             <div>
               <p className={styles.alias}>
                 {item.alias}
@@ -28,7 +26,7 @@ export function RankingList({ items }: { items: RankingEntry[] }) {
                 <span>{item.rank}</span>
                 <span aria-hidden="true">&middot;</span>
                 <span>
-                  <Flame aria-hidden="true" size={13} />
+                  <FeatureIcon name="streak" size="inline" muted={item.streakDays === 0} />
                   {item.streakDays} hari berturut-turut
                 </span>
               </p>

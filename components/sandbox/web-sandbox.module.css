@@ -325,10 +325,7 @@
   width: 43px;
   height: 43px;
   place-items: center;
-  border: 1px solid #cceff0;
   border-radius: 13px;
-  background: #def6f5;
-  color: #087e8b;
 }
 .features h2 {
   font-size: 12px;
@@ -619,4 +616,16 @@
     padding-left: 0;
     border-left: 0;
   }
+}
+
+.launchTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.fieldHint {
+  margin-top: 7px;
+  color: #576784;
+  font-size: 11px;
+  line-height: 1.7;
 }

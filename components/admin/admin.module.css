@@ -372,6 +372,8 @@
 .textLink {
   display: inline-flex;
   align-items: center;
+  min-width: 0;
+  max-width: 100%;
   min-height: 24px;
   color: #00818b;
   font-size: 12px;
@@ -954,6 +956,7 @@
   }
   .table tbody tr {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 13px;
     padding: 19px 0;
     border-bottom: 1px solid #dfe7f1;
@@ -962,10 +965,12 @@
   .table tbody th {
     display: block;
     width: 100%;
+    min-width: 0;
     max-width: none;
     padding: 0;
     border: 0;
     font-size: 12px;
+    overflow-wrap: anywhere;
   }
   .table tbody th {
     font-size: 13px;
@@ -979,6 +984,7 @@
   }
   .target {
     max-width: 100%;
+    white-space: normal;
   }
   .table small {
     font-size: 10px;
@@ -1031,5 +1037,11 @@
   }
   .topbar {
     padding-inline: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .shell :is(input:not([type="checkbox"], [type="radio"], [type="file"]), select, textarea) {
+    font-size: 16px;
   }
 }

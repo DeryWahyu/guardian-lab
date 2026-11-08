@@ -82,12 +82,12 @@ export function LandingResults({ initialUser, activeId, onClose }: Props) {
             landingTypography,
           )}
         >
-          <div className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-100 bg-white/95 px-5 py-3 backdrop-blur-sm sm:px-6">
-            <div className="flex items-center gap-2.5">
-              <div className="flex size-7 items-center justify-center rounded-lg bg-cyan-100 text-cyan-800">
+          <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-slate-100 bg-white/95 px-5 py-3 backdrop-blur-sm sm:px-6">
+            <div className="flex min-w-0 flex-1 items-center gap-2.5">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-cyan-800">
                 <ShieldAlert className="size-4" aria-hidden="true" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <Dialog.Title className="text-sm font-bold text-slate-900 sm:text-base">
                   Hasil Deteksi Phishing
                 </Dialog.Title>
@@ -99,7 +99,7 @@ export function LandingResults({ initialUser, activeId, onClose }: Props) {
             <Dialog.Close
               type="button"
               onClick={handleClose}
-              className="cursor-pointer rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              className="inline-grid size-11 shrink-0 cursor-pointer place-items-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
               aria-label="Tutup hasil pemeriksaan"
             >
               <X className="size-4.5" aria-hidden="true" />

@@ -15,6 +15,7 @@
 - Aksi destruktif memakai [ConfirmDialog](../components/shared/confirm-dialog.tsx) dengan dampak serta label tindakan yang jelas. Jangan gunakan `window.confirm()` atau `window.alert()`.
 - Gunakan Sonner melalui satu `Toaster` global di root layout untuk notifikasi operasi. Toast tampil minimalis di kanan bawah dengan latar putih, teks/ikon netral, bayangan halus, dan warna status hanya pada border kiri: hijau sukses, merah error, biru info, kuning peringatan, serta abu-abu untuk pesan umum/loading. Ikon status dan pesan tetap membedakan jenis notifikasi selain warna; tombol tutup memakai label aksesibel Bahasa Indonesia. Gaya berlaku di semua halaman, termasuk tema gelap, dengan margin responsif pada ponsel. Kesalahan yang perlu diperbaiki pada form juga tampil di dekat kontrol terkait.
 - Saat mutasi berjalan, tampilkan pending, cegah pengiriman ganda, dan sediakan pemulihan yang sesuai. Hormati reduced motion.
+- Mulai dari lebar 320 px, nama/email panjang dan aksi harus membungkus tanpa memperlebar halaman. Deret navigasi atau tabel yang sengaja digulir harus memakai area scroll lokal yang tetap dapat dijangkau. Dialog mengikuti tinggi viewport dinamis, menyediakan scroll internal pada layar pendek dan mempertahankan tombol tutup serta target sentuh minimal 44 px.
 
 ## Loading, kosong, error, dan konten
 
@@ -24,6 +25,8 @@
 - Laporan panjang menyediakan pencarian/filter serta pagination atau area scroll yang sesuai. Ukuran daftar tidak boleh membuat kontrol utama sulit dijangkau.
 
 ## Form
+
+- Pada ponsel hingga lebar 767 px, input teks/pencarian/tanggal, select dan textarea pada shell pengguna/admin memakai teks minimal 16 px. Ukuran khusus checkbox, radio dan unggahan tetap mengikuti komponennya. Form autentikasi mempertahankan scroll kolom pada viewport pendek, termasuk saat keyboard memperkecil area tampilan.
 
 - Gunakan label dan placeholder kontekstual. Label field wajib memakai tanda bintang merah; label field opsional mencantumkan `(Opsional)`.
 - Upload mendukung file picker, keyboard, dan drag-and-drop. Tampilkan format/batas ukuran serta ringkasan berkas terpilih.

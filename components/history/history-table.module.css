@@ -51,8 +51,6 @@
   margin-right: 12px;
   place-items: center;
   border-radius: 12px;
-  background: #dff5f7;
-  color: #00858c;
 }
 .recordCell > div {
   min-width: 0;

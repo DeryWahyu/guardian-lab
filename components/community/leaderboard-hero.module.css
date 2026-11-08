@@ -132,10 +132,7 @@
   width: 75px;
   height: 77px;
   place-items: center;
-  border: 1px solid #d2e8ef;
   border-radius: 22px;
-  background: linear-gradient(135deg, #fff, #eaf9fc);
-  color: #078d96;
   box-shadow:
     0 9px 16px #27527410,
     inset 0 1px #fff;

@@ -1,14 +1,14 @@
-import { BookOpenCheck, Flame, ShieldCheck, Sparkles, Trophy } from "lucide-react";
-import type { AcademyProgress } from "./academy-presentation";
+import { FeatureIcon, type FeatureIconName } from "@/components/shared/feature-icon";
 import styles from "./academy-hero.module.css";
+import type { AcademyProgress } from "./academy-presentation";
 
 export function AcademyStats({ progress }: { progress: AcademyProgress }) {
-  const metrics = [
-    { label: "Peringkatmu", value: progress.rank, Icon: Trophy },
-    { label: "Total EXP", value: progress.exp.toLocaleString("id-ID"), Icon: Sparkles },
-    { label: "Hari berturut-turut", value: progress.streakDays, Icon: Flame },
-    { label: "Kuis lulus", value: progress.completed, Icon: BookOpenCheck },
-    { label: "Kasus diselesaikan", value: progress.casesSolved, Icon: ShieldCheck },
+  const metrics: { label: string; value: string | number; icon: FeatureIconName }[] = [
+    { label: "Peringkatmu", value: progress.rank, icon: "rank" },
+    { label: "Total EXP", value: progress.exp.toLocaleString("id-ID"), icon: "exp" },
+    { label: "Hari berturut-turut", value: progress.streakDays, icon: "streak" },
+    { label: "Kuis lulus", value: progress.completed, icon: "quiz" },
+    { label: "Kasus diselesaikan", value: progress.casesSolved, icon: "case" },
   ];
   return (
     <dl
@@ -17,12 +17,10 @@ export function AcademyStats({ progress }: { progress: AcademyProgress }) {
       data-user-reveal
       data-user-order="1"
     >
-      {metrics.map(({ label, value, Icon }) => (
+      {metrics.map(({ label, value, icon }) => (
         <div key={label}>
           <dt>
-            <span>
-              <Icon aria-hidden="true" size={20} />
-            </span>
+            <FeatureIcon name={icon} />
             {label}
           </dt>
           <dd>{value}</dd>

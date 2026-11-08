@@ -1,10 +1,11 @@
-import { ArrowRight, Award, BookOpen } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/lib/validations/profile";
-import { profileDate } from "./profile-presentation";
 import styles from "./profile.module.css";
+import { profileDate } from "./profile-presentation";
 
 export function ProfileAchievements({ profile }: { profile: Profile }) {
   const badges = profile.progress.badges;
@@ -15,9 +16,7 @@ export function ProfileAchievements({ profile }: { profile: Profile }) {
       data-user-reveal
     >
       <div className={styles.panelHeading}>
-        <span className={styles.icon}>
-          <Award size={29} aria-hidden="true" />
-        </span>
+        <FeatureIcon name="badge" className={styles.icon} />
         <div>
           <h2 id="profile-badges-title">Koleksi lencana</h2>
         </div>
@@ -27,9 +26,7 @@ export function ProfileAchievements({ profile }: { profile: Profile }) {
         <ul className={styles.badgeList}>
           {badges.slice(0, 4).map((badge) => (
             <li key={badge.id}>
-              <span className={styles.badgeIcon}>
-                <Award size={24} aria-hidden="true" />
-              </span>
+              <FeatureIcon name="badge" className={styles.badgeIcon} />
               <div>
                 <h3>{badge.title}</h3>
                 <p>{badge.description}</p>
@@ -40,9 +37,7 @@ export function ProfileAchievements({ profile }: { profile: Profile }) {
         </ul>
       ) : (
         <div className={styles.empty}>
-          <span className={styles.emptyMedal}>
-            <Award size={49} strokeWidth={1.6} aria-hidden="true" />
-          </span>
+          <FeatureIcon name="badge" size="large" muted />
           <h3>Lencana pertamamu menanti.</h3>
           <p>Lulus latihan untuk mulai mengumpulkannya.</p>
         </div>
@@ -60,9 +55,7 @@ export function ProfileActivity({ profile }: { profile: Profile }) {
   return (
     <section className={styles.panel} aria-labelledby="profile-activity-title" data-user-reveal>
       <div className={styles.panelHeading}>
-        <span className={styles.icon}>
-          <BookOpen size={29} aria-hidden="true" />
-        </span>
+        <FeatureIcon name="casebook" className={styles.icon} />
         <div>
           <h2 id="profile-activity-title">Jejak belajar terbaru</h2>
           <p>Latihan dan kasus yang pernah kamu kerjakan.</p>
@@ -81,7 +74,10 @@ export function ProfileActivity({ profile }: { profile: Profile }) {
                 <time dateTime={attempt.completedAt}>{profileDate(attempt.completedAt)}</time>
               </div>
               <div className={styles.activityScore}>
-                <span aria-label={`Nilai ${attempt.score} dari 100`}>{attempt.score}/100</span>
+                <span>
+                  <span className="sr-only">Nilai {attempt.score} dari 100</span>
+                  <span aria-hidden="true">{attempt.score}/100</span>
+                </span>
                 <strong>{attempt.expEarned.toLocaleString("id-ID")} EXP</strong>
               </div>
             </li>
@@ -89,7 +85,7 @@ export function ProfileActivity({ profile }: { profile: Profile }) {
         </ul>
       ) : (
         <div className={styles.empty}>
-          <BookOpen size={32} aria-hidden="true" />
+          <FeatureIcon name="casebook" size="large" muted />
           <h3>Setiap langkah punya cerita.</h3>
           <p>Mulai satu latihan. Jejak belajarmu akan tersimpan di sini.</p>
           <Link href={PROTECTED_ROUTES.academy} className={styles.textLink}>

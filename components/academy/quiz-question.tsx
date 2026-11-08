@@ -19,6 +19,8 @@ export function QuizQuestion({
 }) {
   return (
     <fieldset
+      id={`quiz-question-${index + 1}`}
+      tabIndex={-1}
       data-user-reveal
       data-user-order={index % 3}
       disabled={disabled}
@@ -33,24 +35,29 @@ export function QuizQuestion({
           {String(index + 1).padStart(2, "0")}
         </span>
         <div>
-          <h2>{question.questionText}</h2>
+          <span className={styles.questionCaption}>Soal {index + 1}</span>
+          <h3>{question.questionText}</h3>
           <p>{question.multiple ? "Pilih semua jawaban yang sesuai." : "Pilih satu jawaban."}</p>
         </div>
       </div>
       <div className={styles.options}>
-        {question.options.map((option) => (
+        {question.options.map((option, optionIndex) => (
           <label
             key={option.id}
             className={styles.option}
             data-selected={selected.includes(option.id)}
           >
+            <span className={styles.optionLetter} aria-hidden="true">
+              {String.fromCharCode(65 + optionIndex)}
+            </span>
+            <span className={styles.optionText}>{option.text}</span>
             <input
               type={question.multiple ? "checkbox" : "radio"}
               name={question.id}
+              value={option.id}
               checked={selected.includes(option.id)}
               onChange={() => onChoose(option.id)}
             />
-            <span>{option.text}</span>
           </label>
         ))}
       </div>

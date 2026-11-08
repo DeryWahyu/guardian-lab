@@ -1,4 +1,5 @@
 import { Info, Loader2, Search } from "lucide-react";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { InvestigationRequestFeedback } from "@/components/shared/investigation-request-feedback";
 import { ApkProgressCard } from "./apk-progress-card";
 import { ApkUploadField } from "./apk-upload-field";
@@ -34,7 +35,13 @@ export function ApkUploadPanel({
         onSubmit();
       }}
     >
-      <h2>Mulai pemeriksaan</h2>
+      <div className={styles.panelHeading}>
+        <FeatureIcon name="apk" size="small" />
+        <div>
+          <h2>Mulai pemeriksaan</h2>
+          <p>Kenali aplikasi sebelum memberi akses.</p>
+        </div>
+      </div>
       <ApkUploadField
         file={file}
         error={error}

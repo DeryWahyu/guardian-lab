@@ -1,4 +1,4 @@
-import { File, ImageDown, Users } from "lucide-react";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import styles from "./share-workspace.module.css";
 
 export function ShareFeatures() {
@@ -10,27 +10,21 @@ export function ShareFeatures() {
       data-user-order="1"
     >
       <li>
-        <span>
-          <File aria-hidden="true" size={23} />
-        </span>
+        <FeatureIcon name="record" />
         <div>
           <h2>Hasil tersimpan</h2>
           <p>Isi kartu berasal dari investigasi.</p>
         </div>
       </li>
       <li>
-        <span>
-          <ImageDown aria-hidden="true" size={23} />
-        </span>
+        <FeatureIcon name="image" />
         <div>
           <h2>Gambar dan pesan</h2>
           <p>Unduh PNG atau salin pesan.</p>
         </div>
       </li>
       <li>
-        <span>
-          <Users aria-hidden="true" size={23} />
-        </span>
+        <FeatureIcon name="people" />
         <div>
           <h2>Penerima pilihanmu</h2>
           <p>Kamu tentukan aplikasi dan tujuan.</p>

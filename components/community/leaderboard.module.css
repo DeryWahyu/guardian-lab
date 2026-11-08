@@ -111,7 +111,7 @@
   font-weight: 650;
 }
 .podiumCard[data-position="1"] .podiumPosition {
-  color: #007e89;
+  color: #9d6a13;
 }
 .podiumEmblem {
   display: grid;
@@ -119,21 +119,8 @@
   height: 70px;
   margin-top: 16px;
   place-items: center;
-  border: 1px solid #d4e4f3;
   border-radius: 50%;
-  background: #edf3fc;
-  color: #51718e;
   box-shadow: inset 0 0 0 6px #ffffff88;
-}
-.podiumCard[data-position="1"] .podiumEmblem {
-  border-color: #b0e2e5;
-  background: #dff5f7;
-  color: #00868e;
-}
-.podiumCard[data-position="3"] .podiumEmblem {
-  border-color: #dfdaf5;
-  background: #eee9ff;
-  color: #70649a;
 }
 .podiumAlias {
   display: flex;
@@ -173,7 +160,7 @@
   justify-content: center;
   gap: 6px;
   margin-top: 12px;
-  color: #067e88;
+  color: #7850b7;
 }
 .podiumExp strong {
   font-size: 29px;
@@ -296,10 +283,6 @@
   font-weight: 750;
   font-variant-numeric: tabular-nums;
 }
-.position[data-top="true"] {
-  background: #e0f5f7;
-  color: #00838f;
-}
 .identity {
   display: flex;
   align-items: center;
@@ -315,15 +298,10 @@
   width: 44px;
   height: 45px;
   place-items: center;
-  border: 1px solid #dbe7f2;
   border-radius: 14px;
-  background: #f2f8ff;
-  color: #7294aa;
 }
 .rankingRow[data-current="true"] .avatar {
   border-color: #c1e7eb;
-  background: #def3f6;
-  color: #008492;
 }
 .alias {
   display: flex;
@@ -351,15 +329,12 @@
   align-items: center;
   gap: 4px;
 }
-.meta svg {
-  color: #6c92a2;
-}
 .exp {
   display: flex;
   align-items: baseline;
   justify-content: flex-end;
   gap: 6px;
-  color: #007f89;
+  color: #7850b7;
   white-space: nowrap;
 }
 .exp strong {
@@ -426,10 +401,7 @@
   width: 71px;
   height: 73px;
   place-items: center;
-  border: 1px solid #c5e9ed;
   border-radius: 23px;
-  background: #dcf3f7;
-  color: #058992;
   box-shadow: inset 0 1px 0 #fff;
 }
 .empty h3,
@@ -766,4 +738,20 @@
   .emptyNote {
     font-size: 9px;
   }
+}
+
+.position[data-position="1"] {
+  border: 1px solid #f0deae;
+  background: #fff3d4;
+  color: #96600d;
+}
+.position[data-position="2"] {
+  border: 1px solid #d4deeb;
+  background: #eef3fa;
+  color: #526a85;
+}
+.position[data-position="3"] {
+  border: 1px solid #e9d5be;
+  background: #faf0e4;
+  color: #9b623a;
 }

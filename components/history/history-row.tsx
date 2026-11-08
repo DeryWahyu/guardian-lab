@@ -1,14 +1,6 @@
-import {
-  ArrowRight,
-  Box,
-  CircleAlert,
-  Clock3,
-  FileCode2,
-  FileSearch,
-  Globe,
-  QrCode,
-} from "lucide-react";
+import { ArrowRight, Box, CircleAlert, Clock3, FileSearch } from "lucide-react";
 import Link from "next/link";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import {
   getInvestigationLabel,
   getInvestigationMessage,
@@ -23,7 +15,7 @@ import styles from "./history-table.module.css";
 export function HistoryRow({ record }: { record: Investigation }) {
   const result = getInvestigationResult(record);
   const model = result?.technicalEvidence.urlModel;
-  const Icon = record.type === "APK" ? FileCode2 : record.type === "QR" ? QrCode : Globe;
+  const typeIcon = record.type === "APK" ? "apk" : record.type === "QR" ? "qr" : "url";
   const StatusIcon =
     record.status === "PROCESSING" || record.status === "RECEIVED"
       ? Clock3
@@ -33,9 +25,7 @@ export function HistoryRow({ record }: { record: Investigation }) {
   return (
     <tr>
       <th scope="row" className={styles.recordCell}>
-        <span className={styles.typeIcon}>
-          <Icon aria-hidden="true" size={24} />
-        </span>
+        <FeatureIcon name={typeIcon} className={styles.typeIcon} />
         <div>
           <span className={styles.target} title={record.defangedTarget}>
             {record.defangedTarget}
@@ -53,13 +43,12 @@ export function HistoryRow({ record }: { record: Investigation }) {
       <td className={styles.indicatorCell}>
         {result ? (
           <>
-            <span
-              className={styles.scoreBadge}
-              data-level={result.riskLevel}
-              aria-label={`${model ? "Skor indikator model" : "Skor"}: ${result.riskScore} dari 100`}
-            >
+            <span className={styles.scoreBadge} data-level={result.riskLevel}>
               <FileSearch aria-hidden="true" size={14} />
-              {result.riskScore}/100
+              <span className="sr-only">
+                {model ? "Skor indikator model" : "Skor"}: {result.riskScore} dari 100
+              </span>
+              <span aria-hidden="true">{result.riskScore}/100</span>
             </span>
             <span className={styles.indicatorCaption}>
               {model ? "Perlu verifikasi" : getRiskPresentation(result.riskLevel).label}

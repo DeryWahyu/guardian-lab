@@ -59,8 +59,8 @@
     0 8px 24px #263e7510,
     0 2px 5px #1e315505;
 }
-.uploadPanel > h2 {
-  margin-bottom: 11px;
+.panelHeading h2 {
+  margin-bottom: 2px;
   font-size: 18px;
   font-weight: 750;
   letter-spacing: -0.04em;
@@ -340,10 +340,7 @@
   width: 40px;
   height: 40px;
   place-items: center;
-  border: 1px solid #d2eff0;
   border-radius: 12px;
-  background: #def6f5;
-  color: #087f8d;
 }
 .features h2 {
   font-size: 12px;
@@ -451,7 +448,7 @@
   .uploadPanel {
     padding: 18px;
   }
-  .uploadPanel > h2 {
+  .panelHeading h2 {
     font-size: 17px;
   }
   .dropzone {
@@ -461,4 +458,16 @@
   .privacy p {
     font-size: 11px;
   }
+}
+
+.panelHeading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 14px;
+}
+.panelHeading p {
+  color: var(--apk-muted);
+  font-size: 11px;
+  line-height: 1.7;
 }

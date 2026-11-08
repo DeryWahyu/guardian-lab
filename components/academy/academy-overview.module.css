@@ -24,16 +24,6 @@
   align-items: center;
   gap: 11px;
 }
-.journalIcon {
-  display: grid;
-  flex: 0 0 40px;
-  width: 40px;
-  height: 42px;
-  place-items: center;
-  border-radius: 12px;
-  background: #def3f7;
-  color: #008b98;
-}
 .progressPanel h2,
 .sideHeading h2 {
   color: var(--academy-ink);
@@ -114,6 +104,11 @@
   justify-content: space-between;
   gap: 10px;
 }
+.sideHeading h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .sideHeading > span {
   display: grid;
   min-width: 25px;
@@ -134,20 +129,7 @@
   text-align: center;
 }
 .badgeEmpty > span {
-  display: grid;
-  width: 73px;
-  height: 73px;
   margin-bottom: 4px;
-  place-items: center;
-  border: 1px solid #d9d9fb;
-  border-radius: 50%;
-  background: linear-gradient(130deg, #e5f7fb, #e6e1ff);
-  color: #00899c;
-}
-.badgeEmpty > span > svg {
-  width: 43px;
-  height: 43px;
-  stroke-width: 1.6;
 }
 .badgeEmpty h3 {
   color: var(--academy-ink);
@@ -175,15 +157,9 @@
   gap: 10px;
 }
 .badgeList li > span {
-  display: grid;
   flex: 0 0 37px;
   width: 37px;
   height: 40px;
-  place-items: center;
-  border: 1px solid #d9e3f4;
-  border-radius: 12px;
-  background: #eef4fc;
-  color: #008797;
 }
 .badgeList li > div {
   min-width: 0;
@@ -209,9 +185,8 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border-color: #344e78;
-  background: linear-gradient(130deg, #14354e, #344a77 72%);
-  color: #fff;
+  background: linear-gradient(135deg, #f7feff, #e7f6fc);
+  color: var(--academy-ink);
 }
 .caseCard::before {
   content: "";
@@ -222,7 +197,7 @@
   width: 210px;
   height: 118px;
   border-radius: 50%;
-  background: linear-gradient(110deg, #125c76, #148e9a);
+  background: linear-gradient(110deg, #def3f7, #d1eff4);
   transform: rotate(-25deg);
 }
 .caseCard h2 {
@@ -230,22 +205,18 @@
   align-items: center;
   gap: 10px;
   margin-top: 3px;
-  color: #fff;
+  color: var(--academy-ink);
   font-size: 17px;
   font-weight: 750;
   letter-spacing: -0.035em;
   line-height: 1.4;
-}
-.caseCard h2 svg {
-  flex-shrink: 0;
-  color: #6de4e8;
 }
 .caseCard > p {
   position: relative;
   z-index: 1;
   max-width: 175px;
   margin-top: 14px;
-  color: #f2f6fd;
+  color: var(--academy-muted);
   font-size: 12px;
   line-height: 1.65;
 }
@@ -258,16 +229,17 @@
   min-height: 40px;
   margin-top: 15px;
   padding: 9px 13px;
-  border: 1px solid #f3f7ff;
+  border: 1px solid #008a95;
   border-radius: 13px;
-  background: #fff;
-  color: #007e8c;
+  background: #008a95;
+  color: #fff;
   font-size: 11px;
   font-weight: 750;
   text-decoration: none;
 }
 .caseLink:hover {
-  background: #eafaff;
+  border-color: #007783;
+  background: #007783;
 }
 .caseArtwork {
   position: absolute;

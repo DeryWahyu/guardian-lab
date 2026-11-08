@@ -1,5 +1,6 @@
-import { ArrowRight, Check, FileQuestion, Sparkles } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { difficultyLabels } from "@/lib/academy/labels";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import styles from "./academy-catalog.module.css";
@@ -22,11 +23,11 @@ export function AcademyLessonCard({ quiz }: { quiz: AcademyQuiz }) {
         <p className={styles.lessonDescription}>{quiz.description}</p>
         <div className={styles.lessonMeta}>
           <span>
-            <FileQuestion aria-hidden="true" size={15} />
+            <FeatureIcon name="quiz" size="inline" />
             {quiz.questionCount} soal
           </span>
           <span>
-            <Sparkles aria-hidden="true" size={15} />
+            <FeatureIcon name="exp" size="inline" />
             {quiz.isCompleted ? "EXP sudah diperoleh" : `${quiz.expReward} EXP`}
           </span>
         </div>

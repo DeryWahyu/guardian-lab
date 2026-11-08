@@ -1,5 +1,6 @@
-import { AlertCircle, ArrowRight, FileSearch, RefreshCw } from "lucide-react";
+import { AlertCircle, ArrowRight, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import type { LoadProblem } from "@/lib/investigations/client";
 import { AUTH_ROUTES, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 import styles from "./history-workspace.module.css";
@@ -50,22 +51,20 @@ export function HistoryEmpty({ outside, filtered }: { outside: boolean; filtered
   const reset = outside || filtered;
   return (
     <div className={styles.empty}>
-      <span>
-        <FileSearch aria-hidden="true" size={30} />
-      </span>
+      <FeatureIcon name="record" size="large" muted />
       <h3>
         {outside
           ? "Halaman tidak tersedia"
           : filtered
             ? "Tidak ada investigasi yang cocok"
-            : "Belum ada investigasi"}
+            : "Mulai jejak pemeriksaanmu."}
       </h3>
       <p>
         {outside
           ? "Buka halaman pertama untuk melihat rekaman yang tersedia."
           : filtered
             ? "Ubah atau hapus filter untuk melihat rekaman lain."
-            : "Mulai dengan memasukkan URL, gambar QR, atau berkas APK."}
+            : "Punya tautan atau berkas yang meragukan? Periksa dulu, lalu temukan kembali hasilnya di sini."}
       </p>
       <Link
         href={reset ? PROTECTED_ROUTES.history : PUBLIC_ROUTES.home}

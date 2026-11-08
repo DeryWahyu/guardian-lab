@@ -1,6 +1,7 @@
-import { ArrowDown, ArrowLeft, ArrowRight, BookOpen, ShieldCheck, Trophy } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, BookOpen, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import mascot from "@/public/features/guardian-success.webp";
 import shared from "./community.module.css";
@@ -41,16 +42,20 @@ export function LeaderboardHero() {
             <span>Terus belajar,</span>
             <span>terus bertumbuh.</span>
           </div>
-          <div className={styles.trophy}>
-            <Trophy size={37} strokeWidth={1.7} />
-          </div>
+          <FeatureIcon name="rank" className={styles.trophy} />
           <Image
             src={mascot}
             alt=""
             className={styles.mascot}
             sizes="(max-width: 700px) 230px, 300px"
           />
-          <svg className={styles.rays} viewBox="0 0 42 40" fill="none" focusable="false">
+          <svg
+            className={styles.rays}
+            viewBox="0 0 42 40"
+            fill="none"
+            focusable="false"
+            aria-hidden="true"
+          >
             <path
               d="M7 21L11 5M18 25L30 10M24 34L39 27"
               stroke="currentColor"

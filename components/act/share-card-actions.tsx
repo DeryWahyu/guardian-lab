@@ -1,7 +1,8 @@
 "use client";
 
-import { Check, Copy, Download, Loader2, RefreshCw, Share2 } from "lucide-react";
+import { Check, Download, Loader2, RefreshCw } from "lucide-react";
 import type { RefObject } from "react";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import type { ShareCardData } from "@/lib/share-card/content";
 import styles from "./share-workspace.module.css";
 import { useShareCardActions } from "./use-share-card-actions";
@@ -33,7 +34,10 @@ export function ShareCardActions({
           ) : (
             <Download aria-hidden="true" size={18} />
           )}
-          {actions.status === "preparing" ? "Menyiapkan PNG..." : "Unduh PNG"}
+          <span className={styles.actionCopy}>
+            <strong>{actions.status === "preparing" ? "Menyiapkan PNG..." : "Unduh PNG"}</strong>
+            <small>Simpan kartu sebagai gambar.</small>
+          </span>
         </button>
         <button
           type="button"
@@ -42,15 +46,20 @@ export function ShareCardActions({
           className={styles.secondaryButton}
         >
           {actions.copied ? (
-            <Check aria-hidden="true" size={18} />
+            <Check aria-hidden="true" size={24} className={styles.copiedIcon} />
           ) : (
-            <Copy aria-hidden="true" size={18} />
+            <FeatureIcon name="messages" size="small" />
           )}
-          {actions.operation === "copy"
-            ? "Menyalin pesan..."
-            : actions.copied
-              ? "Salin ulang pesan"
-              : "Salin pesan WhatsApp"}
+          <span className={styles.actionCopy}>
+            <strong>
+              {actions.operation === "copy"
+                ? "Menyalin pesan..."
+                : actions.copied
+                  ? "Salin ulang pesan"
+                  : "Salin pesan WhatsApp"}
+            </strong>
+            <small>Tempel pesan di aplikasi pilihanmu.</small>
+          </span>
         </button>
         {actions.canShare && (
           <button
@@ -59,8 +68,13 @@ export function ShareCardActions({
             disabled={actions.status !== "ready" || busy}
             className={styles.secondaryButton}
           >
-            <Share2 aria-hidden="true" size={18} />
-            {actions.operation === "share" ? "Membuka pilihan berbagi..." : "Bagikan gambar"}
+            <FeatureIcon name="share" size="small" />
+            <span className={styles.actionCopy}>
+              <strong>
+                {actions.operation === "share" ? "Membuka pilihan berbagi..." : "Bagikan gambar"}
+              </strong>
+              <small>Kamu tentukan aplikasi dan penerimanya.</small>
+            </span>
           </button>
         )}
       </div>

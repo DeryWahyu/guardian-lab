@@ -152,7 +152,7 @@
   background: #fff;
   box-shadow: 0 7px 24px #263e7508;
 }
-.startPanel > h2,
+.startHeading h2,
 .actionPanel > h2 {
   font-size: 20px;
   font-weight: 800;
@@ -397,8 +397,6 @@
   height: 42px;
   place-items: center;
   border-radius: 12px;
-  background: #dbf4f7;
-  color: #008a9c;
 }
 .features h2 {
   font-size: 14px;
@@ -508,6 +506,11 @@
 }
 .actionButtons > button {
   width: 100%;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 70px;
+  padding: 13px 16px;
+  text-align: left;
 }
 .messageDetails {
   min-width: 0;
@@ -786,7 +789,7 @@
   .startPanel {
     padding: 14px 12px;
   }
-  .startPanel > h2 {
+  .startHeading h2 {
     font-size: 18px;
   }
   .steps {
@@ -821,4 +824,43 @@
   .illustration {
     margin-bottom: 0;
   }
+}
+
+.startHeading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.startHeading > div {
+  min-width: 0;
+}
+
+.actionButtons > .primaryButton > svg {
+  width: 27px;
+  height: 27px;
+  margin-inline: 5px;
+}
+.actionCopy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+.actionCopy strong {
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.6;
+}
+.actionCopy small {
+  color: #60728b;
+  font-size: 11px;
+  font-weight: 450;
+  line-height: 1.7;
+}
+.primaryButton .actionCopy small {
+  color: #e1f7fa;
+}
+.copiedIcon {
+  flex: 0 0 37px;
+  width: 37px;
+  color: #188b65;
 }

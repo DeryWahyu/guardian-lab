@@ -1,10 +1,11 @@
 import { AlertCircle, ArrowRight, BookOpen, RefreshCw, Trophy } from "lucide-react";
 import Link from "next/link";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import type { LoadProblem } from "@/lib/investigations/client";
 import { AUTH_ROUTES, PROTECTED_ROUTES } from "@/lib/routes";
 import shared from "./community.module.css";
-import { LeaderboardHero } from "./leaderboard-hero";
 import styles from "./leaderboard.module.css";
+import { LeaderboardHero } from "./leaderboard-hero";
 
 export function LeaderboardSkeleton() {
   return (
@@ -35,9 +36,7 @@ export function LeaderboardPageSkeleton() {
 export function LeaderboardEmpty({ outside }: { outside: boolean }) {
   return (
     <div className={styles.empty}>
-      <span className={styles.emptyIcon}>
-        <Trophy aria-hidden="true" size={34} strokeWidth={1.7} />
-      </span>
+      <FeatureIcon name="rank" className={styles.emptyIcon} muted />
       <h3>
         {outside
           ? "Halaman peringkat tidak tersedia"

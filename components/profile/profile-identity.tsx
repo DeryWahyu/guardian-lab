@@ -1,24 +1,22 @@
-import {
-  ArrowRight,
-  BadgeCheck,
-  BookOpen,
-  CalendarDays,
-  FileSearch,
-  Flame,
-  ShieldCheck,
-  Trophy,
-} from "lucide-react";
+import { ArrowRight, BadgeCheck, CalendarDays } from "lucide-react";
 import Link from "next/link";
+import { FeatureIcon, type FeatureIconName } from "@/components/shared/feature-icon";
 import { calculateRank } from "@/lib/academy/gamification";
 import { PROTECTED_ROUTES } from "@/lib/routes";
 import type { Profile } from "@/lib/validations/profile";
+import styles from "./profile.module.css";
 import { ProfileIllustration } from "./profile-illustration";
 import { profileDate, profileInitials } from "./profile-presentation";
-import styles from "./profile.module.css";
 
 export function ProfileIdentity({ profile }: { profile: Profile }) {
   const rank = calculateRank(profile.progress.exp);
   const highest = rank.rank === "Forensic Master";
+  const statistics: { label: string; value: number; icon: FeatureIconName }[] = [
+    { label: "Pemeriksaan", value: profile.investigations, icon: "record" },
+    { label: "Latihan lulus", value: profile.progress.completed, icon: "quiz" },
+    { label: "Kasus diselesaikan", value: profile.progress.casesSolved, icon: "case" },
+    { label: "Hari berturut-turut", value: profile.progress.streakDays, icon: "streak" },
+  ];
   return (
     <>
       <section className={styles.identity} aria-labelledby="profile-name" data-user-reveal>
@@ -45,7 +43,7 @@ export function ProfileIdentity({ profile }: { profile: Profile }) {
         <div className={styles.rank}>
           <div className={styles.rankHeading}>
             <span>
-              <Trophy size={18} aria-hidden="true" />
+              <FeatureIcon name="rank" size="inline" />
               Peringkatmu
             </span>
           </div>
@@ -79,17 +77,10 @@ export function ProfileIdentity({ profile }: { profile: Profile }) {
         data-user-reveal
         data-user-order="1"
       >
-        {[
-          { label: "Pemeriksaan", value: profile.investigations, Icon: FileSearch },
-          { label: "Latihan lulus", value: profile.progress.completed, Icon: BookOpen },
-          { label: "Kasus diselesaikan", value: profile.progress.casesSolved, Icon: ShieldCheck },
-          { label: "Hari berturut-turut", value: profile.progress.streakDays, Icon: Flame },
-        ].map(({ label, value, Icon }) => (
+        {statistics.map(({ label, value, icon }) => (
           <div key={label}>
             <dt>
-              <span>
-                <Icon size={27} aria-hidden="true" />
-              </span>
+              <FeatureIcon name={icon} muted={value === 0} />
               {label}
             </dt>
             <dd>{value.toLocaleString("id-ID")}</dd>

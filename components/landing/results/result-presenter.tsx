@@ -121,8 +121,10 @@ function ResultPresenterInner({
       )}
       <div
         className={cn(
-          "flex items-center justify-end gap-2 border-t border-slate-100",
-          presentation === "dialog" ? "flex-nowrap overflow-x-auto pt-3" : "flex-wrap pt-4",
+          "gap-2 border-t border-slate-100",
+          presentation === "dialog"
+            ? "grid grid-cols-1 pt-3 sm:flex sm:flex-wrap sm:items-center sm:justify-end"
+            : "flex flex-wrap items-center justify-end pt-4",
         )}
       >
         <SandboxLaunchLink
@@ -131,7 +133,7 @@ function ResultPresenterInner({
           investigationId={record.id}
           className={
             presentation === "dialog"
-              ? "inline-flex min-h-0 shrink-0 items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium whitespace-nowrap text-slate-700 transition-colors hover:bg-slate-50"
+              ? "inline-flex min-h-11 min-w-0 items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-2 text-center text-xs font-medium [overflow-wrap:anywhere] text-slate-700 transition-colors hover:bg-slate-50"
               : undefined
           }
         />
@@ -139,7 +141,9 @@ function ResultPresenterInner({
           href={PROTECTED_ROUTES.communitySubmit(record.id)}
           className={cn(
             "inline-flex shrink-0 items-center gap-1.5 rounded-full border border-cyan-200/90 bg-cyan-50/50 font-medium whitespace-nowrap text-cyan-800 transition-colors hover:border-cyan-300 hover:bg-cyan-100/70",
-            presentation === "dialog" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm",
+            presentation === "dialog"
+              ? "min-h-11 min-w-0 justify-center px-3 py-2 text-center text-xs [overflow-wrap:anywhere] whitespace-normal"
+              : "px-4 py-2 text-sm",
           )}
         >
           <Users className="size-3.5 text-cyan-700" aria-hidden="true" />
@@ -150,7 +154,7 @@ function ResultPresenterInner({
           className={cn(
             "shrink-0 rounded-full border border-slate-200 whitespace-nowrap text-slate-700 transition-colors hover:bg-slate-50",
             presentation === "dialog"
-              ? "px-3 py-1.5 text-xs font-medium"
+              ? "inline-flex min-h-11 min-w-0 items-center justify-center px-3 py-2 text-center text-xs font-medium [overflow-wrap:anywhere] whitespace-normal"
               : "border-slate-300 px-4 py-2 text-sm",
           )}
         >
@@ -160,7 +164,9 @@ function ResultPresenterInner({
           href={PUBLIC_ROUTES.actWithInvestigation(record.id)}
           className={cn(
             "bg-brand-600 hover:bg-brand-700 inline-flex shrink-0 items-center gap-1.5 rounded-full font-semibold whitespace-nowrap text-white shadow-2xs transition-colors",
-            presentation === "dialog" ? "px-3.5 py-1.5 text-xs" : "px-4 py-2 text-sm",
+            presentation === "dialog"
+              ? "min-h-11 min-w-0 justify-center px-3.5 py-2 text-center text-xs [overflow-wrap:anywhere] whitespace-normal"
+              : "px-4 py-2 text-sm",
           )}
         >
           <Share2

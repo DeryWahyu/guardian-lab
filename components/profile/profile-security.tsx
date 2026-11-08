@@ -1,5 +1,6 @@
-import { ArrowUpRight, FileSearch, KeyRound, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, FileSearch, KeyRound } from "lucide-react";
 import Link from "next/link";
+import { FeatureIcon } from "@/components/shared/feature-icon";
 import { AUTH_ROUTES, PROTECTED_ROUTES } from "@/lib/routes";
 import styles from "./profile.module.css";
 
@@ -11,9 +12,7 @@ export function ProfileSecurity() {
       data-user-reveal
       data-user-order="1"
     >
-      <span className={styles.securityIcon}>
-        <ShieldCheck size={32} aria-hidden="true" />
-      </span>
+      <FeatureIcon name="security" className={styles.securityIcon} />
       <h2 id="profile-security-title">Akunmu, tetap terjaga.</h2>
       <p>Gunakan password unik dan jaga kerahasiaan kode OTP. WhatsApp membantu pemulihan akses.</p>
       <Link
