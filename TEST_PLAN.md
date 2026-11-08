@@ -2,6 +2,16 @@
 
 Dokumen serah-terima untuk pengguna atau model AI penguji. Ini **rencana**, bukan laporan kelulusan. Eksekusi mengikuti [izin pada AGENTS.md](./AGENTS.md#eksekusi-pengujian); jangan menjalankan perintah hanya karena tercantum di sini. Ambil hanya kelompok yang sesuai perubahan dan minta persetujuan sebelum menambah cakupan atau menulis test baru.
 
+## Variasi Akun Pengguna Demo: pemeriksaan tertunda
+
+Prasyarat: persetujuan eksplisit untuk pemeriksaan database atau login.
+
+- [ ] **DEMO-USERS-01: Karakteristik Akun:** Verifikasi akun demo (`gading@gmail.com`, `dery@gmail.com`, `rafli@gmail.com`) memiliki profil dan aktivitas unik setelah seeding:
+  - `gading@gmail.com`: EXP 320, Cyber Sentinel, streak 7 hari, 3 kuis lulus, 2 kasus selesai, 3 lencana (Langkah Pertama, Pembaca Bukti, Pengawal Siber), riwayat investigasi APK Undangan Pernikahan (HIGH, 85), URL KlikBCA phishing (PHISHING, 92), QR token PLN (WARNING, 65).
+  - `dery@gmail.com`: EXP 130, Junior Analyst, streak 4 hari, 2 kuis lulus, 1 kasus selesai, 2 lencana, riwayat investigasi APK promo hadiah (MEDIUM, 58), URL kupon Shopee (WARNING, 55), QR donasi masjid (SAFE, 15).
+  - `rafli@gmail.com`: EXP 50, Recruit, streak 2 hari, 1 kuis lulus, 0 kasus selesai, 1 lencana, riwayat investigasi APK pelacak paket (HIGH, 76), URL Telkomsel poin (PHISHING, 78), QR parkir (SAFE, 8).
+- [ ] **DEMO-USERS-02: Idempotensi Seeder:** Eksekusi berulang seeder mempertahankan EXP serta statistik tanpa penggandaan nilai.
+
 ## Profil pengguna: pemeriksaan tertunda
 
 Prasyarat: persetujuan eksplisit untuk pemeriksaan; implementasi ini tidak menjalankan test/lint/typecheck/build/browser. Gunakan akun USER/ADMIN dan data lokal terisolasi bila mutasi profil atau pemulihan akan diperiksa; jangan kirim OTP ke nomor nyata tanpa izin.

@@ -41,10 +41,17 @@ export async function seedDemoAccounts(database: PrismaClient) {
     const invalidateSessions = Boolean(
       existing && (!passwordMatches || existing.role !== account.role || phoneChanged),
     );
+    const joinDate = new Date(Date.now() - 30 * 86_400_000);
     const user = await database.$transaction(async (tx) => {
       const saved = await tx.user.upsert({
         where: { email: account.email },
-        create: { ...account, phone, passwordHash, phoneVerifiedAt: verifiedAt },
+        create: {
+          ...account,
+          phone,
+          passwordHash,
+          phoneVerifiedAt: verifiedAt,
+          createdAt: joinDate,
+        },
         update: {
           name: account.name,
           role: account.role,

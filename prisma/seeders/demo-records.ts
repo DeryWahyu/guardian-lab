@@ -119,31 +119,67 @@ export async function seedDemoRecords(
     async (tx) => {
       const user = await tx.user.update({ where: { id: userId }, data: { exp: { increment: 0 } } });
       if (user.suspendedAt || user.role !== "USER") return;
-      for (const type of ["URL", "QR"] as const) {
-        const target = `https://${profile.key}-latihan.example/${type === "QR" ? "kode-qr" : "konfirmasi"}`;
-        const at = demoTime(now, type === "URL" ? 5 : 3, user.createdAt);
-        const record = await tx.forensicRecord.upsert({
-          where: { id: demoId(profile.key, type.toLowerCase()) },
-          update: {},
-          create: {
-            id: demoId(profile.key, type.toLowerCase()),
-            userId,
-            target,
-            type,
-            status: "UNAVAILABLE",
-            defangedTarget: defangTarget(target),
-            summary:
-              "[DEMO] Input sintetis tersimpan. Model V6 tidak dijalankan oleh seeder; skor dan risiko tidak ditentukan.",
+      if (profile.items && profile.items.length > 0) {
+        for (const item of profile.items) {
+          const target = item.target;
+          const at = demoTime(now, item.daysAgo, user.createdAt);
+          const result = investigationResultSchema.parse({
+            riskLevel: item.riskLevel,
+            riskScore: item.riskScore,
+            scamCategory: `[DEMO] ${item.scamCategory}`,
+            summary: `[DEMO] ${item.summary}`,
+            deceptionTricks: item.deceptionTricks.map((trick) => `[DEMO] ${trick}`),
+            technicalEvidence: {},
             analysisSource: DEMO_ANALYSIS_SOURCE,
-            inputMetadata: metadata(),
-            errorCode: "DEMO_NO_MODEL_RUN",
-            errorMessage: "[DEMO] Rekaman contoh tanpa pemanggilan model AI.",
-            createdAt: at,
-            updatedAt: at,
-            finishedAt: at,
-          },
-        });
-        if (record.userId !== userId) throw new Error("Pemilik rekaman demo tidak sesuai.");
+            modelVersion: "demo-fixture-v1",
+          });
+          const record = await tx.forensicRecord.upsert({
+            where: { id: demoId(profile.key, item.key) },
+            update: {},
+            create: {
+              id: demoId(profile.key, item.key),
+              userId,
+              target,
+              type: item.type,
+              status: "COMPLETED",
+              ...result,
+              defangedTarget: defangTarget(target),
+              inputMetadata: metadata(),
+              createdAt: at,
+              updatedAt: at,
+              startedAt: at,
+              finishedAt: at,
+            },
+          });
+          if (record.userId !== userId) throw new Error("Pemilik rekaman demo tidak sesuai.");
+        }
+      } else {
+        for (const type of ["URL", "QR"] as const) {
+          const target = `https://${profile.key}-latihan.example/${type === "QR" ? "kode-qr" : "konfirmasi"}`;
+          const at = demoTime(now, type === "URL" ? 5 : 3, user.createdAt);
+          const record = await tx.forensicRecord.upsert({
+            where: { id: demoId(profile.key, type.toLowerCase()) },
+            update: {},
+            create: {
+              id: demoId(profile.key, type.toLowerCase()),
+              userId,
+              target,
+              type,
+              status: "UNAVAILABLE",
+              defangedTarget: defangTarget(target),
+              summary:
+                "[DEMO] Input sintetis tersimpan. Model V6 tidak dijalankan oleh seeder; skor dan risiko tidak ditentukan.",
+              analysisSource: DEMO_ANALYSIS_SOURCE,
+              inputMetadata: metadata(),
+              errorCode: "DEMO_NO_MODEL_RUN",
+              errorMessage: "[DEMO] Rekaman contoh tanpa pemanggilan model AI.",
+              createdAt: at,
+              updatedAt: at,
+              finishedAt: at,
+            },
+          });
+          if (record.userId !== userId) throw new Error("Pemilik rekaman demo tidak sesuai.");
+        }
       }
       await seedApk(tx, userId, adminId, profile, demoTime(now, 8, user.createdAt), false);
       await seedApk(tx, userId, adminId, profile, demoTime(now, 1, user.createdAt), true);
