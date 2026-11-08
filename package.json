@@ -22,6 +22,7 @@
     "db:studio": "bunx prisma studio",
     "apk:setup": "bun scripts/setup-apk-tools.mjs",
     "academy:seed": "bun prisma/seed-academy.ts",
+    "accounts:seed": "bun prisma/seed-accounts.ts",
     "sandbox:build": "docker compose --env-file .env -f docker/sandbox/compose.yml --profile images build",
     "sandbox:up": "docker compose --env-file .env -f docker/sandbox/compose.yml up -d broker",
     "sandbox:down": "docker compose --env-file .env -f docker/sandbox/compose.yml down"

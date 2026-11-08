@@ -363,3 +363,12 @@ Prasyarat: persetujuan eksplisit untuk pemeriksaan form/API/browser.
   - Permintaan form (POST/PUT/DELETE) dari situs yang sah tidak lagi ditolak dengan 403 "Permintaan berasal dari situs yang tidak diizinkan."
   - Permintaan lintas situs dari domain asing tetap ditolak 403.
   - Perilaku normalisasi loopback pada development lokal tetap berfungsi sesuai suite test.
+
+## Otomatisasi inisialisasi akun demo pada migrasi server: pemeriksaan tertunda
+
+Prasyarat: persetujuan eksplisit untuk pemeriksaan database/auth.
+
+- [ ] **SEED-ACCOUNTS-01: Inisialisasi akun demo pada container migration:**
+  - `prisma/seed-accounts.ts` menginisialisasi 4 akun demo (`admin@gmail.com`, `gading@gmail.com`, `dery@gmail.com`, `rafli@gmail.com`) dengan password `password`.
+  - Menggunakan operasi `upsert` sehingga idempoten dan tidak menimpa password yang sudah diganti oleh pengguna.
+  - `docker/app/migrate.sh` mengeksekusi `prisma/seed-accounts.ts` secara otomatis saat proses migrasi deployment atau reset database.
