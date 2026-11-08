@@ -7,13 +7,16 @@ import { seedDemoLearning } from "./demo-learning";
 import { seedDemoRecords } from "./demo-records";
 
 export function assertLocalDemoSeed() {
+  if (process.env.ALLOW_DEMO_SEED === "true") {
+    return;
+  }
   if (process.env.NODE_ENV === "production") {
     throw new Error("Seeder akun demo hanya untuk pengembangan lokal.");
   }
   const target = new URL(process.env.DATABASE_URL ?? "");
   if (
     target.protocol !== "mysql:" ||
-    !["localhost", "127.0.0.1", "::1", "[::1]", "db", "mysql"].includes(target.hostname)
+    !["localhost", "127.0.0.1", "::1", "[::1]", "db", "mysql", "mysql-db"].includes(target.hostname)
   ) {
     throw new Error("Seeder demo hanya diizinkan pada MySQL lokal atau layanan database Compose.");
   }

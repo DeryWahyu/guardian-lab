@@ -21,18 +21,29 @@ async function awardBadge(
   tx: Prisma.TransactionClient,
   userId: string,
   at: Date,
-  community: boolean,
+  badgeType: "first_pass" | "case_solved" | "sentinel",
 ) {
-  const code = community ? "COMMUNITY_CASE_SOLVED" : "ACADEMY_FIRST_PASS";
+  let code = "ACADEMY_FIRST_PASS";
+  let title = "Langkah Pertama";
+  let description = "Lulus kuis pertama di Guardian Academy.";
+
+  if (badgeType === "case_solved") {
+    code = "COMMUNITY_CASE_SOLVED";
+    title = "Pembaca Bukti";
+    description = "Menyelesaikan latihan kasus komunitas berdasarkan snapshot yang ditinjau.";
+  } else if (badgeType === "sentinel") {
+    code = "CYBER_SENTINEL_PRO";
+    title = "Pengawal Siber";
+    description = "Mencapai peringkat Cyber Sentinel dengan dedikasi analisis forensik tinggi.";
+  }
+
   const badge = await tx.badge.upsert({
     where: { code },
     update: {},
     create: {
       code,
-      title: community ? "Pembaca Bukti" : "Langkah Pertama",
-      description: community
-        ? "Menyelesaikan latihan kasus komunitas berdasarkan snapshot yang ditinjau."
-        : "Lulus kuis pertama di Guardian Academy.",
+      title,
+      description,
       expReward: 0,
     },
   });
@@ -111,7 +122,7 @@ async function seedQuizAttempt(
       result,
     },
   });
-  if (passed) await awardBadge(tx, context.user.id, at, false);
+  if (passed) await awardBadge(tx, context.user.id, at, "first_pass");
 }
 
 async function seedCaseAttempt(
@@ -161,7 +172,7 @@ async function seedCaseAttempt(
       result,
     },
   });
-  if (solved) await awardBadge(tx, context.user.id, at, true);
+  if (solved) await awardBadge(tx, context.user.id, at, "case_solved");
 }
 
 export async function seedDemoLearning(
@@ -179,9 +190,14 @@ export async function seedDemoLearning(
         tx.quizAttempt.findMany({ where: { userId }, select: { completedAt: true } }),
         tx.replayAttempt.findMany({ where: { userId }, select: { attemptedAt: true } }),
       ]);
+      const existingDemoQuiz = await tx.quizAttempt.findFirst({
+        where: { userId, id: { startsWith: demoId(profile.key) } },
+      });
+      const isInitialDemoRun = !existingDemoQuiz;
+      const baseExpToAdd = isInitialDemoRun ? (profile.baseExp ?? 0) : 0;
       const context: LearningContext = {
         user,
-        exp: user.exp,
+        exp: user.exp + baseExpToAdd,
         dates: [
           ...quizzes.map((attempt) => attempt.completedAt),
           ...cases.map((attempt) => attempt.attemptedAt),
@@ -192,6 +208,9 @@ export async function seedDemoLearning(
         const at = demoTime(now, step.daysAgo, user.createdAt);
         if (step.kind === "quiz") await seedQuizAttempt(tx, context, step, id, at);
         else await seedCaseAttempt(tx, context, step, id, at);
+      }
+      if (context.exp >= 300) {
+        await awardBadge(tx, context.user.id, now, "sentinel");
       }
       await tx.user.update({
         where: { id: userId },

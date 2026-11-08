@@ -55,7 +55,8 @@ COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=builder --chown=node:node /app/.tools/jadx ./.tools/jadx
 COPY --from=builder --chown=node:node /app/prisma ./prisma
-COPY --from=builder --chown=node:node /app/lib/prisma.ts ./lib/prisma.ts
+COPY --from=builder --chown=node:node /app/lib ./lib
+COPY --from=builder --chown=node:node /app/tsconfig.json ./tsconfig.json
 COPY --from=builder --chown=node:node /app/docker/app/migrate.sh ./docker/app/migrate.sh
 RUN mkdir -p .next/cache && chown -R node:node .next
 
