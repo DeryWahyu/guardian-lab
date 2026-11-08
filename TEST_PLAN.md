@@ -353,3 +353,13 @@ Prasyarat: persetujuan eksplisit untuk pemeriksaan build/typecheck/CI.
   - Komponen pemanggil seperti `ResultPresenter` dan `InvestigationView` yang memiliki opsi `presentation="dialog"` dapat meneruskan nilai `presentation` tanpa error kompilasi TypeScript TS2322.
   - Saat `presentation === "dialog"`, komponen menyesuaikan spacing dan batas tepi agar pas di dalam dialog tanpa border ganda.
   - Next.js production build (`next build`) berhasil melakukan type check tanpa kegagalan pada stage builder container.
+
+## Validasi Origin form dan kompatibilitas reverse proxy produksi: pemeriksaan tertunda
+
+Prasyarat: persetujuan eksplisit untuk pemeriksaan form/API/browser.
+
+- [ ] **ORIGIN-PROD-01: Validasi Origin form mutasi:**
+  - `rejectCrossOrigin` di `lib/auth/access.ts` memvalidasi Origin terhadap `NEXT_PUBLIC_APP_URL` saat aplikasi berada di belakang reverse proxy produksi (terminasi SSL).
+  - Permintaan form (POST/PUT/DELETE) dari situs yang sah tidak lagi ditolak dengan 403 "Permintaan berasal dari situs yang tidak diizinkan."
+  - Permintaan lintas situs dari domain asing tetap ditolak 403.
+  - Perilaku normalisasi loopback pada development lokal tetap berfungsi sesuai suite test.
