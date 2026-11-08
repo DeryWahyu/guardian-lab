@@ -18,7 +18,7 @@ export function InvestigationStatusPanel({
   presentation = "default",
 }: {
   record: Investigation;
-  presentation?: "default" | "workspace";
+  presentation?: "default" | "workspace" | "dialog";
 }) {
   const mode = useSearchParams().get("mode") === "geek" ? "geek" : "human";
   const pathname = usePathname();
@@ -27,7 +27,9 @@ export function InvestigationStatusPanel({
     <section
       aria-label="Status investigasi"
       className={cn(
-        "mx-auto max-w-4xl space-y-5 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8",
+        presentation === "dialog"
+          ? "space-y-3.5"
+          : "mx-auto max-w-4xl space-y-5 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8",
         presentation === "workspace" && workspace.workspaceResult,
       )}
     >

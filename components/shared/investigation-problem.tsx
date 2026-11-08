@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ResultError } from "@/components/landing/results/result-error";
-import { WorkspaceEmpty } from "@/components/workspace/workspace-state";
 import workspace from "@/components/workspace/workspace.module.css";
+import { WorkspaceEmpty } from "@/components/workspace/workspace-state";
 import type { LoadProblem } from "@/lib/investigations/client";
 import { AUTH_ROUTES, PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/lib/routes";
 
@@ -16,7 +16,7 @@ export function InvestigationProblem({
   onRetry: () => void;
   id?: string;
   returnTo?: string;
-  presentation?: "default" | "workspace";
+  presentation?: "default" | "workspace" | "dialog";
 }) {
   if (presentation === "workspace")
     return (
@@ -55,7 +55,7 @@ export function InvestigationProblem({
       </div>
     );
   return (
-    <div className="space-y-4">
+    <div className={presentation === "dialog" ? "space-y-3" : "space-y-4"}>
       <ResultError
         message={problem.message}
         title={

@@ -12,7 +12,7 @@ export function ApkStaticPanel({
   report: ApkStaticReport;
   mode: "human" | "geek";
   sha256?: string;
-  presentation?: "default" | "workspace";
+  presentation?: "default" | "workspace" | "dialog";
 }) {
   return (
     <section
