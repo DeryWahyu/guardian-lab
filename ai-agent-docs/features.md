@@ -151,6 +151,8 @@ Sumber: [lib/share-card/](../lib/share-card/) dan [komponen Act](../components/a
 
 ## Komunitas, latihan, dan peringkat
 
+- Detail Pelajari Kasus mengelompokkan snapshot, status/metadata dan latihan. Mode manusia/teknis serta pencarian bukti mengikuti query yang sama; bukti hanya berasal dari snapshot tersanitasi. Progres/peta soal menghitung pilihan yang terisi, bukan kebenaran. Soal dan hasil memakai komponen presentasi Belajar, sementara penilaian, UUID, revisi, kelulusan semua soal dan hadiah pertama tetap memakai layanan latihan kasus. Preview pengajuan serta moderasi admin mempertahankan presentasi default.
+
 - Pengajuan hanya menerima ID investigasi milik pengguna dan consent. Preview/snapshot disanitasi serta immutable setelah diajukan; perubahan sumber tidak mengubah bukti yang dimoderasi. `sourceRecordId` unik mencegah duplikasi.
 - Status `PENDING_REVIEW` diputuskan atomik satu kali menjadi `APPROVED`/`REJECTED`. Persetujuan memerlukan konfirmasi privasi; setiap keputusan memerlukan alasan. Admin tidak menyetujui pengajuan sendiri.
 - Pending/ditolak privat bagi pemilik/admin; anggota hanya membaca snapshot disetujui yang valid, tanpa identitas pengaju atau bukti mentah. Sumber dihapus menyembunyikan kasus, sementara snapshot tetap dapat ditinjau pemilik/admin; akun dihapus mengikuti cascade.
