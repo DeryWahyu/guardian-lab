@@ -7,16 +7,32 @@ import { DualModeToggle } from "@/components/shared/dual-mode-toggle";
 import { UrlModelNotice } from "@/components/shared/url-model-notice";
 import type { CommunityReport } from "@/lib/validations/community";
 import type { ThreatAnalysisResult } from "@/types/analysis";
+import { CommunityCaseReport } from "./community-case-report";
 
-export function CommunityReportView({ report }: { report: CommunityReport }) {
+export function CommunityReportView({
+  report,
+  presentation = "default",
+}: {
+  report: CommunityReport;
+  presentation?: "default" | "case";
+}) {
   const params = useSearchParams();
   const path = usePathname();
   function searchEvidence(value: string) {
     const next = new URLSearchParams(params.toString());
     if (value) next.set("evidence", value);
     else next.delete("evidence");
-    window.history.replaceState(null, "", `${path}?${next}`);
+    window.history.replaceState(null, "", `${path}${next.size ? `?${next}` : ""}`);
   }
+  if (presentation === "case")
+    return (
+      <CommunityCaseReport
+        report={report}
+        mode={params.get("mode") === "geek" ? "geek" : "human"}
+        search={params.get("evidence") ?? ""}
+        onSearchChange={searchEvidence}
+      />
+    );
   const result: ThreatAnalysisResult = {
     ...report,
     id: "community-snapshot",
